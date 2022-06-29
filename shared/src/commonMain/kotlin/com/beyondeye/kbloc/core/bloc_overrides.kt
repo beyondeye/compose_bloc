@@ -53,6 +53,8 @@ public abstract class BlocOverrides {
     
     public companion object {
         private const val _token = "_token" //=Object()
+        //TODO use instead CompositionLocal? see https://developer.android.com/jetpack/compose/compositionlocal
+        private val zoneOverrides = mutableMapOf<String,BlocOverrides?>()
         /** Returns the current [BlocOverrides] instance.
          * 
          *  This will return `null` if the current [Zone] does not contain
@@ -62,24 +64,29 @@ public abstract class BlocOverrides {
          *  * [BlocOverrides.runZoned] to provide [BlocOverrides] in a fresh [Zone].
         */
         public val current:BlocOverrides? get()  {
-            //  static BlocOverrides? get current => Zone.current[_token] as BlocOverrides?;
-            TODO()
+            //original code:  static BlocOverrides? get current => Zone.current[_token] as BlocOverrides?;
+            return  zoneOverrides[_token] as BlocOverrides?
         }
         /**
          * Runs [body] in a fresh [Zone] using the provided overrides.
          */
         public fun <R>runZoned(
+            blocObserver: BlocObserver<Any>?=null,
+            eventTransformer:EventTransformer<Any>?=null,
             body:()->R,
-            blocObserver: BlocObserver<Any>?,
-            eventTransformer:EventTransformer<Any>?
-        ) {
-            //final overrides = _BlocOverridesScope(blocObserver, eventTransformer);
-            //return _asyncRunZoned(body, zoneValues: {_token: overrides});
-            TODO()
+        ): R {
+            val overrides = _BlocOverridesScope(blocObserver, eventTransformer);
+            //original code: return _asyncRunZoned(body, zoneValues: {_token: overrides});
+            //TODO in the
+            val prev = zoneOverrides[_token]
+            zoneOverrides[_token]=overrides
+            val res= body()
+            zoneOverrides[_token]=prev
+            return res
         }
     }
 }
-private class _BlocOVerridesScope(
+private class _BlocOverridesScope(
     val _blocObserver: BlocObserver<Any>?,
     val _eventTransformer: EventTransformer<Any>?
 ) : BlocOverrides() {

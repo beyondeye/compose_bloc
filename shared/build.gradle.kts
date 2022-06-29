@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.ir.backend.js.compile
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -31,10 +33,16 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                //https://github.com/mockk/mockk/releases
+                implementation ("io.mockk:mockk-common:1.12.4")
             }
         }
         val androidMain by getting
-        val androidTest by getting
+        val androidTest by getting {
+            dependencies {
+                implementation("io.mockk:mockk:1.12.4")
+            }
+        }
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting

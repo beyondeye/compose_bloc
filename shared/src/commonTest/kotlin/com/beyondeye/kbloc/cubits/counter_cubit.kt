@@ -5,8 +5,8 @@ import com.beyondeye.kbloc.core.Cubit
 import kotlinx.coroutines.GlobalScope
 
 class CounterCubit(
-    val onChangeCallback:((Change<Int>)->Unit)?,
-    val onErrorCallback:((Throwable)->Unit)?
+    val onChangeCallback:((Change<Int>)->Unit)?=null,
+    val onErrorCallback:((Throwable)->Unit)?=null
 ) :Cubit<Int>(0,GlobalScope,false) {
     fun increment() {
         emit(state+1)

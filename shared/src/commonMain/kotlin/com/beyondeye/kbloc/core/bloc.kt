@@ -268,7 +268,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
  *  opinionated set of event transformers.
  *
  */
-public inline fun <Event : Any, State : Any,reified E:Event>  Bloc<Event,State>.on(noinline handler:EventHandler<E,State>,noinline transformer:EventTransformer<E>?) {
+public inline fun <reified E:Event,Event : Any, State : Any>  Bloc<Event,State>.on(noinline handler:EventHandler<E,State>,noinline transformer:EventTransformer<E>?=null) {
     val eventType = E::class
     val handlerExists = _handlers.find { it.type == eventType } != null
     if (handlerExists) {

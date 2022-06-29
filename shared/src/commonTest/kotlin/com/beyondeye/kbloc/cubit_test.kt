@@ -2,6 +2,7 @@ package com.beyondeye.kbloc
 
 import com.beyondeye.kbloc.core.*
 import com.beyondeye.kbloc.cubits.CounterCubit
+import com.beyondeye.kbloc.cubits.FakeAsyncCounterCubit
 import com.beyondeye.kbloc.cubits.SeededCubit
 import io.mockk.*
 import kotlinx.coroutines.GlobalScope
@@ -14,7 +15,9 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
 class MockBlocObserver<T:Any> : BlocObserver<T> {}
-//class FakeBlocBase<T:Any>: BlocBase<T>() {}
+//class FakeBlocBase<T:Any>: BlocBase<T>(Any) {}
+//class FakeChange<S> : Change<S>() {}
+
 
 class CubitTests {
     @BeforeTest
@@ -220,94 +223,103 @@ class CubitTests {
         //note that in the original test the expected states where listOf(1,2,3) TODO: check if I should change something in code implementation
         assertTrue { states.isEmpty() }
     }
+    @Test
+    fun receive_single_async_state() = runTest(UnconfinedTestDispatcher()) {
+        val states= mutableListOf<Int>()
+        val cubit = FakeAsyncCounterCubit(0)
+        val subscription = launch {
+            cubit.stream.collect {
+                states.add(it)
+            }
+        }
+        cubit.increment()
+        cubit.close()
+        subscription.cancel()
+        println(states)
+        //TODO: in original bloc code, FakeAsyncCounterCubit has no initial state so that the list of received state is listOf(1)
+        assertContentEquals(listOf(0,1),states)
+    }
 
+    @Test
+    fun receive_multiple_async_states() = runTest(UnconfinedTestDispatcher()) {
+        val states= mutableListOf<Int>()
+        val cubit = FakeAsyncCounterCubit(0)
+        val subscription = launch {
+            cubit.stream.collect {
+                states.add(it)
+            }
+        }
+        cubit.increment()
+        cubit.increment()
+        cubit.increment()
+        cubit.close()
+        subscription.cancel()
+        println(states)
+        //TODO: in original bloc code, FakeAsyncCounterCubit has no initial state so that the list of received state is listOf(1,2,3)
+        assertContentEquals(listOf(0,1,2,3),states)
+    }
+
+    @Test
+    fun can_call_listen_multiple_times() = runTest(UnconfinedTestDispatcher()) {
+        val states= mutableListOf<Int>()
+        val cubit = CounterCubit()
+        val subscription1 = launch {
+            cubit.stream.collect {
+                states.add(it)
+            }
+        }
+        val subscription2 = launch {
+            cubit.stream.collect {
+                states.add(it)
+            }
+        }
+        cubit.increment()
+
+        cubit.close()
+        subscription1.cancel()
+        subscription2.cancel()
+        println(states)
+        //TODO: in original bloc code, CounterCubit has no initial state so that the list of received state is listOf(1,1)
+        assertContentEquals(listOf(0,0,1,1),states)
+    }
+    @Test
+    fun triggers_onClose_on_observer() {
+        val observer = spyk<MockBlocObserver<Any>>()
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runBlocking {
+                val cubit = CounterCubit()
+                cubit.close()
+                verify(exactly = 1) { observer.onClose(cubit as BlocBase<Any>) }
+            }
+        }
+    }
+    @Test
+    fun emits_done_sync() {
+        val cubit=CounterCubit()
+        runBlocking {
+            cubit.close()
+        }
+        //TODO in the original code it is possible to receive the complete() stream status. it is not
+        // currently possible in kotlin because SharedFlow never completes: perhaps reimplement it wrapping it in a completable flow
+        //original code:        expect(cubit.stream, emitsDone);
+        assertTrue { cubit.isClosed }
+    }
+
+    @Test
+    fun emits_done_async()= runTest(UnconfinedTestDispatcher()) {
+        val cubit=CounterCubit()
+        cubit.close()
+        //TODO in the original code it is possible to receive the complete() stream status. it is not
+        // currently possible in kotlin because SharedFlow never completes: perhaps reimplement it wrapping it in a completable flow
+        //original code:        expect(cubit.stream, emitsDone);
+        assertTrue { cubit.isClosed }
+    }
+
+    @Test
+    fun returns_true_after_cubit_is_closed()= runTest(UnconfinedTestDispatcher()) {
+        val cubit=CounterCubit()
+        assertFalse { cubit.isClosed }
+        cubit.close()
+        assertTrue { cubit.isClosed }
+    }
 }
-
-/*
-class MockBlocObserver extends Mock implements BlocObserver {}
-class FakeBlocBase<S> extends Fake implements BlocBase<S> {}
-class FakeChange<S> extends Fake implements Change<S> {}
-
-void main() {
-  group('Cubit', () {
-
-
-    group('listen', () {
-
-
-      test('does not receive current state upon subscribing', () async {
-        final states = <int>[];
-        final cubit = CounterCubit()..stream.listen(states.add);
-        await cubit.close();
-        expect(states, isEmpty);
-      });
-
-      test('receives single async state', () async {
-        final states = <int>[];
-        final cubit = FakeAsyncCounterCubit()..stream.listen(states.add);
-        await cubit.increment();
-        await cubit.close();
-        expect(states, [equals(1)]);
-      });
-
-      test('receives multiple async states', () async {
-        final states = <int>[];
-        final cubit = FakeAsyncCounterCubit()..stream.listen(states.add);
-        await cubit.increment();
-        await cubit.increment();
-        await cubit.increment();
-        await cubit.close();
-        expect(states, [equals(1), equals(2), equals(3)]);
-      });
-
-      test('can call listen multiple times', () async {
-        final states = <int>[];
-        final cubit = CounterCubit()
-          ..stream.listen(states.add)
-          ..stream.listen(states.add)
-          ..increment();
-        await cubit.close();
-        expect(states, [equals(1), equals(1)]);
-      });
-    });
-
-    group('close', () {
-      late MockBlocObserver observer;
-
-      setUp(() {
-        observer = MockBlocObserver();
-      });
-
-      test('triggers onClose on observer', () async {
-        await BlocOverrides.runZoned(() async {
-          final cubit = CounterCubit();
-          await cubit.close();
-          // ignore: invalid_use_of_protected_member
-          verify(() => observer.onClose(cubit)).called(1);
-        }, blocObserver: observer);
-      });
-
-      test('emits done (sync)', () {
-        final cubit = CounterCubit()..close();
-        expect(cubit.stream, emitsDone);
-      });
-
-      test('emits done (async)', () async {
-        final cubit = CounterCubit();
-        await cubit.close();
-        expect(cubit.stream, emitsDone);
-      });
-    });
-
-    group('isClosed', () {
-      test('returns true after cubit is closed', () async {
-        final cubit = CounterCubit();
-        expect(cubit.isClosed, isFalse);
-        await cubit.close();
-        expect(cubit.isClosed, isTrue);
-      });
-    });
-  });
-}
-
- */

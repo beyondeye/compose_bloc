@@ -235,80 +235,80 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
             //if (!controller.isClosed) controller.close()
         }
     }
+    /** Register event handler for an event of type `E`.
+     *  There should only ever be one event handler per event type `E`.
+     *
+     *  ```dart
+     *  abstract class CounterEvent {}
+     *  class CounterIncrementPressed extends CounterEvent {}
+     *
+     *  class CounterBloc extends Bloc<CounterEvent, int> {
+     *    CounterBloc() : super(0) {
+     *      on<CounterIncrementPressed>((event, emit) => emit(state + 1));
+     *    }
+     *  }
+     *  ```
+     *
+     *  * A [StateError] will be thrown if there are multiple event handlers
+     *  registered for the same type `E`.
+     *
+     *  By default, events will be processed concurrently.
+     *
+     *  See also:
+     *
+     *  * [EventTransformer] to customize how events are processed.
+     *  * [package:bloc_concurrency](https://pub.dev/packages/bloc_concurrency) for an
+     *  opinionated set of event transformers.
+     *
+     */
+    public inline fun <reified E:Event>  on(noinline transformer:EventTransformer<E>?=null,noinline handler:EventHandler<E,State>) {
+        val eventType = E::class
+        val handlerExists = _handlers.find { it.type == eventType } != null
+        if (handlerExists) {
+            throw Exception(
+                "on<$eventType> was called multiple times. There should only be a single event handler per event type."
+            )
+        }
+        _handlers.add(_Handler<E>({ e -> e is E},eventType))
+
+        val _transformer= transformer ?: _eventTransformer
+
+        val filtered_events_flow=_eventController.transform { if(it is E) emit(it as E)  }
+        val transformed_filtered_events_flow = _transformer(filtered_events_flow,
+            {event:Any->
+                //wrap Bloc.emit() method, in order to force call to onTransition callback
+                val emitter = _Emitter({ newState:State->
+                    //local method void onEmit(State state) in original bloc.dart  code
+                    if(isClosed) return@_Emitter
+                    val curState=this.state
+                    val notchanged = if(_useReferenceEqualityForStateChanges) curState===newState else curState==newState
+                    //TODO: currently the behavior of the stream of states is different from dart implementation: in dart the initial state
+                    //   is optional, in kotlin an initial state is required: I suspect that this difference also means that the logic here that
+                    //   make use of the _emitted flag is no more needed: need to decide on this
+                    if(notchanged && _emitted) return@_Emitter
+                    onTransition(Transition(curState,event as Event,newState))
+                    emit(newState)
+                })
+                // https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/callback-flow.html
+                // The resulting flow completes as soon as the code in the block completes.
+                // awaitClose should be used to keep the flow running, otherwise the channel will be closed immediately when block completes
+                val controller = callbackFlow<E> {
+                    handleEvent(handler as EventHandler<Event, State>, event as Event,emitter)
+                }
+                controller
+            })
+
+        //TODO: does it make sense to use _cscope_stateUpdate here?
+        val subscription=
+            _cscope_stateUpdate.launch { transformed_filtered_events_flow.cancellable().collect() }
+
+
+        _subscriptions.add(subscription)
+    }
     internal companion object {
         @PublishedApi
         internal const val CHECK_IF_EVENT_HANDLER_REGISTERED:Boolean=false
         private const val EVENT_BUFFER_CAPACITY:Int=100
     }
-}
-
-/** Register event handler for an event of type `E`.
- *  There should only ever be one event handler per event type `E`.
- *
- *  ```dart
- *  abstract class CounterEvent {}
- *  class CounterIncrementPressed extends CounterEvent {}
- *
- *  class CounterBloc extends Bloc<CounterEvent, int> {
- *    CounterBloc() : super(0) {
- *      on<CounterIncrementPressed>((event, emit) => emit(state + 1));
- *    }
- *  }
- *  ```
- *
- *  * A [StateError] will be thrown if there are multiple event handlers
- *  registered for the same type `E`.
- *
- *  By default, events will be processed concurrently.
- *
- *  See also:
- *
- *  * [EventTransformer] to customize how events are processed.
- *  * [package:bloc_concurrency](https://pub.dev/packages/bloc_concurrency) for an
- *  opinionated set of event transformers.
- *
- */
-public inline fun <reified E:Event,Event : Any, State : Any>  Bloc<Event,State>.on(noinline handler:EventHandler<E,State>,noinline transformer:EventTransformer<E>?=null) {
-    val eventType = E::class
-    val handlerExists = _handlers.find { it.type == eventType } != null
-    if (handlerExists) {
-        throw Exception(
-            "on<$eventType> was called multiple times. There should only be a single event handler per event type."
-        )
-    }
-    _handlers.add(_Handler<E>({ e -> e is E},eventType))
-
-    val _transformer= transformer ?: _eventTransformer
-
-    val filtered_events_flow=_eventController.transform { if(it is E) emit(it as E)  }
-    val transformed_filtered_events_flow = _transformer(filtered_events_flow,
-        {event:Any->
-            val emitter = _Emitter({ newState:State->
-                //local method void onEmit(State state) in original bloc.dart  code
-                if(isClosed) return@_Emitter
-                val curState=this.state
-                val notchanged = if(_useReferenceEqualityForStateChanges) curState===newState else curState==newState
-                //TODO: currently the behavior of the stream of states is different from dart implementation: in dart the initial state
-                //   is optional, in kotlin an initial state is required: I suspect that this difference also means that the logic here that
-                //   make use of the _emitted flag is no more needed: need to decide on this
-                if(notchanged && _emitted) return@_Emitter
-                onTransition(Transition(curState,event as Event,newState))
-                emit(newState)
-            })
-            // https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/callback-flow.html
-            // The resulting flow completes as soon as the code in the block completes.
-            // awaitClose should be used to keep the flow running, otherwise the channel will be closed immediately when block completes
-            val controller = callbackFlow<E> {
-                handleEvent(handler as EventHandler<Event, State>, event as Event,emitter)
-            }
-            controller
-    })
-
-    //TODO: does it make sense to use _cscope_stateUpdate here?
-    val subscription=
-        _cscope_stateUpdate.launch { transformed_filtered_events_flow.cancellable().collect() }
-
-
-    _subscriptions.add(subscription)
 }
 

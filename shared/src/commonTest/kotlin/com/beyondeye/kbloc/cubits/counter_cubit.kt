@@ -2,7 +2,6 @@ package com.beyondeye.kbloc.cubits
 
 import com.beyondeye.kbloc.core.Change
 import com.beyondeye.kbloc.core.Cubit
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 
 class CounterCubit(

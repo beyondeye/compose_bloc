@@ -25,7 +25,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 //https://github.com/Kotlin/kotlinx.coroutines/releases
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
             }
         }
         val commonTest by getting {

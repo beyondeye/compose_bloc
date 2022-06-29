@@ -203,7 +203,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
      * 
     */
     @MustCallSuper
-    protected fun onChange(change:Change<State>) {
+    protected open fun onChange(change:Change<State>) {
         // ignore: invalid_use_of_protected_member
         _blocObserver?.onChange(this as BlocBase<Any>, change as Change<Any>)
     }
@@ -232,7 +232,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
      *  ```
     */
     @MustCallSuper
-    protected fun onError(error:Throwable) {
+    protected open fun onError(error:Throwable) {
         // ignore: invalid_use_of_protected_member
         _blocObserver?.onError(this as BlocBase<Any>,error)
     }

@@ -3,47 +3,95 @@ package com.beyondeye.kbloc
 import com.beyondeye.kbloc.core.*
 import com.beyondeye.kbloc.cubits.CounterCubit
 import io.mockk.*
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
+import kotlin.test.*
 
 class MockBlocObserver<T:Any> : BlocObserver<T> {}
+//class FakeBlocBase<T:Any>: BlocBase<T>() {}
 
 class CubitTests {
     @BeforeTest
     //see https://sonique6784.medium.com/pure-kotlin-unit-testing-mocking-part-2-e13857014ea6
     fun setUp() = MockKAnnotations.init(this, relaxUnitFun = true)
+
     @Test
     fun constructor_triggers_onCreate_on_observer() {
-        val observer= spyk<MockBlocObserver<Any>>()
+        val observer = spyk<MockBlocObserver<Any>>()
         BlocOverrides.runZoned(blocObserver = observer) {
             val cubit = CounterCubit()
             //see https://mockk.io/#verification-atleast-atmost-or-exactly-times
-            verify(exactly =1) { observer.onCreate(cubit as BlocBase<Any>) }
+            verify(exactly = 1) { observer.onCreate(cubit as BlocBase<Any>) }
         }
     }
+
     @Test
     fun initial_state_is_correct() {
-        val cubit=CounterCubit()
-        assertEquals(0,cubit.state)
+        val cubit = CounterCubit()
+        assertEquals(0, cubit.state)
     }
 
     @Test
     fun addError_triggers_onError() {
-        val observer= spyk<MockBlocObserver<Any>>()
-        val expectedError= Exception("fatal exception")
-        val errors= mutableListOf<Throwable>()
+        val observer = spyk<MockBlocObserver<Any>>()
+        val expectedError = Exception("fatal exception")
+        val errors = mutableListOf<Throwable>()
         BlocOverrides.runZoned(blocObserver = observer) {
-            val cubit = CounterCubit(onErrorCallback = {e-> errors.add(e)})
+            val cubit = CounterCubit(onErrorCallback = { e -> errors.add(e) })
             cubit.addError(expectedError)
 
-            assertEquals(1,errors.size)
-            assertEquals(expectedError,errors[0])
-            verify(exactly =1) { observer.onError(cubit as BlocBase<Any>,expectedError) }
+            assertEquals(1, errors.size)
+            assertEquals(expectedError, errors[0])
+            verify(exactly = 1) { observer.onError(cubit as BlocBase<Any>, expectedError) }
         }
-
     }
+
+    @Test
+    fun onChange_is_not_called_for_the_initial_state() {
+        val observer = spyk<MockBlocObserver<Any>>()
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runBlocking {
+                val changes = mutableListOf<Change<Any>>()
+                val cubit = CounterCubit(onChangeCallback = { changes.add(it as Change<Any>) })
+                cubit.close()
+                assertEquals(0, changes.size)
+                verify(exactly = 0) { observer.onChange(allAny(), allAny()) }
+            }
+        }
+    }
+
+    @Test
+    fun onChange_is_called_with_correct_change_for_a_single_state_change() {
+        val observer = spyk<MockBlocObserver<Any>>()
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runBlocking {
+                val changes = mutableListOf<Change<Any>>()
+                val cubit = CounterCubit(onChangeCallback = { changes.add(it as Change<Any>) })
+                cubit.increment()
+                cubit.close()
+                assertEquals(1, changes.size)
+                verify(exactly = 1) { observer.onChange(cubit as BlocBase<Any>, Change(0, 1)) }
+            }
+        }
+    }
+    @Test
+    fun onChange_is_called_with_correct_changes_for_multiple_state_changes() {
+        val observer = spyk<MockBlocObserver<Any>>()
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runBlocking {
+                val changes = mutableListOf<Change<Int>>()
+                val cubit = CounterCubit(onChangeCallback = { changes.add(it) })
+                cubit.increment()
+                cubit.increment()
+                cubit.close()
+                assertContentEquals(
+                    mutableListOf(Change(0,1), Change(1,2)),
+                    changes)
+                verify(exactly = 1) { observer.onChange(cubit as BlocBase<Any>, Change(0, 1)) }
+                verify(exactly = 1) { observer.onChange(cubit as BlocBase<Any>, Change(1, 2)) }
+            }
+        }
+    }
+
 }
 
 /*
@@ -54,83 +102,6 @@ class FakeChange<S> extends Fake implements Change<S> {}
 void main() {
   group('Cubit', () {
 
-
-
-    group('onChange', () {
-      late BlocObserver observer;
-
-      setUpAll(() {
-        registerFallbackValue(FakeBlocBase<dynamic>());
-        registerFallbackValue(FakeChange<dynamic>());
-      });
-
-      setUp(() {
-        observer = MockBlocObserver();
-      });
-
-      test('is not called for the initial state', () async {
-        await BlocOverrides.runZoned(() async {
-          final changes = <Change<int>>[];
-          final cubit = CounterCubit(onChangeCallback: changes.add);
-          await cubit.close();
-          expect(changes, isEmpty);
-          // ignore: invalid_use_of_protected_member
-          verifyNever(() => observer.onChange(any(), any()));
-        }, blocObserver: observer);
-      });
-
-      test('is called with correct change for a single state change', () async {
-        await BlocOverrides.runZoned(() async {
-          final changes = <Change<int>>[];
-          final cubit = CounterCubit(onChangeCallback: changes.add)
-            ..increment();
-          await cubit.close();
-          expect(
-            changes,
-            const [Change<int>(currentState: 0, nextState: 1)],
-          );
-          verify(
-            // ignore: invalid_use_of_protected_member
-            () => observer.onChange(
-              cubit,
-              const Change<int>(currentState: 0, nextState: 1),
-            ),
-          ).called(1);
-        }, blocObserver: observer);
-      });
-
-      test('is called with correct changes for multiple state changes',
-          () async {
-        await BlocOverrides.runZoned(() async {
-          final changes = <Change<int>>[];
-          final cubit = CounterCubit(onChangeCallback: changes.add)
-            ..increment()
-            ..increment();
-          await cubit.close();
-          expect(
-            changes,
-            const [
-              Change<int>(currentState: 0, nextState: 1),
-              Change<int>(currentState: 1, nextState: 2),
-            ],
-          );
-          verify(
-            // ignore: invalid_use_of_protected_member
-            () => observer.onChange(
-              cubit,
-              const Change<int>(currentState: 0, nextState: 1),
-            ),
-          ).called(1);
-          verify(
-            // ignore: invalid_use_of_protected_member
-            () => observer.onChange(
-              cubit,
-              const Change<int>(currentState: 1, nextState: 2),
-            ),
-          ).called(1);
-        }, blocObserver: observer);
-      });
-    });
 
     group('emit', () {
       test('throws StateError if cubit is closed', () {

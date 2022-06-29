@@ -35,6 +35,9 @@ kotlin {
                 implementation(kotlin("test"))
                 //https://github.com/mockk/mockk/releases
                 implementation ("io.mockk:mockk-common:1.12.4")
+                //see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-test/index.html
+                //sse https://developer.android.com/kotlin/coroutines/test#testdispatchers
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3")
             }
         }
         val androidMain by getting

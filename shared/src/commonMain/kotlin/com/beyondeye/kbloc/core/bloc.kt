@@ -288,6 +288,9 @@ public inline fun <Event : Any, State : Any,reified E:Event>  Bloc<Event,State>.
                 if(isClosed) return@_Emitter
                 val curState=this.state
                 val notchanged = if(_useReferenceEqualityForStateChanges) curState===newState else curState==newState
+                //TODO: currently the behavior of the stream of states is different from dart implementation: in dart the initial state
+                //   is optional, in kotlin an initial state is required: I suspect that this difference also means that the logic here that
+                //   make use of the _emitted flag is no more needed: need to decide on this
                 if(notchanged && _emitted) return@_Emitter
                 onTransition(Transition(curState,event as Event,newState))
                 emit(newState)

@@ -6,6 +6,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 
+class StateError(msg:String):Exception(msg)
+
 /**
  * An object that provides access to a stream of states over time.
  */
@@ -139,13 +141,16 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
         runBlocking {
             try {
                 if (isClosed) {
-                    throw Exception("Cannot emit new states after calling close")
+                    throw StateError("Cannot emit new states after calling close")
                 }
                 //TODO: using equal here is expensive: perhaps remove it?
                 val curStateDeferred = _stateController.value
                 val updatedState=_stateController.queueStateUpdate({state},_useReferenceEqualityForStateChanges).await()
                 val curState=curStateDeferred.await()
                 val notchanged = if(_useReferenceEqualityForStateChanges) curState===updatedState else curState==updatedState
+                //TODO: currently the behavior of the stream of states is different from dart implementation: in dart the initial state
+                //   is optional, in kotlin an initial state is required: I suspect that this difference also means that the logic here that
+                //   make use of the _emitted flag is no more needed: need to decide on this
                 if(notchanged && _emitted) return@runBlocking
                 onChange(Change(curState, updatedState))
                 _emitted = true
@@ -162,13 +167,16 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
            val updatedState:State
             try {
                 if (isClosed) {
-                    throw Exception("Cannot emit new states after calling close")
+                    throw StateError("Cannot emit new states after calling close")
                 }
                 //TODO: using equal here is expensive: perhaps remove it?
                 val curStateDeferred = _stateController.value
                 updatedState=_stateController.queueStateUpdate(stateUpdateFun,_useReferenceEqualityForStateChanges).await()
                 val curState=curStateDeferred.await()
                 val notchanged = if(_useReferenceEqualityForStateChanges) curState===updatedState else curState==updatedState
+                //TODO: currently the behavior of the stream of states is different from dart implementation: in dart the initial state
+                //   is optional, in kotlin an initial state is required: I suspect that this difference also means that the logic here that
+                //   make use of the _emitted flag is no more needed: need to decide on this
                 if(notchanged && _emitted) return@async curState
                 onChange(Change(curState, updatedState))
                 _emitted = true

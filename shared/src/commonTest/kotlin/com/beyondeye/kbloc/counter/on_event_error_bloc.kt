@@ -1,22 +1,19 @@
 package com.beyondeye.kbloc.counter
 
-/*
-import 'package:bloc/bloc.dart';
+import com.beyondeye.kbloc.core.Bloc
+import com.beyondeye.kbloc.core.Emitter
+import kotlinx.coroutines.CoroutineScope
 
-import '../counter/counter_bloc.dart';
+class OnEventErrorBloc(cscope: CoroutineScope,
+                  val exception: Exception,
+) : Bloc<CounterEvent, Int>(cscope, 0) {
+    init {
+        on<CounterEvent> { _,_-> }
+    }
 
-class OnEventErrorBloc extends Bloc<CounterEvent, int> {
-  OnEventErrorBloc({required this.exception}) : super(0) {
-    on<CounterEvent>((_, __) {});
-  }
-
-  final Exception exception;
-
-  @override
-  // ignore: must_call_super
-  void onEvent(CounterEvent event) {
-    throw exception;
-  }
+    override fun onEvent(event: CounterEvent) {
+        throw exception
+        //not calling super intentionally! in any case it will be ignored because we throw exception
+        //super.onEvent(event)
+    }
 }
-
- */

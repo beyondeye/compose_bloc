@@ -1,57 +1,75 @@
-package com.beyondeye.kbloc/*
-import 'dart:async';
+package com.beyondeye.kbloc
 
-import 'package:bloc/bloc.dart';
-import 'package:test/test.dart';
+import com.beyondeye.kbloc.core.Bloc
+import com.beyondeye.kbloc.core.Emitter
+import com.beyondeye.kbloc.core.StateError
+import io.mockk.MockKAnnotations
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
-abstract class TestEvent {}
 
-class TestEventA extends TestEvent {}
+interface TestEvent
 
-class TestEventAA extends TestEventA {}
 
-class TestEventB extends TestEvent {}
+open class TestEventA : TestEvent {}
 
-class TestEventBA extends TestEventB {}
+open class TestEventAA : TestEventA() {}
 
-class TestState {}
+open class TestEventB : TestEvent {}
 
-typedef OnEvent<E, S> = void Function(E event, Emitter<S> emit);
+class TestEventBA : TestEventB() {}
 
-void defaultOnEvent<E, S>(E event, Emitter<S> emit) {}
+class TestState
 
-class TestBloc extends Bloc<TestEvent, TestState> {
-  TestBloc({
-    this.onTestEvent,
-    this.onTestEventA,
-    this.onTestEventB,
-    this.onTestEventAA,
-    this.onTestEventBA,
-  }) : super(TestState()) {
-    on<TestEventA>(onTestEventA ?? defaultOnEvent);
-    on<TestEventB>(onTestEventB ?? defaultOnEvent);
-    on<TestEventAA>(onTestEventAA ?? defaultOnEvent);
-    on<TestEventBA>(onTestEventBA ?? defaultOnEvent);
-    on<TestEvent>(onTestEvent ?? defaultOnEvent);
-  }
+typealias onEvent<E,S> = (event:E, emit: Emitter<S>) -> Unit
 
-  final OnEvent<TestEvent, TestState>? onTestEvent;
-  final OnEvent<TestEventA, TestState>? onTestEventA;
-  final OnEvent<TestEventAA, TestState>? onTestEventAA;
-  final OnEvent<TestEventB, TestState>? onTestEventB;
-  final OnEvent<TestEventBA, TestState>? onTestEventBA;
+fun <E,S> defaultOnEvent(event:Any, emit:Emitter<Any>)  {   }
+
+class TestBloc(cscope:CoroutineScope,
+               val onTestEvent :onEvent<TestEvent,TestState> = { _,_ -> },
+               val onTestEventA :onEvent<TestEventA,TestState> = { _,_ -> },
+               val onTestEventB :onEvent<TestEventB,TestState> = { _,_ -> },
+               val onTestEventAA :onEvent<TestEventAA,TestState> = { _,_ -> },
+               val onTestEventBA :onEvent<TestEventBA,TestState> = { _,_ -> },
+
+) : Bloc<TestEvent, TestState>(cscope, TestState())
+{
+    init {
+        on<TestEventA>(handler = onTestEventA)
+        on<TestEventB>(handler = onTestEventB)
+        on<TestEventAA>(handler = onTestEventAA)
+        on<TestEventBA>(handler = onTestEventBA)
+        on<TestEvent>(handler = onTestEvent)
+    }
+}
+class DuplicateHandlerBloc(cscope: CoroutineScope) : Bloc<TestEvent,TestState>(cscope, TestState()) {
+    init {
+        on<TestEvent> {_,_-> }
+        on<TestEvent> {_,_-> }
+    }
 }
 
-class DuplicateHandlerBloc extends Bloc<TestEvent, TestState> {
-  DuplicateHandlerBloc() : super(TestState()) {
-    on<TestEvent>(defaultOnEvent);
-    on<TestEvent>(defaultOnEvent);
-  }
-}
+class MissingHandlerBloc(cscope: CoroutineScope) : Bloc<TestEvent,TestState>(cscope, TestState()) {
+    init {
 
-class MissingHandlerBloc extends Bloc<TestEvent, TestState> {
-  MissingHandlerBloc() : super(TestState());
+    }
 }
+class BlocOnTest {
+    @BeforeTest
+    //see https://sonique6784.medium.com/pure-kotlin-unit-testing-mocking-part-2-e13857014ea6
+    fun setUp() = MockKAnnotations.init(this, relaxUnitFun = true)
+
+    @Test
+    fun onEvent_throws_StateError_when_handler_is_registered_more_than_once()
+    {
+        assertFailsWith<StateError>(Bloc.getEventMultipleRegistrationErrorMessage(TestEvent::class)) { DuplicateHandlerBloc(GlobalScope)  }
+    }
+}
+/*
+
 
 void main() {
   group('on<Event>', () {

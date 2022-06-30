@@ -1,69 +1,53 @@
+
 package com.beyondeye.kbloc.complex
 
-/*
-part of 'complex_bloc.dart';
-
-@immutable
+//@immutable
 abstract class ComplexEvent {}
 
-class ComplexEventA extends ComplexEvent {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexEventA && runtimeType == other.runtimeType;
+class ComplexEventA:ComplexEvent() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => 0;
+    override fun hashCode(): Int {
+        return 0
+    }
 }
 
-class ComplexEventB extends ComplexEvent {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexEventB && runtimeType == other.runtimeType;
+class ComplexEventB:ComplexEvent() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => 1;
+    override fun hashCode(): Int {
+        return 1
+    }
 }
 
-class ComplexEventC extends ComplexEvent {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexEventC && runtimeType == other.runtimeType;
+class ComplexEventC:ComplexEvent() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => 2;
+    override fun hashCode(): Int {
+        return 2
+    }
 }
 
-class ComplexEventD extends ComplexEvent {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexEventD && runtimeType == other.runtimeType;
+class ComplexEventD:ComplexEvent() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => 3;
+    override fun hashCode(): Int {
+        return 3
+    }
 }
-
- */

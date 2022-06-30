@@ -1,25 +1,17 @@
 package com.beyondeye.kbloc.async
 
-/*
-part of 'async_bloc.dart';
-
-@immutable
 class AsyncEvent {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is AsyncEvent && runtimeType == other.runtimeType;
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
+    override fun hashCode(): Int {
+        return this::class.hashCode()
+    }
 
-  @override
-  String toString() => 'AsyncEvent';
+    override fun toString(): String {
+        return "AsyncEvent"
+    }
 }
-
- */

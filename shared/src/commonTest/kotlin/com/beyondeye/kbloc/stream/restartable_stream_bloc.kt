@@ -1,170 +1,148 @@
 package com.beyondeye.kbloc.stream
 
-/*
-import 'dart:async';
+import com.beyondeye.kbloc.core.Bloc
+import com.beyondeye.kbloc.core.await
+import com.beyondeye.kbloc.core.catchError
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.switchMap
 
-import 'package:bloc/bloc.dart';
-import 'package:stream_transform/stream_transform.dart';
 
-abstract class RestartableStreamEvent {}
+interface RestartableStreamEvent
 
-class ForEach extends RestartableStreamEvent {}
+class ForEach : RestartableStreamEvent
 
-class ForEachOnError extends RestartableStreamEvent {}
+class ForEachOnError:RestartableStreamEvent
 
-class ForEachTryCatch extends RestartableStreamEvent {}
+class ForEachTryCatch :RestartableStreamEvent
 
-class ForEachCatchError extends RestartableStreamEvent {}
+class ForEachCatchError :RestartableStreamEvent
 
-class UnawaitedForEach extends RestartableStreamEvent {}
+class UnawaitedForEach :RestartableStreamEvent
 
-class OnEach extends RestartableStreamEvent {}
+class OnEach :RestartableStreamEvent
 
-class OnEachOnError extends RestartableStreamEvent {}
+class OnEachOnError :RestartableStreamEvent
 
-class OnEachTryCatch extends RestartableStreamEvent {}
+class OnEachTryCatch :RestartableStreamEvent
 
-class OnEachTryCatchAbort extends RestartableStreamEvent {}
+class OnEachTryCatchAbort :RestartableStreamEvent
 
-class OnEachCatchError extends RestartableStreamEvent {}
+class OnEachCatchError :RestartableStreamEvent
 
-class UnawaitedOnEach extends RestartableStreamEvent {}
+class UnawaitedOnEach :RestartableStreamEvent
 
-const _delay = Duration(milliseconds: 100);
+const val _delay_msecs= 100L
 
-class RestartableStreamBloc extends Bloc<RestartableStreamEvent, int> {
-  RestartableStreamBloc(Stream<int> stream) : super(0) {
-    on<ForEach>(
-      (_, emit) async {
-        await emit.forEach<int>(
-          stream,
-          onData: (i) => i,
-        );
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<ForEachOnError>(
-      (_, emit) async {
-        try {
-          await emit.forEach<int>(
-            stream,
-            onData: (i) => i,
-            onError: (_, __) => -1,
-          );
-        } catch (_) {
-          emit(-1);
+class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent,Int>(cscope,0) {
+    init {
+        //    message = "Flow analogues of 'switchMap' are 'transformLatest', 'flatMapLatest' and 'mapLatest'",
+        on<ForEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.forEach( stream, onData =  {it }).await()
         }
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<ForEachTryCatch>(
-      (_, emit) async {
-        try {
-          await emit.forEach<int>(
-            stream,
-            onData: (i) => i,
-          );
-        } catch (_) {
-          emit(-1);
+        on<ForEachOnError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            try {
+                emit.forEach( stream, onData =  {it }, onError = {_-> -1}).await()
+            }
+            catch (e:Throwable) {
+                emit(-1)
+            }
         }
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<ForEachCatchError>(
-      (_, emit) => emit
-          .forEach<int>(
-            stream,
-            onData: (i) => i,
-          )
-          .catchError((dynamic _) => emit(-1)),
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<UnawaitedForEach>(
-      (_, emit) {
-        emit.forEach<int>(
-          stream,
-          onData: (i) => i,
-        );
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<OnEach>(
-      (_, emit) async {
-        await emit.onEach<int>(
-          stream,
-          onData: (i) => Future<void>.delayed(_delay, () => emit(i)),
-        );
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<OnEachOnError>(
-      (_, emit) async {
-        await emit.onEach<int>(
-          stream,
-          onData: (i) => Future<void>.delayed(_delay, () => emit(i)),
-          onError: (_, __) => emit(-1),
-        );
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-
-    on<OnEachTryCatch>(
-      (_, emit) async {
-        try {
-          await emit.onEach<int>(
-            stream,
-            onData: (i) => Future<void>.delayed(_delay, () => emit(i)),
-          );
-        } catch (_) {
-          emit(-1);
+        on<ForEachTryCatch>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            try {
+                emit.forEach( stream, onData =  {it }).await()
+            }
+            catch (e:Throwable) {
+                emit(-1)
+            }
         }
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
 
-    on<OnEachTryCatchAbort>(
-      (_, emit) async {
-        try {
-          await emit.onEach<int>(
-            stream,
-            onData: (i) => Future<void>.delayed(_delay, () {
-              if (emit.isDone) return;
-              emit(i);
-            }),
-          );
-        } catch (_) {
-          emit(-1);
+        on<ForEachCatchError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.forEach( stream, onData =  {it }).catchError { error -> emit(-1) }
         }
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
+        on<UnawaitedForEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.forEach( stream, onData =  {it })
+        }
 
-    on<OnEachCatchError>(
-      (_, emit) => emit
-          .onEach<int>(
-            stream,
-            onData: (i) => Future<void>.delayed(_delay, () => emit(i)),
-          )
-          .catchError((dynamic _) => emit(-1)),
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
+        on<OnEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.onEach( stream, onData =  {i ->
+                cscope.async {
+                    delay(_delay_msecs)
+                    emit(i)
+                }
+            }).await()
+        }
 
-    on<UnawaitedOnEach>(
-      (_, emit) {
-        emit.onEach<int>(
-          stream,
-          onData: (i) => Future<void>.delayed(_delay, () => emit(i)),
-        );
-      },
-      transformer: (events, mapper) => events.switchMap(mapper),
-    );
-  }
+        on<OnEachOnError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.onEach(stream,
+                onData = { i ->
+                    cscope.async {
+                        delay(_delay_msecs)
+                        emit(i)
+                    }
+                },
+                onError = { _ -> emit(-1) }).await()
+        }
+
+        on<OnEachTryCatch>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            try {
+                emit.onEach( stream, onData =  {i ->
+                    cscope.async {
+                        delay(_delay_msecs)
+                        emit(i)
+                    }
+                }).await()
+            } catch (e:Throwable) {
+                emit(-1)
+            }
+        }
+
+        on<OnEachTryCatchAbort>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            try {
+                emit.onEach( stream, onData =  {i ->
+                    cscope.async {
+                        delay(_delay_msecs)
+                        if(emit.isDone()) return@async
+                        emit(i)
+                    }
+                }).await()
+            } catch (e:Throwable) {
+                emit(-1)
+            }
+        }
+
+        on<OnEachCatchError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.onEach( stream, onData =  {i ->
+                cscope.async {
+                    delay(_delay_msecs)
+                    emit(i)
+                }
+            }).catchError { _ -> emit(-1) }
+        }
+
+        on<UnawaitedOnEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
+        { _, emit ->
+            emit.onEach( stream, onData =  {i ->
+                cscope.async {
+                    delay(_delay_msecs)
+                    emit(i)
+                }
+            })
+        }
+
+
+
+    }
 }
 
- */
+

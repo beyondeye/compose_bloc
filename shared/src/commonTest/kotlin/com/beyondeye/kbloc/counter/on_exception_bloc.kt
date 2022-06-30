@@ -1,30 +1,27 @@
 package com.beyondeye.kbloc.counter
 
-/*
-import 'package:bloc/bloc.dart';
+import com.beyondeye.kbloc.core.Bloc
+import com.beyondeye.kbloc.core.Emitter
+import kotlinx.coroutines.CoroutineScope
 
-import '../counter/counter_bloc.dart';
-
-class OnExceptionBloc extends Bloc<CounterEvent, int> {
-  OnExceptionBloc({
-    required this.exception,
-    required this.onErrorCallback,
-  }) : super(0) {
-    on<CounterEvent>(_onCounterEvent);
-  }
-
-  final Function onErrorCallback;
-  final Exception exception;
-
-  @override
-  void onError(Object error, StackTrace stackTrace) {
-    onErrorCallback(error, stackTrace);
-    super.onError(error, stackTrace);
-  }
-
-  void _onCounterEvent(CounterEvent event, Emitter<int> emit) {
-    throw exception;
-  }
-}
-
+/**
+ * note: in kotlin there is not  much difference between Error and Exception so
+ * [OnErrorBloc] and [OnExceptionBloc] are basically the same
  */
+class OnExceptionBloc(cscope: CoroutineScope,
+                      val exception: Exception,
+                      val onErrorCallback: (Throwable) -> Unit
+) : Bloc<CounterEvent, Int>(cscope, 0) {
+    init {
+        on<CounterEvent>(handler = ::_onCounterEvent)
+    }
+
+    override fun onError(error: Throwable) {
+        onErrorCallback(error)
+        super.onError(error)
+    }
+
+    fun _onCounterEvent(event: CounterEvent, emit: Emitter<Int>) {
+        throw exception
+    }
+}

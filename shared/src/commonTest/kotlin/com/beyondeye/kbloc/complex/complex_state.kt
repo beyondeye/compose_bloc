@@ -1,69 +1,54 @@
 package com.beyondeye.kbloc.complex
 
-/*
-part of 'complex_bloc.dart';
-
-@immutable
+//@immutable
 abstract class ComplexState {}
 
-class ComplexStateA extends ComplexState {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexStateA && runtimeType == other.runtimeType;
+class ComplexStateA :ComplexState() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => 0;
+    override fun hashCode(): Int {
+        return 0
+    }
 }
 
-class ComplexStateB extends ComplexState {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexStateB && runtimeType == other.runtimeType;
+class ComplexStateB :ComplexState() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
 
-  @override
-  int get hashCode => 1;
+    override fun hashCode(): Int {
+        return 1
+    }
 }
 
-class ComplexStateC extends ComplexState {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexStateC && runtimeType == other.runtimeType;
 
-  @override
-  int get hashCode => 2;
+class ComplexStateC :ComplexState() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return 2
+    }
 }
 
-class ComplexStateD extends ComplexState {
-  @override
-  bool operator ==(
-    Object other,
-  ) =>
-      identical(
-        this,
-        other,
-      ) ||
-      other is ComplexStateD && runtimeType == other.runtimeType;
 
-  @override
-  int get hashCode => 3;
+class ComplexStateD :ComplexState() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return 3
+    }
 }
-
- */

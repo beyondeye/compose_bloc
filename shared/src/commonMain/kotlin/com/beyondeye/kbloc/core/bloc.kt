@@ -97,12 +97,8 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
         if(CHECK_IF_EVENT_HANDLER_REGISTERED) { //TODO should i leave this debug mode or use a flag 
             val eventType=event!!::class
             val handlerExists=_handlers.find { it.type ==eventType }!=null
-            if (!handlerExists) {
-                throw StateError(
-                    """add($eventType) was called without a registered event handler.
-                    Make sure to register a handler via on<$eventType>((event, emit) {...})""",
-                )
-            }
+            if (!handlerExists)
+                throw StateError(Bloc.getHandlerMissingErrorMessage(eventType))
         }
         try {
             onEvent(event)
@@ -116,6 +112,9 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
             throw error
         }
     }
+
+
+
     /** Called whenever an [event] is [add]ed to the [Bloc].
     *  A great spot to add logging/analytics at the individual [Bloc] level.
     * 
@@ -308,10 +307,16 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
 
 
     public companion object {
-        public inline fun <reified E:Any> getEventMultipleRegistrationErrorMessage(eventType: KClass<E>) =
-            "on<$eventType> was called multiple times. There should only be a single event handler per event type."
         @PublishedApi
-        internal const val CHECK_IF_EVENT_HANDLER_REGISTERED:Boolean=false
+        internal fun getEventMultipleRegistrationErrorMessage(eventType: KClass<out Any>) =
+            "on<$eventType> was called multiple times. There should only be a single event handler per event type."
+        internal  fun  getHandlerMissingErrorMessage(eventType: KClass<out Any>): String {
+            val msg = """add($eventType) was called without a registered event handler.
+                        Make sure to register a handler via on<$eventType>((event, emit) {...})"""
+            return msg
+        }
+        @PublishedApi
+        internal const val CHECK_IF_EVENT_HANDLER_REGISTERED:Boolean=true
         private const val EVENT_BUFFER_CAPACITY:Int=100
     }
 }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 class SeededBloc (
     val seed:Int, val states:List<Int>,
     cscope_stateUpdate: CoroutineScope, useReferenceEqualityForStateChanges: Boolean) :
-    Bloc<String, Int>(seed, cscope_stateUpdate, useReferenceEqualityForStateChanges) {
+    Bloc<String, Int>(cscope_stateUpdate, seed, useReferenceEqualityForStateChanges) {
     init {
         on<String>{ event, emitter ->
             //TODO: the original DART code is on<String>((_, emit) => emit('data'));

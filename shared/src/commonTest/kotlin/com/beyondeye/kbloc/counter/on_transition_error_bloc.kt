@@ -1,41 +1,32 @@
 package com.beyondeye.kbloc.counter
 
-/*
-import 'package:bloc/bloc.dart';
+import com.beyondeye.kbloc.core.Bloc
+import com.beyondeye.kbloc.core.Emitter
+import com.beyondeye.kbloc.core.Transition
+import kotlinx.coroutines.CoroutineScope
 
-import '../counter/counter_bloc.dart';
-
-class OnTransitionErrorBloc extends Bloc<CounterEvent, int> {
-  OnTransitionErrorBloc({
-    required this.error,
-    required this.onErrorCallback,
-  }) : super(0) {
-    on<CounterEvent>(_onCounterEvent);
-  }
-
-  final Function onErrorCallback;
-  final Error error;
-
-  @override
-  void onError(Object error, StackTrace stackTrace) {
-    onErrorCallback(error, stackTrace);
-    super.onError(error, stackTrace);
-  }
-
-  @override
-  void onTransition(Transition<CounterEvent, int> transition) {
-    super.onTransition(transition);
-    throw error;
-  }
-
-  void _onCounterEvent(CounterEvent event, Emitter<int> emit) {
-    switch (event) {
-      case CounterEvent.increment:
-        return emit(state + 1);
-      case CounterEvent.decrement:
-        return emit(state - 1);
+class OnTransitionErrorBloc(
+    cscope: CoroutineScope,
+    val error: Throwable,
+    val onErrorCallback: onErrorCallback
+) : Bloc<CounterEvent, Int>(cscope, 0) {
+    init {
+        on<CounterEvent>(handler = ::_onCounterEvent)
     }
-  }
-}
 
- */
+    override fun onTransition(transition: Transition<CounterEvent, Int>) {
+        super.onTransition(transition)
+        throw error
+    }
+
+    override fun onError(error: Throwable) {
+        onErrorCallback.invoke(error)
+        super.onError(error)
+    }
+    private fun _onCounterEvent(event: CounterEvent, emit: Emitter<Int>) {
+        when(event) {
+            CounterEvent.increment -> emit(state + 1)
+            CounterEvent.decrement -> emit(state -1)
+        }
+    }
+}

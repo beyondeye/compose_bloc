@@ -98,7 +98,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
             val eventType=event!!::class
             val handlerExists=_handlers.find { it.type ==eventType }!=null
             if (!handlerExists) {
-                throw Exception(
+                throw StateError(
                     """add($eventType) was called without a registered event handler.
                     Make sure to register a handler via on<$eventType>((event, emit) {...})""",
                 )
@@ -265,8 +265,8 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
         val eventType = E::class
         val handlerExists = _handlers.find { it.type == eventType } != null
         if (handlerExists) {
-            throw Exception(
-                "on<$eventType> was called multiple times. There should only be a single event handler per event type."
+            throw StateError(
+                getEventMultipleRegistrationErrorMessage(eventType)
             )
         }
         _handlers.add(_Handler<E>({ e -> e is E},eventType))
@@ -305,7 +305,11 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
 
         _subscriptions.add(subscription)
     }
-    internal companion object {
+
+
+    public companion object {
+        public inline fun <reified E:Any> getEventMultipleRegistrationErrorMessage(eventType: KClass<E>) =
+            "on<$eventType> was called multiple times. There should only be a single event handler per event type."
         @PublishedApi
         internal const val CHECK_IF_EVENT_HANDLER_REGISTERED:Boolean=false
         private const val EVENT_BUFFER_CAPACITY:Int=100

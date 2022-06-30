@@ -1,23 +1,24 @@
 package com.beyondeye.kbloc.counter
 
-/*
-import 'package:bloc/bloc.dart';
+import com.beyondeye.kbloc.core.Bloc
+import com.beyondeye.kbloc.core.Emitter
+import kotlinx.coroutines.CoroutineScope
 
-import '../counter/counter_bloc.dart';
-
-class CounterExceptionBloc extends Bloc<CounterEvent, int> {
-  CounterExceptionBloc() : super(0) {
-    on<CounterEvent>(_onCounterEvent);
-  }
-
-  void _onCounterEvent(CounterEvent event, Emitter<int> emit) {
-    switch (event) {
-      case CounterEvent.decrement:
-        return emit(state - 1);
-      case CounterEvent.increment:
-        throw Exception('fatal exception');
+/**
+ * NOTE: in kotlin there is no much difference between Error and Exception like in Dart
+ * so [CounterErrorBloc] and [CounterExceptionBloc] are basically the same thing
+ */
+class CounterExceptionBloc(cscope: CoroutineScope) : Bloc<CounterEvent, Int>(cscope,0) {
+    init {
+        on<CounterEvent> { event, emit ->
+            _onCounterEvent(event,emit)
+        }
     }
-  }
+    fun _onCounterEvent(event:CounterEvent,emit: Emitter<Int>) {
+        when(event) {
+            CounterEvent.decrement -> emit(state - 1)
+            CounterEvent.increment -> throw Exception("fatal exception")
+        }
+    }
 }
 
- */

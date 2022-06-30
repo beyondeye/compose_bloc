@@ -1,41 +1,37 @@
 package com.beyondeye.kbloc.stream
 
-/*
-import 'dart:async';
+import com.beyondeye.kbloc.core.Bloc
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 
-import 'package:bloc/bloc.dart';
+interface StreamEvent
 
-abstract class StreamEvent {}
+class Subscribe : StreamEvent
 
-class Subscribe extends StreamEvent {}
+class OnData(val data:Int) :StreamEvent
 
-class OnData extends StreamEvent {
-  OnData(this.data);
-  final int data;
+class StreamBloc(cscope:CoroutineScope) :Bloc<StreamEvent,Int>(cscope,0) {
+    private var _subscription: Job? = null
+    init {
+        on<StreamEvent> { _, emit ->
+            _subscription?.cancel()
+            _subscription = cscope.async {
+                stream.collect { value ->
+                    delay(100)
+                    add(OnData(value)) //new event
+                }
+            }
+        }
+        on<OnData> { event, emit ->
+            emit(event.data)
+        }
+    }
+
+    override suspend fun close() {
+        _subscription?.cancel();
+        _subscription=null
+        super.close()
+    }
 }
-
-class StreamBloc extends Bloc<StreamEvent, int> {
-  StreamBloc(Stream<int> stream) : super(0) {
-    on<StreamEvent>((_, emit) {
-      _subscription?.cancel();
-      _subscription = stream.listen((i) {
-        Future<void>.delayed(
-          const Duration(milliseconds: 100),
-          () => add(OnData(i)),
-        );
-      });
-    });
-
-    on<OnData>((event, emit) => emit(event.data));
-  }
-
-  StreamSubscription<int>? _subscription;
-
-  @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
-  }
-}
-
- */

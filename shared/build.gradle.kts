@@ -28,6 +28,8 @@ kotlin {
             dependencies {
                 //https://github.com/Kotlin/kotlinx.coroutines/releases
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+                //https://github.com/Kotlin/kotlinx-datetime
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
             }
         }
         val commonTest by getting {

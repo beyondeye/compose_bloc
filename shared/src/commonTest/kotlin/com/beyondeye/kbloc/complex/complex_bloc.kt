@@ -1,33 +1,34 @@
 package com.beyondeye.kbloc.complex
 
-/*
-import 'dart:async';
+import com.beyondeye.kbloc.core.Bloc
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.debounce
+import kotlin.time.Duration
 
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:stream_transform/stream_transform.dart';
+const private val _delay_ms:Long =100
 
-part 'complex_event.dart';
-part 'complex_state.dart';
+class ComplexBloc(cscope:CoroutineScope) : Bloc<ComplexEvent, ComplexState>(cscope,ComplexStateA())
+{
+    init {
+        on<ComplexEventA> { _,emit ->
+            emit(ComplexStateA())
+        }
+        on<ComplexEventB> {_,emit ->
+            emit(ComplexStateB())
+        }
+        on<ComplexEventC> { _, emit ->
+            delay(_delay_ms)
+            emit(ComplexStateC())
+        }
+        on<ComplexEventD> { _, emit ->
+            delay(_delay_ms)
+            emit(ComplexStateD())
+        }
+    }
 
-const _delay = Duration(milliseconds: 100);
-
-class ComplexBloc extends Bloc<ComplexEvent, ComplexState> {
-  ComplexBloc() : super(ComplexStateA()) {
-    on<ComplexEventA>((_, emit) => emit(ComplexStateA()));
-    on<ComplexEventB>((_, emit) => emit(ComplexStateB()));
-    on<ComplexEventC>(
-      (_, emit) => Future<void>.delayed(_delay, () => emit(ComplexStateC())),
-    );
-    on<ComplexEventD>(
-      (_, emit) => Future<void>.delayed(_delay, () => emit(ComplexStateD())),
-    );
-  }
-
-  @override
-  Stream<ComplexState> get stream {
-    return super.stream.debounce(const Duration(milliseconds: 50));
-  }
-}
-
- */
+    override val stream: Flow<ComplexState>
+        get() = super.stream.debounce(50)
+ }

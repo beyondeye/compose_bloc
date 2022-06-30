@@ -63,12 +63,12 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
     internal val _eventTransformer:EventTransformer<Any> =
     BlocOverrides.current?.eventTransformer ?: _defaultEventTransformer
     public constructor(
-        initialState: State,
         /**
          * the coroutine scope used for running async state update function (queueStateUpdate)
          */
         cscope_stateUpdate: CoroutineScope,
-        useReferenceEqualityForStateChanges:Boolean
+        initialState: State,
+        useReferenceEqualityForStateChanges: Boolean = false
     ):super(initialState,cscope_stateUpdate,useReferenceEqualityForStateChanges) {
         _startEventHandlerJob()
     }

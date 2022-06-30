@@ -8,13 +8,9 @@ class SeededBloc (
     cscope_stateUpdate: CoroutineScope, useReferenceEqualityForStateChanges: Boolean) :
     Bloc<String, Int>(cscope_stateUpdate, seed, useReferenceEqualityForStateChanges) {
     init {
-        on<String>{ event, emitter ->
-            //TODO: the original DART code is on<String>((_, emit) => emit('data'));
-            //   that apparently don't use the emit parameter, but instead use the bloc.emit() method: this is potentially an error
-            //need to understand better
+        on<String>{ event, emit ->
             for (state in states) {
-//                emit(state);
-                emitter.call(state)
+                emit(state)
             }
         }
     }

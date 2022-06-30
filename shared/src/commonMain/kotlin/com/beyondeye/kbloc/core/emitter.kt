@@ -66,6 +66,10 @@ public interface Emitter<State> {
      */
     public fun call(state: State)
 
+    public operator fun invoke(state: State) {
+        call(state)
+    }
+
 }
 
 @PublishedApi

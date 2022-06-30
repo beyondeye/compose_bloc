@@ -13,7 +13,7 @@ public interface DeferredStateFlow<out T> : SharedFlow<T> {
 }
 
 
-public class MutableDeferredStateFlow<S>(initialValue:S,
+public class MutableDeferredStateFlow<S:Any>(initialValue:S,
                                   public val cscope_stateUpdate: CoroutineScope):DeferredStateFlow<S> {
     private val _stateFlow = MutableStateFlow(initialValue)
 

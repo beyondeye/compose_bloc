@@ -106,7 +106,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
                         * the coroutine scope used for running async state update function (queueStateUpdate)
                         */
                        cscope_stateUpdate: CoroutineScope,
-                       useReferenceEqualityForStateChanges:Boolean) {
+                       useReferenceEqualityForStateChanges:Boolean=false) {
         _useReferenceEqualityForStateChanges=useReferenceEqualityForStateChanges
         _stateController= MutableDeferredStateFlow(initialState,cscope_stateUpdate)
         _cscope_stateUpdate = cscope_stateUpdate

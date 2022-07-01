@@ -1,17 +1,20 @@
 package com.beyondeye.kbloc
 
-import com.beyondeye.kbloc.core.BlocBase
-import com.beyondeye.kbloc.core.BlocObserver
-import com.beyondeye.kbloc.core.BlocOverrides
+import com.beyondeye.kbloc.core.*
 import com.beyondeye.kbloc.simple.SimpleBloc
 import io.mockk.MockKAnnotations
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 
 private suspend fun tick() { delay(0)}
 
@@ -37,13 +40,133 @@ class SimpleBlocTests {
     }
 
     @Test
-    fun simple_bloc() {
+    fun simple_bloc_triggers_onCreate_on_observer_when_instantiated() {
         val observer = spyk(MockBlocObserver<Any>())
         BlocOverrides.runZoned(blocObserver = observer) {
             val bloc = SimpleBloc(GlobalScope)
             verify(exactly = 1) { observer.onCreate(bloc as BlocBase<Any>) }
         }
     }
+
+    @Test
+    fun simple_bloc_triggers_onClose_on_observer_when_closed(){
+        val observer = spyk(MockBlocObserver<Any>())
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runTest(UnconfinedTestDispatcher()) {
+                val bloc = SimpleBloc(this)
+                bloc.close()
+                verify(exactly = 1) { observer.onClose(bloc as BlocBase<Any>) }
+            }
+        }
+    }
+    /*
+      test('close does not emit new states over the state stream', () async {
+        final expectedStates = [emitsDone];
+
+        unawaited(expectLater(simpleBloc.stream, emitsInOrder(expectedStates)));
+
+        await simpleBloc.close();
+      });
+     */
+
+    @Test
+    fun simple_bloc_state_returns_correct_value_initially() {
+        val bloc=SimpleBloc(GlobalScope)
+        assertEquals("",bloc.state)
+    }
+
+    @Test
+    fun simple_bloc_should_map_single_event_to_correct_state(){
+        val observer = spyk(MockBlocObserver<Any>())
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runTest(UnconfinedTestDispatcher()) {
+                val bloc = SimpleBloc(this)
+                bloc.add("event")
+                bloc.close()
+
+                verify(exactly = 1) {
+                    observer.onTransition(bloc as Bloc<Any, Any>,
+                        Transition("","event","data"))
+                }
+                verify(exactly = 1) {
+                    observer.onChange(bloc as Bloc<Any, Any>,Change("","data"))
+                }
+                assertEquals("data",bloc.state)
+            }
+        }
+    }
+
+    @Test
+    fun simple_bloc_should_map_multiple_events_to_correct_states(){
+        val observer = spyk(MockBlocObserver<Any>())
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runTest(UnconfinedTestDispatcher()) {
+                val bloc = SimpleBloc(this)
+                with(bloc) {
+                    add("event1")
+                    add("event2")
+                    add("event3")
+                    close()
+                }
+
+                verify(exactly = 1) {
+                    observer.onTransition(bloc as Bloc<Any, Any>,
+                        Transition("","event1","data"))
+                }
+                verify(exactly = 1) {
+                    observer.onChange(bloc as Bloc<Any, Any>,Change("","data"))
+                }
+                assertEquals("data",bloc.state)
+            }
+        }
+    }
+
+    @Test
+    fun simple_bloc_is_a_broadcast_stream(){
+        val observer = spyk(MockBlocObserver<Any>())
+        BlocOverrides.runZoned(blocObserver = observer) {
+            runTest(UnconfinedTestDispatcher()) {
+                val bloc = SimpleBloc(this)
+                val sub1data = mutableListOf<String>()
+                val sub2data= mutableListOf<String>()
+                val expected_states= listOf("","data")
+                val sub1=async {
+                    bloc.stream.collect {
+                        sub1data.add(it)
+                    }
+                }
+                val sub2 = async {
+                    bloc.stream.collect {
+                        sub2data.add(it)
+                    }
+                }
+
+                with(bloc) {
+                    add("event")
+                    close()
+                }
+                sub1.cancel()
+                sub2.cancel()
+
+                assertContentEquals(expected_states,sub1data)
+                assertContentEquals(expected_states,sub2data)
+            }
+        }
+    }
+/*
+        //TODO what is different in this test from the previous one?
+      test('multiple subscribers receive the latest state', () {
+        final expectedStates = const <String>['data'];
+
+        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
+        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
+        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
+
+        simpleBloc.add('event');
+      });
+    });
+ */
+
 }
 /*
 import 'dart:async';
@@ -70,132 +193,6 @@ void main() {
         simpleBloc = SimpleBloc();
         observer = MockBlocObserver();
       });
-
-      test('triggers onCreate on observer when instantiated', () {
-        BlocOverrides.runZoned(() {
-          final bloc = SimpleBloc();
-          // ignore: invalid_use_of_protected_member
-          verify(() => observer.onCreate(bloc)).called(1);
-        }, blocObserver: observer);
-      });
-
-      test('triggers onClose on observer when closed', () async {
-        await BlocOverrides.runZoned(() async {
-          final bloc = SimpleBloc();
-          await bloc.close();
-          // ignore: invalid_use_of_protected_member
-          verify(() => observer.onClose(bloc)).called(1);
-        }, blocObserver: observer);
-      });
-
-      test('close does not emit new states over the state stream', () async {
-        final expectedStates = [emitsDone];
-
-        unawaited(expectLater(simpleBloc.stream, emitsInOrder(expectedStates)));
-
-        await simpleBloc.close();
-      });
-
-      test('state returns correct value initially', () {
-        expect(simpleBloc.state, '');
-      });
-
-      test('should map single event to correct state', () {
-        BlocOverrides.runZoned(() {
-          final expectedStates = ['data', emitsDone];
-          final simpleBloc = SimpleBloc();
-
-          expectLater(
-            simpleBloc.stream,
-            emitsInOrder(expectedStates),
-          ).then((dynamic _) {
-            verify(
-              // ignore: invalid_use_of_protected_member
-              () => observer.onTransition(
-                simpleBloc,
-                const Transition<dynamic, String>(
-                  currentState: '',
-                  event: 'event',
-                  nextState: 'data',
-                ),
-              ),
-            ).called(1);
-            verify(
-              // ignore: invalid_use_of_protected_member
-              () => observer.onChange(
-                simpleBloc,
-                const Change<String>(currentState: '', nextState: 'data'),
-              ),
-            ).called(1);
-            expect(simpleBloc.state, 'data');
-          });
-
-          simpleBloc
-            ..add('event')
-            ..close();
-        }, blocObserver: observer);
-      });
-
-      test('should map multiple events to correct states', () {
-        BlocOverrides.runZoned(() {
-          final expectedStates = ['data', emitsDone];
-          final simpleBloc = SimpleBloc();
-
-          expectLater(
-            simpleBloc.stream,
-            emitsInOrder(expectedStates),
-          ).then((dynamic _) {
-            verify(
-              // ignore: invalid_use_of_protected_member
-              () => observer.onTransition(
-                simpleBloc,
-                const Transition<dynamic, String>(
-                  currentState: '',
-                  event: 'event1',
-                  nextState: 'data',
-                ),
-              ),
-            ).called(1);
-            verify(
-              // ignore: invalid_use_of_protected_member
-              () => observer.onChange(
-                simpleBloc,
-                const Change<String>(currentState: '', nextState: 'data'),
-              ),
-            ).called(1);
-            expect(simpleBloc.state, 'data');
-          });
-
-          simpleBloc
-            ..add('event1')
-            ..add('event2')
-            ..add('event3')
-            ..close();
-        }, blocObserver: observer);
-      });
-
-      test('is a broadcast stream', () {
-        final expectedStates = ['data', emitsDone];
-
-        expect(simpleBloc.stream.isBroadcast, isTrue);
-        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
-        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
-
-        simpleBloc
-          ..add('event')
-          ..close();
-      });
-
-      test('multiple subscribers receive the latest state', () {
-        final expectedStates = const <String>['data'];
-
-        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
-        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
-        expectLater(simpleBloc.stream, emitsInOrder(expectedStates));
-
-        simpleBloc.add('event');
-      });
-    });
 
     group('Complex Bloc', () {
       late ComplexBloc complexBloc;

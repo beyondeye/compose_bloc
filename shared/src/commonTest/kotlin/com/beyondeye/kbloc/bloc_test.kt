@@ -1,5 +1,50 @@
 package com.beyondeye.kbloc
 
+import com.beyondeye.kbloc.core.BlocBase
+import com.beyondeye.kbloc.core.BlocObserver
+import com.beyondeye.kbloc.core.BlocOverrides
+import com.beyondeye.kbloc.simple.SimpleBloc
+import io.mockk.MockKAnnotations
+import io.mockk.spyk
+import io.mockk.verify
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+
+private suspend fun tick() { delay(0)}
+
+//already defined in cubit_test
+//class MockBlocObserver<T:Any> : BlocObserver<T> {}
+
+//class FakeBlocBase<S> extends Fake implements BlocBase<S> {}
+
+class SimpleBlocTests {
+    /*
+    lateinit var  simpleBloc: SimpleBloc
+    lateinit var observer:MockBlocObserver<Any>
+    fun setup_simple_bloc(cscope:CoroutineScope) {
+        simpleBloc = SimpleBloc(cscope)
+        observer = spyk(MockBlocObserver())
+    }
+     */
+    @BeforeTest
+    //see https://sonique6784.medium.com/pure-kotlin-unit-testing-mocking-part-2-e13857014ea6
+    fun setUp()  {
+        MockKAnnotations.init(this, relaxUnitFun = true)
+
+    }
+
+    @Test
+    fun simple_bloc() {
+        val observer = spyk(MockBlocObserver<Any>())
+        BlocOverrides.runZoned(blocObserver = observer) {
+            val bloc = SimpleBloc(GlobalScope)
+            verify(exactly = 1) { observer.onCreate(bloc as BlocBase<Any>) }
+        }
+    }
+}
 /*
 import 'dart:async';
 

@@ -5,9 +5,6 @@ import com.beyondeye.kbloc.cubits.CounterCubit
 import com.beyondeye.kbloc.cubits.FakeAsyncCounterCubit
 import com.beyondeye.kbloc.cubits.SeededCubit
 import io.mockk.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

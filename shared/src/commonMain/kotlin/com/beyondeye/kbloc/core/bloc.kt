@@ -1,11 +1,9 @@
 package com.beyondeye.kbloc.core
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 
@@ -230,8 +228,6 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
         } finally {
             emitter.complete()
             _emitters.remove(emitter)
-            //the following is not needed because controller which is callbackFlow is automatically closed
-            //if (!controller.isClosed) controller.close()
         }
     }
     /** Register event handler for an event of type `E`.
@@ -272,10 +268,11 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
 
         val _transformer= transformer ?: _eventTransformer
 
+        //extract from the general flow of events the specific flow of event of this type
         val filtered_events_flow=_eventController.transform { if(it is E) emit(it as E)  }
         val transformed_filtered_events_flow = _transformer(filtered_events_flow,
             {event:Any->
-                //wrap Bloc.emit() method, in order to force call to onTransition callback
+                //wrap Bloc.emit() method, in order to force call to onTransition callback in addition to regular emit
                 val emitter = _Emitter({ newState:State->
                     //local method void onEmit(State state) in original bloc.dart  code
                     if(isClosed) return@_Emitter
@@ -292,7 +289,20 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
                 // The resulting flow completes as soon as the code in the block completes.
                 // awaitClose should be used to keep the flow running, otherwise the channel will be closed immediately when block completes
                 val controller = callbackFlow<E> {
-                    handleEvent(handler as EventHandler<Event, State>, event as Event,emitter)
+                    async { //TODO use instead _cscope_stateUpdate.async?
+                        try {
+                            handleEvent(handler as EventHandler<Event, State>, event as Event,emitter)
+                            channel.close() //signal that we completed completed
+                        }catch (e:Throwable) {
+                            cancel(e.message?:"",e)
+                        }
+                    }
+                    /*
+                     * Suspends until either channel.close()  or cancel()  is invoked
+                     * or flow collector is cancelled (e.g. by 'take(1)' or because a collector's coroutine was cancelled).
+                     * In both cases, callback will be properly unregistered.
+                     */
+                    awaitClose{ /* execute block here on close */}
                 }
                 controller
             })

@@ -6,8 +6,12 @@ import com.beyondeye.kbloc.core.StateError
 import io.mockk.MockKAnnotations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 
@@ -77,69 +81,65 @@ class BlocOnTest {
         }
     }
 
+    @Test
+    fun onEvent_invokes_all_on_T_when_event_E_is_added_where_E_is_T() =
+        runTest(UnconfinedTestDispatcher()) {
+            var onEventCallCount = 0
+            var onACallCount = 0
+            var onBCallCount = 0
+            var onAACallCount = 0
+            var onBACallCount = 0
+
+            val bloc = TestBloc(
+                    onTestEvent= {_, _ -> onEventCallCount++ },
+            onTestEventA= {_, _ -> onACallCount++},
+            onTestEventB= { _, _ -> onBCallCount++},
+            onTestEventAA= {_, _ -> onAACallCount++},
+            onTestEventBA= {_, _ -> onBACallCount++},
+                cscope = this
+            )
+            bloc.add(TestEventA())
+            delay(0)
+
+            assertEquals(1,onEventCallCount)
+            assertEquals(1,onACallCount)
+            assertEquals(0,onBCallCount)
+            assertEquals(0,onAACallCount)
+            assertEquals(0,onBACallCount)
+
+            bloc.add(TestEventAA())
+
+            delay(0)
+
+            assertEquals(2,onEventCallCount)
+            assertEquals(2,onACallCount)
+            assertEquals(0,onBCallCount)
+            assertEquals(1,onAACallCount)
+            assertEquals(0,onBACallCount)
+
+            bloc.add(TestEventB())
+
+            delay(0)
+
+            assertEquals(3,onEventCallCount)
+            assertEquals(2,onACallCount)
+            assertEquals(1,onBCallCount)
+            assertEquals(1,onAACallCount)
+            assertEquals(0,onBACallCount)
+
+            bloc.add(TestEventBA())
+
+            delay(0)
+
+            assertEquals(4,onEventCallCount)
+            assertEquals(2,onACallCount)
+            assertEquals(2,onBCallCount)
+            assertEquals(1,onAACallCount)
+            assertEquals(1,onBACallCount)
+
+
+            bloc.close()
+
+        }
+
 }
-/*
-
-
-void main() {
-  group('on<Event>', () {
-
-    test('invokes all on<T> when event E is added where E is T', () async {
-      var onEventCallCount = 0;
-      var onACallCount = 0;
-      var onBCallCount = 0;
-      var onAACallCount = 0;
-      var onBACallCount = 0;
-
-      final bloc = TestBloc(
-        onTestEvent: (_, __) => onEventCallCount++,
-        onTestEventA: (_, __) => onACallCount++,
-        onTestEventB: (_, __) => onBCallCount++,
-        onTestEventAA: (_, __) => onAACallCount++,
-        onTestEventBA: (_, __) => onBACallCount++,
-      )..add(TestEventA());
-
-      await Future<void>.delayed(Duration.zero);
-
-      expect(onEventCallCount, equals(1));
-      expect(onACallCount, equals(1));
-      expect(onBCallCount, equals(0));
-      expect(onAACallCount, equals(0));
-      expect(onBACallCount, equals(0));
-
-      bloc.add(TestEventAA());
-
-      await Future<void>.delayed(Duration.zero);
-
-      expect(onEventCallCount, equals(2));
-      expect(onACallCount, equals(2));
-      expect(onBCallCount, equals(0));
-      expect(onAACallCount, equals(1));
-      expect(onBACallCount, equals(0));
-
-      bloc.add(TestEventB());
-
-      await Future<void>.delayed(Duration.zero);
-
-      expect(onEventCallCount, equals(3));
-      expect(onACallCount, equals(2));
-      expect(onBCallCount, equals(1));
-      expect(onAACallCount, equals(1));
-      expect(onBACallCount, equals(0));
-
-      bloc.add(TestEventBA());
-
-      await Future<void>.delayed(Duration.zero);
-
-      expect(onEventCallCount, equals(4));
-      expect(onACallCount, equals(2));
-      expect(onBCallCount, equals(2));
-      expect(onAACallCount, equals(1));
-      expect(onBACallCount, equals(1));
-
-      await bloc.close();
-    });
-  });
-}
-
- */

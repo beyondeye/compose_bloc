@@ -1,9 +1,13 @@
 package com.beyondeye.kbloc
 
+import com.beyondeye.kbloc.async.AsyncBloc
+import com.beyondeye.kbloc.async.AsyncState
 import com.beyondeye.kbloc.complex.*
 import com.beyondeye.kbloc.core.*
 import com.beyondeye.kbloc.counter.CounterBloc
 import com.beyondeye.kbloc.counter.CounterEvent
+import com.beyondeye.kbloc.counter.MergeBloc
+import com.beyondeye.kbloc.seeded.SeededBloc
 import com.beyondeye.kbloc.simple.SimpleBloc
 import io.mockk.MockKAnnotations
 import io.mockk.spyk
@@ -547,84 +551,27 @@ class SimpleBlocTests {
         assertEquals(counterBloc.state, 1)
         assertContentEquals(events, listOf(CounterEvent.increment))
         assertContentEquals(listOf(Transition(0,CounterEvent.increment,1)),transitions)
-
-
         counterBloc.close()
     }
-}
-/*
-import 'dart:async';
 
-import 'package:bloc/bloc.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:test/test.dart';
-
-import 'blocs/blocs.dart';
-
-Future<void> tick() => Future<void>.delayed(Duration.zero);
-
-class MockBlocObserver extends Mock implements BlocObserver {}
-
-class FakeBlocBase<S> extends Fake implements BlocBase<S> {}
-
-void main() {
-  group('Bloc Tests', () {
-    group('Simple Bloc', () {
-      late SimpleBloc simpleBloc;
-      late MockBlocObserver observer;
-
-      setUp(() {
-        simpleBloc = SimpleBloc();
-        observer = MockBlocObserver();
-      });
-
-    group('Complex Bloc', () {
-      late ComplexBloc complexBloc;
-      late MockBlocObserver observer;
-
-      setUp(() {
-        complexBloc = ComplexBloc();
-        observer = MockBlocObserver();
-      });
-
-    group('CounterBloc', () {
-      late CounterBloc counterBloc;
-      late MockBlocObserver observer;
-      late List<String> transitions;
-      late List<CounterEvent> events;
-
-      setUp(() {
-        events = [];
-        transitions = [];
-        counterBloc = CounterBloc(
-          onEventCallback: events.add,
-          onTransitionCallback: (transition) {
-            transitions.add(transition.toString());
-          },
-        );
-        observer = MockBlocObserver();
-      });
-
-    group('Async Bloc', () {
-      late AsyncBloc asyncBloc;
-      late MockBlocObserver observer;
-
-      setUpAll(() {
-        registerFallbackValue(FakeBlocBase<dynamic>());
-        registerFallbackValue(StackTrace.empty);
-      });
-
-      setUp(() {
+    @Test
+    fun AsyncBloc_close_does_not_emit_new_states_over_the_state_stream() =
+        runTest(UnconfinedTestDispatcher())
+        {
+            val asyncBloc = AsyncBloc(this)
+            val actualStates= mutableListOf<AsyncState>()
+            val sub1 = async {
+                asyncBloc.stream.collect {
+                    actualStates.add(it)
+                }
+            }
+            asyncBloc.close()
+            assertContentEquals(listOf(),actualStates)
+        }
+    /*
+       setUp(() {
         asyncBloc = AsyncBloc();
         observer = MockBlocObserver();
-      });
-
-      test('close does not emit new states over the state stream', () async {
-        final expectedStates = [emitsDone];
-
-        unawaited(expectLater(asyncBloc.stream, emitsInOrder(expectedStates)));
-
-        await asyncBloc.close();
       });
 
       test(
@@ -891,109 +838,150 @@ void main() {
       });
     });
 
-    group('MergeBloc', () {
-      test('maintains correct transition composition', () {
-        final expectedTransitions = <Transition<CounterEvent, int>>[
-          const Transition(
-            currentState: 0,
-            event: CounterEvent.increment,
-            nextState: 1,
-          ),
-          const Transition(
-            currentState: 1,
-            event: CounterEvent.decrement,
-            nextState: 0,
-          ),
-          const Transition(
-            currentState: 0,
-            event: CounterEvent.decrement,
-            nextState: -1,
-          ),
-        ];
-        final expectedStates = [1, 0, -1, emitsDone];
-        final transitions = <Transition<CounterEvent, int>>[];
+     */
+    /**
+     * TODO currently MergeBloc is not fully implemented
+     */
+    @Test
+    fun MergeBloc_maintains_correct_transition_composition() = runTest(UnconfinedTestDispatcher()){
+        val expectedTransitions= listOf(
+            Transition(0,CounterEvent.increment,1),
+        Transition(1,CounterEvent.decrement,0),
+        Transition(0,CounterEvent.decrement,-1)
+        )
+        val expectedStates= listOf(1,0,-1)
 
-        final bloc = MergeBloc(
-          onTransitionCallback: transitions.add,
-        );
+        val states= mutableListOf<Int>()
+        val transitions = mutableListOf<Transition<CounterEvent,Int>>()
 
-        expectLater(
-          bloc.stream,
-          emitsInOrder(expectedStates),
-        ).then((dynamic _) {
-          expect(transitions, expectedTransitions);
-        });
-        bloc
-          ..add(CounterEvent.increment)
-          ..add(CounterEvent.increment)
-          ..add(CounterEvent.decrement)
-          ..add(CounterEvent.decrement)
-          ..close();
+        val bloc=MergeBloc(this, onTransitionCallback = { transitions.add(it)  })
+        with(bloc) {
+            add(CounterEvent.increment)
+            add(CounterEvent.increment)
+            add(CounterEvent.decrement)
+            add(CounterEvent.decrement)
+            close()
+        }
+        assertContentEquals(expectedStates,states)
+        assertContentEquals(expectedTransitions,transitions)
+    }
+    @Test
+    fun SeededBloc_does_not_emit_repeated_states() = runTest(UnconfinedTestDispatcher()){
+        val seededBloc=SeededBloc(0, listOf(1,2,1,1),this)
+        //NOTE: it is listOf(1,2,1) in the original code: initial state is ignored
+        val expectedStates= listOf(0,1,2,1)
+        val actualStates= mutableListOf<Int>()
+        val sub1 = async {
+            seededBloc.stream.collect {
+                actualStates.add(it)
+            }
+        }
+        seededBloc.add("event")
+        seededBloc.close()
+        sub1.cancel()
+        assertContentEquals(expectedStates,actualStates)
+    }
+    @Test
+    fun SeededBloc_can_emit_initial_state_only_once() = runTest(UnconfinedTestDispatcher()){
+        val seededBloc=SeededBloc(0, listOf(0,0),this)
+        val expectedStates= listOf(0)
+        val actualStates= mutableListOf<Int>()
+        val sub1 = async {
+            seededBloc.stream.collect {
+                actualStates.add(it)
+            }
+        }
+        seededBloc.add("event")
+        seededBloc.close()
+        sub1.cancel()
+        assertContentEquals(expectedStates,actualStates)
+    }
+
+    @Test
+    fun SeededBloc_can_emit_initial_state_and_continue_emitting_distinct_states() = runTest(UnconfinedTestDispatcher()){
+        val seededBloc=SeededBloc(0, listOf(0,0,1),this)
+        val expectedStates= listOf(0,1)
+        val actualStates= mutableListOf<Int>()
+        val sub1 = async {
+            seededBloc.stream.collect {
+                actualStates.add(it)
+            }
+        }
+        seededBloc.add("event")
+        seededBloc.close()
+        sub1.cancel()
+        assertContentEquals(expectedStates,actualStates)
+    }
+    @Test
+    fun SeededBloc_discard_subsequent_duplicate_states_for_distinct_events() = runTest(UnconfinedTestDispatcher()){
+        val seededBloc=SeededBloc(0, listOf(1,1),this)
+        //NOTE: it is listOf(1) in the original code: initial state is ignored
+        val expectedStates= listOf(0,1)
+        val actualStates= mutableListOf<Int>()
+        val sub1 = async {
+            seededBloc.stream.collect {
+                actualStates.add(it)
+            }
+        }
+        with(seededBloc) {
+            add("eventA")
+            add("eventB")
+            add("eventC")
+            close()
+
+        }
+        sub1.cancel()
+        assertContentEquals(expectedStates,actualStates)
+    }
+
+    @Test
+    fun SeededBloc_discard_subsequent_duplicate_states_for_same_event() = runTest(UnconfinedTestDispatcher()){
+        val seededBloc=SeededBloc(0, listOf(1,1),this)
+        //NOTE: it is listOf(1) in the original code: initial state is ignored
+        val expectedStates= listOf(0,1)
+        val actualStates= mutableListOf<Int>()
+        val sub1 = async {
+            seededBloc.stream.collect {
+                actualStates.add(it)
+            }
+        }
+        with(seededBloc) {
+            add("event")
+            add("event")
+            add("event")
+            close()
+
+        }
+        sub1.cancel()
+        assertContentEquals(expectedStates,actualStates)
+    }
+
+
+}
+/*
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:test/test.dart';
+
+import 'blocs/blocs.dart';
+
+Future<void> tick() => Future<void>.delayed(Duration.zero);
+
+class MockBlocObserver extends Mock implements BlocObserver {}
+
+class FakeBlocBase<S> extends Fake implements BlocBase<S> {}
+
+void main() {
+  group('Bloc Tests', () {
+
+
+      setUpAll(() {
+        registerFallbackValue(FakeBlocBase<dynamic>());
+        registerFallbackValue(StackTrace.empty);
       });
-    });
 
-    group('SeededBloc', () {
-      test('does not emit repeated states', () {
-        final seededBloc = SeededBloc(seed: 0, states: [1, 2, 1, 1]);
-        final expectedStates = [1, 2, 1, emitsDone];
-
-        expectLater(seededBloc.stream, emitsInOrder(expectedStates));
-
-        seededBloc
-          ..add('event')
-          ..close();
-      });
-
-      test('can emit initial state only once', () {
-        final seededBloc = SeededBloc(seed: 0, states: [0, 0]);
-        final expectedStates = [0, emitsDone];
-
-        expectLater(seededBloc.stream, emitsInOrder(expectedStates));
-
-        seededBloc
-          ..add('event')
-          ..close();
-      });
-
-      test(
-          'can emit initial state and '
-          'continue emitting distinct states', () {
-        final seededBloc = SeededBloc(seed: 0, states: [0, 0, 1]);
-        final expectedStates = [0, 1, emitsDone];
-
-        expectLater(seededBloc.stream, emitsInOrder(expectedStates));
-
-        seededBloc
-          ..add('event')
-          ..close();
-      });
-
-      test('discards subsequent duplicate states (distinct events)', () {
-        final seededBloc = SeededBloc(seed: 0, states: [1, 1]);
-        final expectedStates = [1, emitsDone];
-
-        expectLater(seededBloc.stream, emitsInOrder(expectedStates));
-
-        seededBloc
-          ..add('eventA')
-          ..add('eventB')
-          ..add('eventC')
-          ..close();
-      });
-
-      test('discards subsequent duplicate states (same event)', () {
-        final seededBloc = SeededBloc(seed: 0, states: [1, 1]);
-        final expectedStates = [1, emitsDone];
-
-        expectLater(seededBloc.stream, emitsInOrder(expectedStates));
-
-        seededBloc
-          ..add('event')
-          ..add('event')
-          ..add('event')
-          ..close();
-      });
-    });
 
     group('StreamBloc', () {
       test('cancels subscriptions correctly', () async {

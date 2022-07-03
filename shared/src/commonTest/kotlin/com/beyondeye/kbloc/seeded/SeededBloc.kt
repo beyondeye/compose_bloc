@@ -5,7 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 
 class SeededBloc (
     val seed:Int, val states:List<Int>,
-    cscope_stateUpdate: CoroutineScope, useReferenceEqualityForStateChanges: Boolean) :
+    cscope_stateUpdate: CoroutineScope, useReferenceEqualityForStateChanges: Boolean=false) :
     Bloc<String, Int>(cscope_stateUpdate, seed, useReferenceEqualityForStateChanges) {
     init {
         on<String>{ event, emit ->

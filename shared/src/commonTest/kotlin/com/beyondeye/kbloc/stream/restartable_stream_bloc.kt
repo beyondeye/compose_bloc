@@ -4,6 +4,7 @@ import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.await
 import com.beyondeye.kbloc.core.catchError
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.switchMap
 
@@ -34,17 +35,17 @@ class UnawaitedOnEach :RestartableStreamEvent
 
 const val _delay_msecs= 100L
 
-class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent,Int>(cscope,0) {
+class  RestartableStreamBloc(cscope:CoroutineScope,val inputEventsStream: Flow<Int>) :Bloc<RestartableStreamEvent,Int>(cscope,0) {
     init {
         //    message = "Flow analogues of 'switchMap' are 'transformLatest', 'flatMapLatest' and 'mapLatest'",
         on<ForEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.forEach( stream, onData =  {it }).await()
+            emit.forEach( inputEventsStream, onData =  {it }).await()
         }
         on<ForEachOnError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
             try {
-                emit.forEach( stream, onData =  {it }, onError = {_-> -1}).await()
+                emit.forEach( inputEventsStream, onData =  {it }, onError = {_-> -1}).await()
             }
             catch (e:Throwable) {
                 emit(-1)
@@ -53,7 +54,7 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
         on<ForEachTryCatch>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
             try {
-                emit.forEach( stream, onData =  {it }).await()
+                emit.forEach( inputEventsStream, onData =  {it }).await()
             }
             catch (e:Throwable) {
                 emit(-1)
@@ -62,16 +63,16 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
 
         on<ForEachCatchError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.forEach( stream, onData =  {it }).catchError { error -> emit(-1) }
+            emit.forEach( inputEventsStream, onData =  {it }).catchError { error -> emit(-1) }
         }
         on<UnawaitedForEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.forEach( stream, onData =  {it })
+            emit.forEach( inputEventsStream, onData =  {it })
         }
 
         on<OnEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.onEach( stream, onData =  {i ->
+            emit.onEach( inputEventsStream, onData =  {i ->
                 cscope.async {
                     delay(_delay_msecs)
                     emit(i)
@@ -81,7 +82,7 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
 
         on<OnEachOnError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.onEach(stream,
+            emit.onEach(inputEventsStream,
                 onData = { i ->
                     cscope.async {
                         delay(_delay_msecs)
@@ -94,7 +95,7 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
         on<OnEachTryCatch>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
             try {
-                emit.onEach( stream, onData =  {i ->
+                emit.onEach( inputEventsStream, onData =  {i ->
                     cscope.async {
                         delay(_delay_msecs)
                         emit(i)
@@ -108,7 +109,7 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
         on<OnEachTryCatchAbort>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
             try {
-                emit.onEach( stream, onData =  {i ->
+                emit.onEach( inputEventsStream, onData =  {i ->
                     cscope.async {
                         delay(_delay_msecs)
                         if(emit.isDone()) return@async
@@ -122,7 +123,7 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
 
         on<OnEachCatchError>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.onEach( stream, onData =  {i ->
+            emit.onEach( inputEventsStream, onData =  {i ->
                 cscope.async {
                     delay(_delay_msecs)
                     emit(i)
@@ -132,7 +133,7 @@ class  RestartableStreamBloc(cscope:CoroutineScope) :Bloc<RestartableStreamEvent
 
         on<UnawaitedOnEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })
         { _, emit ->
-            emit.onEach( stream, onData =  {i ->
+            emit.onEach( inputEventsStream, onData =  {i ->
                 cscope.async {
                     delay(_delay_msecs)
                     emit(i)

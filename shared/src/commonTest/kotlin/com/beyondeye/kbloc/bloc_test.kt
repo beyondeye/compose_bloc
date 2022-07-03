@@ -9,12 +9,15 @@ import com.beyondeye.kbloc.counter.CounterEvent
 import com.beyondeye.kbloc.counter.MergeBloc
 import com.beyondeye.kbloc.seeded.SeededBloc
 import com.beyondeye.kbloc.simple.SimpleBloc
+import com.beyondeye.kbloc.stream.StreamBloc
+import com.beyondeye.kbloc.stream.Subscribe
 import io.mockk.MockKAnnotations
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
@@ -955,7 +958,41 @@ class SimpleBlocTests {
         sub1.cancel()
         assertContentEquals(expectedStates,actualStates)
     }
+    @Test
+    fun StreamBloc_cancels_subscriptions_correctly() = runTest(UnconfinedTestDispatcher())
+    {
+        val expectedStates= listOf(0,1,2,3,4)
+        val states= mutableListOf<Int>()
+        val eventflow=MutableSharedFlow<Int>()
+        val bloc = StreamBloc(this,eventflow)
 
+        val sub1 = async {
+            bloc.stream.collect {
+                states.add(it)
+            }
+        }
+        bloc.add(Subscribe())
+        tick()
+
+        with(eventflow) {
+            emit(0)
+            emit(1)
+            emit(2)
+        }
+        //TODO in the original code here there is delay(0) why we need to wait to wait so much to make this work?
+        delay(120)
+        bloc.add(Subscribe())
+        tick()
+        with(eventflow) {
+            emit(3)
+            emit(4)
+        }
+        delay(300)
+
+        bloc.close()
+        sub1.cancel()
+        assertContentEquals(expectedStates,states)
+    }
 
 }
 /*
@@ -981,40 +1018,6 @@ void main() {
         registerFallbackValue(FakeBlocBase<dynamic>());
         registerFallbackValue(StackTrace.empty);
       });
-
-
-    group('StreamBloc', () {
-      test('cancels subscriptions correctly', () async {
-        const expectedStates = [0, 1, 2, 3, 4];
-        final states = <int>[];
-        final controller = StreamController<int>.broadcast();
-        final bloc = StreamBloc(controller.stream)
-          ..stream.listen(states.add)
-          ..add(Subscribe());
-
-        await tick();
-
-        controller
-          ..add(0)
-          ..add(1)
-          ..add(2);
-
-        await tick();
-
-        bloc.add(Subscribe());
-
-        await tick();
-
-        controller
-          ..add(3)
-          ..add(4);
-
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-
-        await bloc.close();
-        expect(states, equals(expectedStates));
-      });
-    });
 
     group('RestartableStreamBloc', () {
       test('unawaited forEach throws AssertionError', () async {

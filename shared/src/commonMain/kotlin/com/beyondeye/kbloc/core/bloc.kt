@@ -18,8 +18,16 @@ public interface BlocEventSink<Event:Any?> :ErrorSink
      * Adds an [event] to the sink.
      *
      * Must not be called on a closed sink.
+     * note: unlike the original dart code, events are always added serially in the same sequence as
+     * calls to the [add]
      */
     public fun add(event:Event)
+
+    /**
+     * same as [add] but event is added to event stream without waiting for completion
+     * Note: the original dart code actually behave like this method,
+     */
+    public suspend fun add_async(event:Event)
 }
 
 /**
@@ -92,25 +100,43 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
     */
     override fun add(event: Event) {
         if (event==null) return
-        if(CHECK_IF_EVENT_HANDLER_REGISTERED) { //TODO should i leave this debug mode or use a flag 
-            val eventType=event!!::class
-            val handlerExists=_handlers.find { it.type ==eventType }!=null
-            if (!handlerExists)
-                throw StateError(Bloc.getHandlerMissingErrorMessage(eventType))
+        check_event_registered(event)
+            //TODO if the stream buffer is not full _eventController.emit will not block
+        //so it is probably correct to use runBlocking here
+        runBlocking {
+            try {
+                onEvent(event)
+                _eventController.emit(event)
+            } catch (error: Throwable) {
+                onError(error)
+                throw error
+            }
         }
+    }
+
+    /**
+     * same as [add] but without runBlocking
+     */
+    override suspend fun add_async(event: Event) {
+        if (event == null) return
+        check_event_registered(event)
         try {
             onEvent(event)
-            //TODO if the stream buffer is not full _eventController.emit will not block
-            //so it is probably correct to use runBlocking here
-            runBlocking {
-                _eventController.emit(event)
-            }
-        } catch (error:Throwable) {
+            _eventController.emit(event)
+        } catch (error: Throwable) {
             onError(error)
             throw error
         }
     }
 
+    private fun check_event_registered(event: Event) {
+        if (CHECK_IF_EVENT_HANDLER_REGISTERED) { //TODO should i leave this debug mode or use a flag
+            val eventType = event!!::class
+            val handlerExists = _handlers.find { it.type == eventType } != null
+            if (!handlerExists)
+                throw StateError(getHandlerMissingErrorMessage(eventType))
+        }
+    }
 
 
     /** Called whenever an [event] is [add]ed to the [Bloc].

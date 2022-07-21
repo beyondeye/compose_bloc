@@ -92,7 +92,9 @@ internal class _Emitter<State>(private val _emit: (State) -> Unit,private val _c
             }
         }.onEach {
             onData(it)
-        }.onCompletion { completer.complete(Unit) }
+        }.onCompletion {
+            completer.complete(Unit)
+        }
         //cancelOnError: onError == null, TODO how to implement this?
         val subscription = coroutineScope { launch { stream_w_attached_callbacks.collect() } }
         _disposables.add(subscription)

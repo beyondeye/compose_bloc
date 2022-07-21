@@ -9,8 +9,7 @@ import com.beyondeye.kbloc.counter.CounterEvent
 import com.beyondeye.kbloc.counter.MergeBloc
 import com.beyondeye.kbloc.seeded.SeededBloc
 import com.beyondeye.kbloc.simple.SimpleBloc
-import com.beyondeye.kbloc.stream.StreamBloc
-import com.beyondeye.kbloc.stream.Subscribe
+import com.beyondeye.kbloc.stream.*
 import io.mockk.MockKAnnotations
 import io.mockk.spyk
 import io.mockk.verify
@@ -18,6 +17,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
@@ -186,7 +186,7 @@ class SimpleBlocTests {
     {
         val observer = spyk(MockBlocObserver<Any>())
         val expectedStates = listOf<ComplexState>(ComplexStateA())
-        val actualStates= mutableListOf<ComplexState>()
+        val actualStates = mutableListOf<ComplexState>()
         val complexBloc = ComplexBloc(this)
         val sub1 = async {
             complexBloc.stream.collect {
@@ -197,26 +197,27 @@ class SimpleBlocTests {
         delay(50)
         complexBloc.close()
         sub1.cancel()
-        assertContentEquals(expectedStates,actualStates)
+        assertContentEquals(expectedStates, actualStates)
     }
+
     @Test
     fun Complex_Bloc_state_returns_correct_value_initially() = runTest(
         UnconfinedTestDispatcher()
     )
     {
         val complexBloc = ComplexBloc(this)
-        assertEquals(ComplexStateA(),complexBloc.state)
+        assertEquals(ComplexStateA(), complexBloc.state)
         complexBloc.close()
     }
+
     @Test
-    fun ComplexBloc_should_map_single_event_to_correct_state()
-    {
+    fun ComplexBloc_should_map_single_event_to_correct_state() {
         val observer = spyk(MockBlocObserver<Any>())
         BlocOverrides.runZoned(observer) {
             runTest(UnconfinedTestDispatcher())
             {
                 val expectedStates = listOf(ComplexStateB())
-                val actualStates= mutableListOf<ComplexState>()
+                val actualStates = mutableListOf<ComplexState>()
                 val complexBloc = ComplexBloc(this)
                 val sub1 = async {
                     complexBloc.stream.collect {
@@ -226,12 +227,20 @@ class SimpleBlocTests {
                 complexBloc.add(ComplexEventB())
                 //TODO why I need such a lenghty interval to receive the initial complexBloc state of complexBloc, from the stream subscription?
                 delay(50)
-                assertContentEquals(expectedStates,actualStates)
+                assertContentEquals(expectedStates, actualStates)
 
-                verify(exactly = 1) { observer.onTransition(complexBloc as Bloc<Any, Any>,
-                    Transition(ComplexStateA(),ComplexEventB(),ComplexStateB())
-                ) }
-                verify(exactly = 1) { observer.onChange(complexBloc as BlocBase<Any>,Change(ComplexStateA(),ComplexStateB()))  }
+                verify(exactly = 1) {
+                    observer.onTransition(
+                        complexBloc as Bloc<Any, Any>,
+                        Transition(ComplexStateA(), ComplexEventB(), ComplexStateB())
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onChange(
+                        complexBloc as BlocBase<Any>,
+                        Change(ComplexStateA(), ComplexStateB())
+                    )
+                }
 
                 complexBloc.close()
                 sub1.cancel()
@@ -240,8 +249,7 @@ class SimpleBlocTests {
     }
 
     @Test
-    fun ComplexBloc_should_map_multiple_events_to_correct_state()
-    {
+    fun ComplexBloc_should_map_multiple_events_to_correct_state() {
         val observer = spyk(MockBlocObserver<Any>())
         BlocOverrides.runZoned(observer) {
             runTest(UnconfinedTestDispatcher())
@@ -250,9 +258,10 @@ class SimpleBlocTests {
                     ComplexStateB(),
                     ComplexStateD(),
                     ComplexStateA(),
-                    ComplexStateC())
+                    ComplexStateC()
+                )
 
-                val actualStates= mutableListOf<ComplexState>()
+                val actualStates = mutableListOf<ComplexState>()
                 val complexBloc = ComplexBloc(this)
                 val sub1 = async {
                     complexBloc.stream.collect {
@@ -275,13 +284,14 @@ class SimpleBlocTests {
                 complexBloc.add(ComplexEventC())
                 //TODO why I need such a lenghty interval to receive the added state from the stream subscription?
                 delay(30)
-                assertContentEquals(expectedStates,actualStates)
+                assertContentEquals(expectedStates, actualStates)
 
                 sub1.cancel()
                 complexBloc.close()
             }
         }
     }
+
     @Test
     fun ComplexBloc_is_a_broadcast_stream() = runTest(UnconfinedTestDispatcher())
     {
@@ -312,107 +322,119 @@ class SimpleBlocTests {
         sub2.cancel()
         complexBloc.close()
     }
-    @Test
-    fun ComplexBloc_multiple_subscribers_receive_the_latest_state() = runTest(UnconfinedTestDispatcher())
-    {
-        val expectedStates = listOf(
-            ComplexStateB(),
-        )
 
-        val complexBloc = ComplexBloc(this)
-        val actualStates1 = mutableListOf<ComplexState>()
-        val sub1 = async {
-            complexBloc.stream.collect {
-                actualStates1.add(it)
+    @Test
+    fun ComplexBloc_multiple_subscribers_receive_the_latest_state() =
+        runTest(UnconfinedTestDispatcher())
+        {
+            val expectedStates = listOf(
+                ComplexStateB(),
+            )
+
+            val complexBloc = ComplexBloc(this)
+            val actualStates1 = mutableListOf<ComplexState>()
+            val sub1 = async {
+                complexBloc.stream.collect {
+                    actualStates1.add(it)
+                }
             }
-        }
-        val actualStates2 = mutableListOf<ComplexState>()
-        val sub2 = async {
-            complexBloc.stream.collect {
-                actualStates2.add(it)
+            val actualStates2 = mutableListOf<ComplexState>()
+            val sub2 = async {
+                complexBloc.stream.collect {
+                    actualStates2.add(it)
+                }
             }
-        }
-        val actualStates3 = mutableListOf<ComplexState>()
-        val sub3 = async {
-            complexBloc.stream.collect {
-                actualStates3.add(it)
+            val actualStates3 = mutableListOf<ComplexState>()
+            val sub3 = async {
+                complexBloc.stream.collect {
+                    actualStates3.add(it)
+                }
             }
+
+            complexBloc.add(ComplexEventB())
+            //TODO why I need such a lenghty interval to receive the added state from the stream subscription?
+            delay(50)
+            assertContentEquals(expectedStates, actualStates1)
+            assertContentEquals(expectedStates, actualStates2)
+            assertContentEquals(expectedStates, actualStates3)
+            sub1.cancel()
+            sub2.cancel()
+            sub3.cancel()
+            complexBloc.close()
         }
 
-        complexBloc.add(ComplexEventB())
-        //TODO why I need such a lenghty interval to receive the added state from the stream subscription?
-        delay(50)
-        assertContentEquals(expectedStates, actualStates1)
-        assertContentEquals(expectedStates, actualStates2)
-        assertContentEquals(expectedStates, actualStates3)
-        sub1.cancel()
-        sub2.cancel()
-        sub3.cancel()
-        complexBloc.close()
-    }
     @Test
-    fun CounterBloc_state_returns_correct_value_initially()= runTest(UnconfinedTestDispatcher()) {
+    fun CounterBloc_state_returns_correct_value_initially() = runTest(UnconfinedTestDispatcher()) {
         val events = mutableListOf<CounterEvent>()
-        val transitions= mutableListOf<String>()
+        val transitions = mutableListOf<String>()
         val counterBloc = CounterBloc(this,
-            onEventCallback= { events.add(it) },
-        onTransitionCallback= { transition ->
-            transitions.add(transition.toString())
-        })
-        assertEquals(0,counterBloc.state)
-        assertTrue { events.size==0 }
-        assertTrue { transitions.size==0 }
+            onEventCallback = { events.add(it) },
+            onTransitionCallback = { transition ->
+                transitions.add(transition.toString())
+            })
+        assertEquals(0, counterBloc.state)
+        assertTrue { events.size == 0 }
+        assertTrue { transitions.size == 0 }
         counterBloc.close()
     }
 
     @Test
-    fun CounterBloc_single_increment_event_update_state_to_1(){
+    fun CounterBloc_single_increment_event_update_state_to_1() {
         val observer = spyk(MockBlocObserver<Any>())
         BlocOverrides.runZoned(observer) {
             runTest(UnconfinedTestDispatcher())
             {
-                val expectedStates= listOf(1)
-                val expectedTransitions= listOf("Transition { currentState: 0, event: increment, nextState: 1 }")
+                val expectedStates = listOf(1)
+                val expectedTransitions =
+                    listOf("Transition { currentState: 0, event: increment, nextState: 1 }")
 
                 val events = mutableListOf<CounterEvent>()
-                val transitions= mutableListOf<String>()
+                val transitions = mutableListOf<String>()
                 val counterBloc = CounterBloc(this,
-                    onEventCallback= { events.add(it) },
-                    onTransitionCallback= { transition ->
+                    onEventCallback = { events.add(it) },
+                    onTransitionCallback = { transition ->
                         transitions.add(transition.toString())
                     })
                 counterBloc.add(CounterEvent.increment)
                 counterBloc.close()
 
-                assertContentEquals(expectedTransitions,transitions)
-                verify(exactly = 1) { observer.onTransition(counterBloc as Bloc<Any, Any>,
-                    Transition(0,CounterEvent.increment,1)
-                )  }
-                verify(exactly = 1) { observer.onChange(counterBloc as Bloc<Any,Any>,Change(0,1))  }
+                assertContentEquals(expectedTransitions, transitions)
+                verify(exactly = 1) {
+                    observer.onTransition(
+                        counterBloc as Bloc<Any, Any>,
+                        Transition(0, CounterEvent.increment, 1)
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onChange(
+                        counterBloc as Bloc<Any, Any>,
+                        Change(0, 1)
+                    )
+                }
 
-                assertEquals(1,counterBloc.state)
+                assertEquals(1, counterBloc.state)
             }
         }
     }
 
     @Test
-    fun CounterBloc_multiple_increment_updates_state_to_3(){
+    fun CounterBloc_multiple_increment_updates_state_to_3() {
         val observer = spyk(MockBlocObserver<Any>())
         BlocOverrides.runZoned(observer) {
             runTest(UnconfinedTestDispatcher())
             {
-                val expectedStates= listOf(1,2,3)
-                val expectedTransitions= listOf(
+                val expectedStates = listOf(1, 2, 3)
+                val expectedTransitions = listOf(
                     "Transition { currentState: 0, event: increment, nextState: 1 }",
                     "Transition { currentState: 1, event: increment, nextState: 2 }",
                     "Transition { currentState: 2, event: increment, nextState: 3 }",
                 )
 
                 val events = mutableListOf<CounterEvent>()
-                val transitions= mutableListOf<String>()
+                val transitions = mutableListOf<String>()
                 val counterBloc = CounterBloc(this,
-                    onEventCallback= { events.add(it) },
-                    onTransitionCallback= { transition ->
+                    onEventCallback = { events.add(it) },
+                    onTransitionCallback = { transition ->
                         transitions.add(transition.toString())
                     })
                 counterBloc.add(CounterEvent.increment)
@@ -420,29 +442,54 @@ class SimpleBlocTests {
                 counterBloc.add(CounterEvent.increment)
                 counterBloc.close()
 
-                assertContentEquals(expectedTransitions,transitions)
-                verify(exactly = 1) { observer.onTransition(counterBloc as Bloc<Any, Any>,
-                    Transition(0,CounterEvent.increment,1)
-                )  }
-                verify(exactly = 1) { observer.onTransition(counterBloc as Bloc<Any, Any>,
-                    Transition(1,CounterEvent.increment,2)
-                )  }
-                verify(exactly = 1) { observer.onTransition(counterBloc as Bloc<Any, Any>,
-                    Transition(2,CounterEvent.increment,3)
-                )  }
-                verify(exactly = 1) { observer.onChange(counterBloc as Bloc<Any,Any>,Change(0,1))  }
-                verify(exactly = 1) { observer.onChange(counterBloc as Bloc<Any,Any>,Change(1,2))  }
-                verify(exactly = 1) { observer.onChange(counterBloc as Bloc<Any,Any>,Change(2,3))  }
+                assertContentEquals(expectedTransitions, transitions)
+                verify(exactly = 1) {
+                    observer.onTransition(
+                        counterBloc as Bloc<Any, Any>,
+                        Transition(0, CounterEvent.increment, 1)
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onTransition(
+                        counterBloc as Bloc<Any, Any>,
+                        Transition(1, CounterEvent.increment, 2)
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onTransition(
+                        counterBloc as Bloc<Any, Any>,
+                        Transition(2, CounterEvent.increment, 3)
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onChange(
+                        counterBloc as Bloc<Any, Any>,
+                        Change(0, 1)
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onChange(
+                        counterBloc as Bloc<Any, Any>,
+                        Change(1, 2)
+                    )
+                }
+                verify(exactly = 1) {
+                    observer.onChange(
+                        counterBloc as Bloc<Any, Any>,
+                        Change(2, 3)
+                    )
+                }
 
-                assertEquals(3,counterBloc.state)
+                assertEquals(3, counterBloc.state)
             }
         }
     }
+
     @Test
     fun CounterBloc_is_a_broadcast_stream() = runTest(UnconfinedTestDispatcher())
     {
         //TODO: in the original dart code, expected states does not contain the initial state that is 0
-        val expectedStates = listOf(0,1)
+        val expectedStates = listOf(0, 1)
 
         val counterBloc = CounterBloc(this)
         val actualStates1 = mutableListOf<Int>()
@@ -468,53 +515,56 @@ class SimpleBlocTests {
     }
 
     @Test
-    fun CounterBloc_multiple_subscribers_receive_the_latest_state() = runTest(UnconfinedTestDispatcher())
-    {
-        //TODO: in the original dart code, expected states does not contain the initial state that is 0
-        val expectedStates = listOf(0,1)
+    fun CounterBloc_multiple_subscribers_receive_the_latest_state() =
+        runTest(UnconfinedTestDispatcher())
+        {
+            //TODO: in the original dart code, expected states does not contain the initial state that is 0
+            val expectedStates = listOf(0, 1)
 
-        val counterBloc = CounterBloc(this)
-        val actualStates1 = mutableListOf<Int>()
-        val sub1 = async {
-            counterBloc.stream.collect {
-                actualStates1.add(it)
+            val counterBloc = CounterBloc(this)
+            val actualStates1 = mutableListOf<Int>()
+            val sub1 = async {
+                counterBloc.stream.collect {
+                    actualStates1.add(it)
+                }
             }
-        }
-        val actualStates2 = mutableListOf<Int>()
-        val sub2 = async {
-            counterBloc.stream.collect {
-                actualStates2.add(it)
+            val actualStates2 = mutableListOf<Int>()
+            val sub2 = async {
+                counterBloc.stream.collect {
+                    actualStates2.add(it)
+                }
             }
-        }
-        val actualStates3 = mutableListOf<Int>()
-        val sub3 = async {
-            counterBloc.stream.collect {
-                actualStates3.add(it)
+            val actualStates3 = mutableListOf<Int>()
+            val sub3 = async {
+                counterBloc.stream.collect {
+                    actualStates3.add(it)
+                }
             }
+
+            counterBloc.add(CounterEvent.increment)
+            delay(0)
+            assertContentEquals(expectedStates, actualStates1)
+            assertContentEquals(expectedStates, actualStates2)
+            assertContentEquals(expectedStates, actualStates3)
+            sub1.cancel()
+            sub2.cancel()
+            sub3.cancel()
+            counterBloc.close()
         }
 
-        counterBloc.add(CounterEvent.increment)
-        delay(0)
-        assertContentEquals(expectedStates, actualStates1)
-        assertContentEquals(expectedStates, actualStates2)
-        assertContentEquals(expectedStates, actualStates3)
-        sub1.cancel()
-        sub2.cancel()
-        sub3.cancel()
-        counterBloc.close()
-    }
     @Test
     fun CounterBloc_maintains_correct_transition_composition() = runTest(UnconfinedTestDispatcher())
     {
-        val expectedTransitions= listOf(
-            Transition(0,CounterEvent.decrement,-1),
-        Transition(-1,CounterEvent.increment,0)
+        val expectedTransitions = listOf(
+            Transition(0, CounterEvent.decrement, -1),
+            Transition(-1, CounterEvent.increment, 0)
         )
         //TODO: in the original dart code, expected states does not contain the initial state that is 0
-        val expectedStates = listOf(0,-1,0)
+        val expectedStates = listOf(0, -1, 0)
 
-        val actualTransitions= mutableListOf<Transition<CounterEvent,Int>>()
-        val counterBloc = CounterBloc(this, onTransitionCallback = {t -> actualTransitions.add(t) })
+        val actualTransitions = mutableListOf<Transition<CounterEvent, Int>>()
+        val counterBloc =
+            CounterBloc(this, onTransitionCallback = { t -> actualTransitions.add(t) })
         val actualStates = mutableListOf<Int>()
         val sub1 = async {
             counterBloc.stream.collect {
@@ -536,24 +586,27 @@ class SimpleBlocTests {
      * this test fails
      */
     @Test
-    fun CounterBloc_events_are_processed_asynchronously() = runTest(UnconfinedTestDispatcher()){
-        val transitions= mutableListOf<Transition<CounterEvent,Int>>()
+    fun CounterBloc_events_are_processed_asynchronously() = runTest(UnconfinedTestDispatcher()) {
+        val transitions = mutableListOf<Transition<CounterEvent, Int>>()
         val events = mutableListOf<CounterEvent>()
-        val counterBloc = CounterBloc(this, onTransitionCallback = {t -> transitions.add(t) }, onEventCallback = { e->events.add(e)})
-        assertEquals(0,counterBloc.state)
-        assertContentEquals(listOf(),events)
-        assertContentEquals(listOf(),transitions)
+        val counterBloc = CounterBloc(
+            this,
+            onTransitionCallback = { t -> transitions.add(t) },
+            onEventCallback = { e -> events.add(e) })
+        assertEquals(0, counterBloc.state)
+        assertContentEquals(listOf(), events)
+        assertContentEquals(listOf(), transitions)
 
         counterBloc.add_async(CounterEvent.increment)
         assertEquals(counterBloc.state, 0)
         assertContentEquals(events, listOf(CounterEvent.increment))
-        assertContentEquals(listOf(),transitions)
+        assertContentEquals(listOf(), transitions)
 
         //after we wait a bit the event will already processed
         tick()
         assertEquals(counterBloc.state, 1)
         assertContentEquals(events, listOf(CounterEvent.increment))
-        assertContentEquals(listOf(Transition(0,CounterEvent.increment,1)),transitions)
+        assertContentEquals(listOf(Transition(0, CounterEvent.increment, 1)), transitions)
         counterBloc.close()
     }
 
@@ -562,14 +615,14 @@ class SimpleBlocTests {
         runTest(UnconfinedTestDispatcher())
         {
             val asyncBloc = AsyncBloc(this)
-            val actualStates= mutableListOf<AsyncState>()
+            val actualStates = mutableListOf<AsyncState>()
             val sub1 = async {
                 asyncBloc.stream.collect {
                     actualStates.add(it)
                 }
             }
             asyncBloc.close()
-            assertContentEquals(listOf(),actualStates)
+            assertContentEquals(listOf(), actualStates)
         }
     /*
        setUp(() {
@@ -846,18 +899,18 @@ class SimpleBlocTests {
      * TODO currently MergeBloc is not fully implemented
      */
     @Test
-    fun MergeBloc_maintains_correct_transition_composition() = runTest(UnconfinedTestDispatcher()){
-        val expectedTransitions= listOf(
-            Transition(0,CounterEvent.increment,1),
-        Transition(1,CounterEvent.decrement,0),
-        Transition(0,CounterEvent.decrement,-1)
+    fun MergeBloc_maintains_correct_transition_composition() = runTest(UnconfinedTestDispatcher()) {
+        val expectedTransitions = listOf(
+            Transition(0, CounterEvent.increment, 1),
+            Transition(1, CounterEvent.decrement, 0),
+            Transition(0, CounterEvent.decrement, -1)
         )
-        val expectedStates= listOf(1,0,-1)
+        val expectedStates = listOf(1, 0, -1)
 
-        val states= mutableListOf<Int>()
-        val transitions = mutableListOf<Transition<CounterEvent,Int>>()
+        val states = mutableListOf<Int>()
+        val transitions = mutableListOf<Transition<CounterEvent, Int>>()
 
-        val bloc=MergeBloc(this, onTransitionCallback = { transitions.add(it)  })
+        val bloc = MergeBloc(this, onTransitionCallback = { transitions.add(it) })
         with(bloc) {
             add(CounterEvent.increment)
             add(CounterEvent.increment)
@@ -865,15 +918,16 @@ class SimpleBlocTests {
             add(CounterEvent.decrement)
             close()
         }
-        assertContentEquals(expectedStates,states)
-        assertContentEquals(expectedTransitions,transitions)
+        assertContentEquals(expectedStates, states)
+        assertContentEquals(expectedTransitions, transitions)
     }
+
     @Test
-    fun SeededBloc_does_not_emit_repeated_states() = runTest(UnconfinedTestDispatcher()){
-        val seededBloc=SeededBloc(0, listOf(1,2,1,1),this)
+    fun SeededBloc_does_not_emit_repeated_states() = runTest(UnconfinedTestDispatcher()) {
+        val seededBloc = SeededBloc(0, listOf(1, 2, 1, 1), this)
         //NOTE: it is listOf(1,2,1) in the original code: initial state is ignored
-        val expectedStates= listOf(0,1,2,1)
-        val actualStates= mutableListOf<Int>()
+        val expectedStates = listOf(0, 1, 2, 1)
+        val actualStates = mutableListOf<Int>()
         val sub1 = async {
             seededBloc.stream.collect {
                 actualStates.add(it)
@@ -882,13 +936,14 @@ class SimpleBlocTests {
         seededBloc.add("event")
         seededBloc.close()
         sub1.cancel()
-        assertContentEquals(expectedStates,actualStates)
+        assertContentEquals(expectedStates, actualStates)
     }
+
     @Test
-    fun SeededBloc_can_emit_initial_state_only_once() = runTest(UnconfinedTestDispatcher()){
-        val seededBloc=SeededBloc(0, listOf(0,0),this)
-        val expectedStates= listOf(0)
-        val actualStates= mutableListOf<Int>()
+    fun SeededBloc_can_emit_initial_state_only_once() = runTest(UnconfinedTestDispatcher()) {
+        val seededBloc = SeededBloc(0, listOf(0, 0), this)
+        val expectedStates = listOf(0)
+        val actualStates = mutableListOf<Int>()
         val sub1 = async {
             seededBloc.stream.collect {
                 actualStates.add(it)
@@ -897,74 +952,79 @@ class SimpleBlocTests {
         seededBloc.add("event")
         seededBloc.close()
         sub1.cancel()
-        assertContentEquals(expectedStates,actualStates)
+        assertContentEquals(expectedStates, actualStates)
     }
 
     @Test
-    fun SeededBloc_can_emit_initial_state_and_continue_emitting_distinct_states() = runTest(UnconfinedTestDispatcher()){
-        val seededBloc=SeededBloc(0, listOf(0,0,1),this)
-        val expectedStates= listOf(0,1)
-        val actualStates= mutableListOf<Int>()
-        val sub1 = async {
-            seededBloc.stream.collect {
-                actualStates.add(it)
+    fun SeededBloc_can_emit_initial_state_and_continue_emitting_distinct_states() =
+        runTest(UnconfinedTestDispatcher()) {
+            val seededBloc = SeededBloc(0, listOf(0, 0, 1), this)
+            val expectedStates = listOf(0, 1)
+            val actualStates = mutableListOf<Int>()
+            val sub1 = async {
+                seededBloc.stream.collect {
+                    actualStates.add(it)
+                }
             }
+            seededBloc.add("event")
+            seededBloc.close()
+            sub1.cancel()
+            assertContentEquals(expectedStates, actualStates)
         }
-        seededBloc.add("event")
-        seededBloc.close()
-        sub1.cancel()
-        assertContentEquals(expectedStates,actualStates)
-    }
-    @Test
-    fun SeededBloc_discard_subsequent_duplicate_states_for_distinct_events() = runTest(UnconfinedTestDispatcher()){
-        val seededBloc=SeededBloc(0, listOf(1,1),this)
-        //NOTE: it is listOf(1) in the original code: initial state is ignored
-        val expectedStates= listOf(0,1)
-        val actualStates= mutableListOf<Int>()
-        val sub1 = async {
-            seededBloc.stream.collect {
-                actualStates.add(it)
-            }
-        }
-        with(seededBloc) {
-            add("eventA")
-            add("eventB")
-            add("eventC")
-            close()
-
-        }
-        sub1.cancel()
-        assertContentEquals(expectedStates,actualStates)
-    }
 
     @Test
-    fun SeededBloc_discard_subsequent_duplicate_states_for_same_event() = runTest(UnconfinedTestDispatcher()){
-        val seededBloc=SeededBloc(0, listOf(1,1),this)
-        //NOTE: it is listOf(1) in the original code: initial state is ignored
-        val expectedStates= listOf(0,1)
-        val actualStates= mutableListOf<Int>()
-        val sub1 = async {
-            seededBloc.stream.collect {
-                actualStates.add(it)
+    fun SeededBloc_discard_subsequent_duplicate_states_for_distinct_events() =
+        runTest(UnconfinedTestDispatcher()) {
+            val seededBloc = SeededBloc(0, listOf(1, 1), this)
+            //NOTE: it is listOf(1) in the original code: initial state is ignored
+            val expectedStates = listOf(0, 1)
+            val actualStates = mutableListOf<Int>()
+            val sub1 = async {
+                seededBloc.stream.collect {
+                    actualStates.add(it)
+                }
             }
-        }
-        with(seededBloc) {
-            add("event")
-            add("event")
-            add("event")
-            close()
+            with(seededBloc) {
+                add("eventA")
+                add("eventB")
+                add("eventC")
+                close()
 
+            }
+            sub1.cancel()
+            assertContentEquals(expectedStates, actualStates)
         }
-        sub1.cancel()
-        assertContentEquals(expectedStates,actualStates)
-    }
+
+    @Test
+    fun SeededBloc_discard_subsequent_duplicate_states_for_same_event() =
+        runTest(UnconfinedTestDispatcher()) {
+            val seededBloc = SeededBloc(0, listOf(1, 1), this)
+            //NOTE: it is listOf(1) in the original code: initial state is ignored
+            val expectedStates = listOf(0, 1)
+            val actualStates = mutableListOf<Int>()
+            val sub1 = async {
+                seededBloc.stream.collect {
+                    actualStates.add(it)
+                }
+            }
+            with(seededBloc) {
+                add("event")
+                add("event")
+                add("event")
+                close()
+
+            }
+            sub1.cancel()
+            assertContentEquals(expectedStates, actualStates)
+        }
+
     @Test
     fun StreamBloc_cancels_subscriptions_correctly() = runTest(UnconfinedTestDispatcher())
     {
-        val expectedStates= listOf(0,1,2,3,4)
-        val states= mutableListOf<Int>()
-        val eventflow=MutableSharedFlow<Int>()
-        val bloc = StreamBloc(this,eventflow)
+        val expectedStates = listOf(0, 1, 2, 3, 4)
+        val states = mutableListOf<Int>()
+        val eventflow = MutableSharedFlow<Int>()
+        val bloc = StreamBloc(this, eventflow)
 
         val sub1 = async {
             bloc.stream.collect {
@@ -991,9 +1051,51 @@ class SimpleBlocTests {
 
         bloc.close()
         sub1.cancel()
-        assertContentEquals(expectedStates,states)
+        assertContentEquals(expectedStates, states)
     }
 
+    //TODO this test is not currently working. the problem seems to be current implementation
+    // of emitter.forEach: it is currently defined as a suspend function but should instead be defined as
+    // an asyc function that return a deferred, like in the original code? also handleEvent is not called
+    //also another problem is that "controller" flow  does not ever complete, and without completing the
+    // check that should throw blocError that is expected, will not be ever thrown
+    //when bloc.add(UnawaitedForEach()) line is run
+    @Test
+    fun RestartableStreamEvent_unawaited_forEach_throws_Assertion_error() {
+        runBlocking {
+            var blocError: Throwable? = null
+            try {
+                val controller = MutableSharedFlow<Int>()
+                val bloc = RestartableStreamBloc(this, controller)
+
+                //--the following code was not in original test code
+                val states= mutableListOf<Int>()
+                val sub1 = async {
+                    bloc.stream.collect {
+                        states.add(it)
+                    }
+                }
+                //--the previous code was not in original test code
+
+                bloc.add(UnawaitedForEach())
+                tick()
+                controller.emit(0)
+                tick()
+                delay(300) //it was 300 in the original code
+                println(states) //this line was not in original test code
+                sub1.cancel() //this line was not in original test code
+                bloc.close()
+            } catch (e: Throwable) {
+                blocError = e
+            }
+            assertTrue { blocError != null }
+            assertTrue {
+                blocError?.message?.contains("An event handler completed but left pending subscriptions behind.")
+                    ?: true
+            }
+
+        }
+    }
 }
 /*
 import 'dart:async';

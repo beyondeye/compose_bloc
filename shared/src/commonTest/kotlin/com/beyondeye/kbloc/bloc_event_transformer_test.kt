@@ -1,5 +1,6 @@
 package com.beyondeye.kbloc
 
+import com.beyondeye.kbloc.async.asyncExpand
 import com.beyondeye.kbloc.core.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -134,167 +135,98 @@ class BlocEventTransformerTest {
             assertContentEquals(listOf(0),states)
         }
     }
-}
-/*
+    @Test
+    fun processes_events_sequentially_when_transformer_is_overridden() {
+        runBlocking {
+            val incrementTransformer:EventTransformer<Increment> =  { events, mapper ->
+                events.asyncExpand(mapper)
+            }
+            val states = mutableListOf<Int>()
+            val bloc = CounterBloc(this,incrementTransformer)
+            val sub1= async {
+                bloc.stream.collect {
+                    states.add(it)
+                }
+            }
+            with(bloc) {
+                add(Increment())
+                add(Increment())
+                add(Increment())
+            }
+            //---------
+            delay(10) //todo it was tick() in original code
+            assertContentEquals(listOf(Increment()),bloc.onCalls)
+            wait()
+            assertContentEquals(listOf(Increment()),bloc.onEmitCalls)
+            println(states)
+            assertContentEquals(listOf(0,1),states)       //listOf(1) in original code
+            //---------
+            delay(10) //todo it was tick() in original code
+            assertContentEquals(listOf(Increment(),Increment()),bloc.onCalls)
+            wait()
+            assertContentEquals(listOf(Increment(),Increment()),bloc.onEmitCalls)
+            assertContentEquals(listOf(0,1,2),states)       //listOf(1,2) in original code
+            //---------
+            delay(10) //todo it was tick() in original code
+            assertContentEquals(listOf(Increment(),Increment(),Increment()),bloc.onCalls)
+            wait()
+            assertContentEquals(listOf(Increment(),Increment(),Increment()),bloc.onEmitCalls)
+            assertContentEquals(listOf(0,1,2,3),states)       //listOf(1,2,3) in original code
 
-void main() {
-
-  test(
-      'processes events sequentially when '
-      'transformer is overridden.', () async {
-    EventTransformer<Increment> incrementTransformer() {
-      return (events, mapper) => events.asyncExpand(mapper);
+            bloc.close() //immediately close
+            sub1.cancel()
+        }
     }
 
-    final states = <int>[];
-    final bloc = CounterBloc(incrementTransformer: incrementTransformer())
-      ..stream.listen(states.add)
-      ..add(Increment())
-      ..add(Increment())
-      ..add(Increment());
+    @Test
+    fun processes_events_sequentially_when_bloc_transformer_is_overridden() {
 
-    await tick();
+        BlocOverrides.runZoned(
+            eventTransformer = { events, mapper -> events.asyncExpand<Any, Any>(mapper) })
+        {
+            runBlocking {
+                val incrementTransformer: EventTransformer<Increment> = { events, mapper ->
+                    events.asyncExpand(mapper)
+                }
+                val states = mutableListOf<Int>()
+                val bloc = CounterBloc(this, incrementTransformer)
+                val sub1 = async {
+                    bloc.stream.collect {
+                        states.add(it)
+                    }
+                }
+                with(bloc) {
+                    add(Increment())
+                    add(Increment())
+                    add(Increment())
+                }
+                //---------
+                delay(10) //todo it was tick() in original code
+                assertContentEquals(listOf(Increment()), bloc.onCalls)
+                wait()
+                assertContentEquals(listOf(Increment()), bloc.onEmitCalls)
+                println(states)
+                assertContentEquals(listOf(0, 1), states)       //listOf(1) in original code
+                //---------
+                delay(10) //todo it was tick() in original code
+                assertContentEquals(listOf(Increment(), Increment()), bloc.onCalls)
+                wait()
+                assertContentEquals(listOf(Increment(), Increment()), bloc.onEmitCalls)
+                assertContentEquals(listOf(0, 1, 2), states)       //listOf(1,2) in original code
+                //---------
+                delay(10) //todo it was tick() in original code
+                assertContentEquals(listOf(Increment(), Increment(), Increment()), bloc.onCalls)
+                wait()
+                assertContentEquals(listOf(Increment(), Increment(), Increment()), bloc.onEmitCalls)
+                assertContentEquals(
+                    listOf(0, 1, 2, 3),
+                    states
+                )       //listOf(1,2,3) in original code
 
-    expect(
-      bloc.onCalls,
-      equals([Increment()]),
-    );
+                bloc.close() //immediately close
+                sub1.cancel()
+            }
+        }
+    }
 
-    await wait();
-
-    expect(
-      bloc.onEmitCalls,
-      equals([Increment()]),
-    );
-    expect(states, equals([1]));
-
-    await tick();
-
-    expect(
-      bloc.onCalls,
-      equals([Increment(), Increment()]),
-    );
-
-    await wait();
-
-    expect(
-      bloc.onEmitCalls,
-      equals([Increment(), Increment()]),
-    );
-
-    expect(states, equals([1, 2]));
-
-    await tick();
-
-    expect(
-      bloc.onCalls,
-      equals([Increment(), Increment(), Increment()]),
-    );
-
-    await wait();
-
-    expect(
-      bloc.onEmitCalls,
-      equals([Increment(), Increment(), Increment()]),
-    );
-
-    expect(states, equals([1, 2, 3]));
-
-    await bloc.close();
-
-    expect(
-      bloc.onCalls,
-      equals([Increment(), Increment(), Increment()]),
-    );
-
-    expect(
-      bloc.onEmitCalls,
-      equals([Increment(), Increment(), Increment()]),
-    );
-
-    expect(states, equals([1, 2, 3]));
-  });
-
-  test(
-      'processes events sequentially when '
-      'Bloc.transformer is overridden.', () async {
-    await BlocOverrides.runZoned(
-      () async {
-        final states = <int>[];
-        final bloc = CounterBloc()
-          ..stream.listen(states.add)
-          ..add(Increment())
-          ..add(Increment())
-          ..add(Increment());
-
-        await tick();
-
-        expect(
-          bloc.onCalls,
-          equals([Increment()]),
-        );
-
-        await wait();
-
-        expect(
-          bloc.onEmitCalls,
-          equals([Increment()]),
-        );
-        expect(states, equals([1]));
-
-        await tick();
-
-        expect(
-          bloc.onCalls,
-          equals([Increment(), Increment()]),
-        );
-
-        await wait();
-
-        expect(
-          bloc.onEmitCalls,
-          equals([Increment(), Increment()]),
-        );
-
-        expect(states, equals([1, 2]));
-
-        await tick();
-
-        expect(
-          bloc.onCalls,
-          equals([
-            Increment(),
-            Increment(),
-            Increment(),
-          ]),
-        );
-
-        await wait();
-
-        expect(
-          bloc.onEmitCalls,
-          equals([Increment(), Increment(), Increment()]),
-        );
-
-        expect(states, equals([1, 2, 3]));
-
-        await bloc.close();
-
-        expect(
-          bloc.onCalls,
-          equals([Increment(), Increment(), Increment()]),
-        );
-
-        expect(
-          bloc.onEmitCalls,
-          equals([Increment(), Increment(), Increment()]),
-        );
-
-        expect(states, equals([1, 2, 3]));
-      },
-      eventTransformer: (events, mapper) => events.asyncExpand<dynamic>(mapper),
-    );
-  });
 }
-
- */

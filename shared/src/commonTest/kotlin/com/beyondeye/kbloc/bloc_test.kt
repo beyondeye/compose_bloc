@@ -22,7 +22,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
-private suspend fun tick() {
+internal suspend fun tick() {
     delay(0)
 }
 

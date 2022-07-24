@@ -97,7 +97,6 @@ class BlocOverridesTest {
             }
         }
     }
-    //TODO: I cannot implement this test
     @Test
     fun BlocOverrides_overrides_cannot_be_mutated_after_zone_created() {
         val originalBlocObserver=FakeBlocObserver<Any>()

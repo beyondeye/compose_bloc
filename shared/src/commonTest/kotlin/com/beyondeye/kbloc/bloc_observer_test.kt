@@ -1,65 +1,78 @@
-package com.beyondeye.kbloc/*
-import 'package:bloc/bloc.dart';
-import 'package:test/test.dart';
+package com.beyondeye.kbloc
 
-import 'blocs/blocs.dart';
+import com.beyondeye.kbloc.core.*
+import com.beyondeye.kbloc.counter.CounterEvent
+import kotlinx.coroutines.GlobalScope
+import kotlin.test.Test
 
-class DefaultBlocObserver extends BlocObserver {}
+class DefaultBlocObserver :BlocObserver<Any> {}
 
-void main() {
-  final bloc = CounterBloc();
-  final error = Exception();
-  const stackTrace = StackTrace.empty;
-  const event = CounterEvent.increment;
-  const change = Change(currentState: 0, nextState: 1);
-  const transition = Transition(
-    currentState: 0,
-    event: CounterEvent.increment,
-    nextState: 1,
-  );
-  group('BlocObserver', () {
-    group('onCreate', () {
-      test('does nothing by default', () {
-        // ignore: invalid_use_of_protected_member
-        DefaultBlocObserver().onCreate(bloc);
-      });
-    });
+class BlocObserverTest
+{
+    @Test
+    fun OnCreate_does_nothing_by_default() {
+        val bloc=CounterBloc(GlobalScope)
+        val error=Exception()
+        val event = CounterEvent.increment
+        val change = Change(0,1)
+        val transition = Transition(1,CounterEvent.increment,1)
 
-    group('onEvent', () {
-      test('does nothing by default', () {
-        // ignore: invalid_use_of_protected_member
-        DefaultBlocObserver().onEvent(bloc, event);
-      });
-    });
+        DefaultBlocObserver().onCreate(bloc as Bloc<Any,Any>)
+    }
 
-    group('onChange', () {
-      test('does nothing by default', () {
-        // ignore: invalid_use_of_protected_member
-        DefaultBlocObserver().onChange(bloc, change);
-      });
-    });
+    @Test
+    fun OnEvent_does_nothing_by_default() {
+        val bloc=CounterBloc(GlobalScope)
+        val error=Exception()
+        val event = CounterEvent.increment
+        val change = Change(0,1)
+        val transition = Transition(1,CounterEvent.increment,1)
 
-    group('onTransition', () {
-      test('does nothing by default', () {
-        // ignore: invalid_use_of_protected_member
-        DefaultBlocObserver().onTransition(bloc, transition);
-      });
-    });
+        DefaultBlocObserver().onEvent(bloc  as Bloc<Any,Any>,event as Any)
+    }
 
-    group('onError', () {
-      test('does nothing by default', () {
-        // ignore: invalid_use_of_protected_member
-        DefaultBlocObserver().onError(bloc, error, stackTrace);
-      });
-    });
+    @Test
+    fun OnChange_does_nothing_by_default() {
+        val bloc=CounterBloc(GlobalScope)
+        val error=Exception()
+        val event = CounterEvent.increment
+        val change = Change(0,1)
+        val transition = Transition(1,CounterEvent.increment,1)
 
-    group('onClose', () {
-      test('does nothing by default', () {
-        // ignore: invalid_use_of_protected_member
-        DefaultBlocObserver().onClose(bloc);
-      });
-    });
-  });
+        DefaultBlocObserver().onChange(bloc  as Bloc<Any,Any>,change as Change<Any>)
+    }
+
+    @Test
+    fun OnTransition_does_nothing_by_default() {
+        val bloc=CounterBloc(GlobalScope)
+        val error=Exception()
+        val event = CounterEvent.increment
+        val change = Change(0,1)
+        val transition = Transition(1,CounterEvent.increment,1)
+
+        DefaultBlocObserver().onTransition(bloc  as Bloc<Any,Any>,transition as Transition<Any?, Any>)
+    }
+
+    @Test
+    fun OnError_does_nothing_by_default() {
+        val bloc=CounterBloc(GlobalScope)
+        val error=Exception()
+        val event = CounterEvent.increment
+        val change = Change(0,1)
+        val transition = Transition(1,CounterEvent.increment,1)
+
+        DefaultBlocObserver().onError(bloc  as Bloc<Any,Any>,error)
+    }
+
+    @Test
+    fun OnClose_does_nothing_by_default() {
+        val bloc=CounterBloc(GlobalScope)
+        val error=Exception()
+        val event = CounterEvent.increment
+        val change = Change(0,1)
+        val transition = Transition(1,CounterEvent.increment,1)
+
+        DefaultBlocObserver().onClose(bloc  as Bloc<Any,Any>)
+    }
+
 }
-
- */

@@ -136,6 +136,8 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
      *  as it is the first thing emitted by the instance.
      * 
      *  * Throws a [StateError] if the bloc is closed.
+     *  *DARIO* avoid using [emit] and use instead [queueStateUpdate] that avoid race conditions between
+     *          multiple parallel state updates
     */
     override fun emit(state: State) {
         runBlocking {

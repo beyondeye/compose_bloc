@@ -1,9 +1,10 @@
 package com.beyondeye.kbloc
 
-import com.beyondeye.kbloc.async.asyncExpand
+import com.beyondeye.kbloc.concurrency.EventTransformer_sequential
 import com.beyondeye.kbloc.core.BlocObserver
 import com.beyondeye.kbloc.core.BlocOverrides
 import com.beyondeye.kbloc.core.EventTransformer
+import com.beyondeye.kbloc.core.asyncExpand
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -35,9 +36,7 @@ class BlocOverridesTest {
 
     @Test
     fun BlocOverrides_uses_custom_EventTransformer_when_specified() {
-        val eventTransformer:EventTransformer<Any> = {events, mapper ->
-            events.asyncExpand(mapper)
-        }
+        val eventTransformer:EventTransformer<Any> = EventTransformer_sequential() //{events, mapper -> events.asyncExpand(mapper) }
         BlocOverrides.runZoned(eventTransformer = eventTransformer) {
             val overrides=BlocOverrides.current
             assertTrue { overrides?.eventTransformer === eventTransformer }
@@ -56,9 +55,7 @@ class BlocOverridesTest {
     }
     @Test
     fun BlocOverrides_uses_current_EventTransformer_when_not_specified() {
-        val eventTransformer:EventTransformer<Any> = {events, mapper ->
-            events.asyncExpand(mapper)
-        }
+        val eventTransformer:EventTransformer<Any> = EventTransformer_sequential() //{events, mapper -> events.asyncExpand(mapper) }
         BlocOverrides.runZoned(eventTransformer = eventTransformer) {
             BlocOverrides.runZoned {
                 val overrides=BlocOverrides.current
@@ -82,15 +79,11 @@ class BlocOverridesTest {
 
     @Test
     fun BlocOverrides_uses_nested_EventTransformer_when_specified() {
-        val rootEventTransformer:EventTransformer<Any> = {events, mapper ->
-            events.asyncExpand(mapper)
-        }
+        val rootEventTransformer:EventTransformer<Any> = EventTransformer_sequential() //{events, mapper -> events.asyncExpand(mapper) }
         BlocOverrides.runZoned(eventTransformer = rootEventTransformer) {
             val overrides = BlocOverrides.current
             assertTrue { overrides?.eventTransformer === rootEventTransformer }
-            val nestedEventTransformer: EventTransformer<Any> = { events, mapper ->
-                events.asyncExpand(mapper)
-            }
+            val nestedEventTransformer: EventTransformer<Any> = EventTransformer_sequential() //{ events, mapper -> events.asyncExpand(mapper) }
             BlocOverrides.runZoned(eventTransformer = nestedEventTransformer) {
                 val overrides = BlocOverrides.current
                 assertTrue { overrides?.eventTransformer === nestedEventTransformer }

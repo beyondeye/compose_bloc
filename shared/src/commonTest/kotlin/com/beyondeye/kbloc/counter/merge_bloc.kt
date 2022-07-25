@@ -1,6 +1,5 @@
 package com.beyondeye.kbloc.counter
 
-import com.beyondeye.kbloc.async.concurrentAsyncExpand
 import com.beyondeye.kbloc.core.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

@@ -1,6 +1,6 @@
 package com.beyondeye.kbloc
 
-import com.beyondeye.kbloc.async.asyncExpand
+import com.beyondeye.kbloc.concurrency.EventTransformer_sequential
 import com.beyondeye.kbloc.core.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -138,9 +138,7 @@ class BlocEventTransformerTest {
     @Test
     fun processes_events_sequentially_when_transformer_is_overridden() {
         runBlocking {
-            val incrementTransformer:EventTransformer<Increment> =  { events, mapper ->
-                events.asyncExpand(mapper)
-            }
+            val incrementTransformer:EventTransformer<Increment> = EventTransformer_sequential() // { events, mapper -> events.asyncExpand(mapper)  }
             val states = mutableListOf<Int>()
             val bloc = CounterBloc(this,incrementTransformer)
             val sub1= async {
@@ -182,12 +180,10 @@ class BlocEventTransformerTest {
     fun processes_events_sequentially_when_bloc_transformer_is_overridden() {
 
         BlocOverrides.runZoned(
-            eventTransformer = { events, mapper -> events.asyncExpand<Any, Any>(mapper) })
+            eventTransformer = EventTransformer_sequential()) //{ events, mapper -> events.asyncExpand<Any, Any>(mapper) }
         {
             runBlocking {
-                val incrementTransformer: EventTransformer<Increment> = { events, mapper ->
-                    events.asyncExpand(mapper)
-                }
+                val incrementTransformer: EventTransformer<Increment> = EventTransformer_sequential() // { events, mapper -> events.asyncExpand(mapper) }
                 val states = mutableListOf<Int>()
                 val bloc = CounterBloc(this, incrementTransformer)
                 val sub1 = async {

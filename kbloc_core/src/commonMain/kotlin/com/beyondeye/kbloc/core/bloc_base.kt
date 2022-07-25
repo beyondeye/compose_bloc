@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 
 class StateError(msg:String):Exception(msg)
@@ -113,8 +114,8 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
         // ignore: invalid_use_of_protected_member
         _blocObserver?.onCreate(this as BlocBase<Any>)
     }
-    public override val state:State get() = runBlocking { _stateController.value.await() }
-    public override val stream: Flow<State> get() = _stateController
+    public override val state:State get() = runBlocking { _stateController.valueDeferred.await() }
+    public override val stream: StateFlow<State> get() = _stateController
 
     private var _isClosed:Boolean=false
     /**
@@ -146,7 +147,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
                     throw StateError("Cannot emit new states after calling close")
                 }
                 //TODO: using equal here is expensive: perhaps remove it?
-                val curStateDeferred = _stateController.value
+                val curStateDeferred = _stateController.valueDeferred
                 val updatedState=_stateController.queueStateUpdate({state},_useReferenceEqualityForStateChanges).await()
                 val curState=curStateDeferred.await()
                 val notchanged = if(_useReferenceEqualityForStateChanges) curState===updatedState else curState==updatedState
@@ -172,7 +173,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
                     throw StateError("Cannot emit new states after calling close")
                 }
                 //TODO: using equal here is expensive: perhaps remove it?
-                val curStateDeferred = _stateController.value
+                val curStateDeferred = _stateController.valueDeferred
                 updatedState=_stateController.queueStateUpdate(stateUpdateFun,_useReferenceEqualityForStateChanges).await()
                 val curState=curStateDeferred.await()
                 val notchanged = if(_useReferenceEqualityForStateChanges) curState===updatedState else curState==updatedState

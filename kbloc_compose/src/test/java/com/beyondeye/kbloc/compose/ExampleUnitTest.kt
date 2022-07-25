@@ -1,4 +1,4 @@
-package com.beyondeye.compose_bloc
+package com.beyondeye.kbloc.compose
 
 import org.junit.Test
 

@@ -1096,6 +1096,12 @@ class SimpleBlocTests {
 
         }
     }
+    @Test
+    fun RestartableStreamBloc_unawaited_forEach_throws_AssertionError() {
+        runBlocking {
+            TODO()
+        }
+    }
 }
 /*
 import 'dart:async';

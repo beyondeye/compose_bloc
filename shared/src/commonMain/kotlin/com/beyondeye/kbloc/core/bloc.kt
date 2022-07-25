@@ -103,6 +103,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
         check_event_registered(event)
             //TODO if the stream buffer is not full _eventController.emit will not block
         //so it is probably correct to use runBlocking here
+        //THE code here is not correct probably: check it again
         runBlocking {
             try {
                 onEvent(event)
@@ -245,6 +246,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
     }
     @PublishedApi
     internal suspend fun handleEvent(handler: EventHandler<Event, State>, event: Event, emitter: _Emitter<State>) {
+        //println("handleEvent called for $event")
         try {
             _emitters.add(emitter)
             handler(event, emitter)
@@ -295,7 +297,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
         val _transformer= transformer ?: _eventTransformer
 
         //extract from the general flow of events the specific flow of event of this type
-        val filtered_events_flow=_eventController.transform { if(it is E) emit(it as E)  }
+        val filtered_events_flow=_eventController.transform { if(it is E) emit(it)  }
         val transformed_filtered_events_flow = _transformer(filtered_events_flow,
             {event:Any->
                 //wrap Bloc.emit() method, in order to force call to onTransition callback in addition to regular emit

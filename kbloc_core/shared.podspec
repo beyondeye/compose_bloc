@@ -1,11 +1,11 @@
 Pod::Spec.new do |spec|
-    spec.name                     = 'shared'
+    spec.name                     = 'kbloc-core'
     spec.version                  = '1.0'
-    spec.homepage                 = 'Link to the Shared Module homepage'
+    spec.homepage                 = 'Link to the kbloc-core Module homepage'
     spec.source                   = { :git => "Not Published", :tag => "Cocoapods/#{spec.name}/#{spec.version}" }
     spec.authors                  = ''
     spec.license                  = ''
-    spec.summary                  = 'Some description for the Shared Module'
+    spec.summary                  = 'Some description for the kbloc core Module'
 
     spec.vendored_frameworks      = "build\cocoapods\framework/shared.framework"
     spec.libraries                = "c++"
@@ -16,8 +16,8 @@ Pod::Spec.new do |spec|
                 
 
     spec.pod_target_xcconfig = {
-        'KOTLIN_PROJECT_PATH' => ':shared',
-        'PRODUCT_MODULE_NAME' => 'shared',
+        'KOTLIN_PROJECT_PATH' => ':kbloc_core',
+        'PRODUCT_MODULE_NAME' => 'kbloc_core',
     }
 
     spec.script_phases = [

@@ -15,11 +15,11 @@ kotlin {
     iosSimulatorArm64()
 
     cocoapods {
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
+        summary = "KBloc core module"
+        homepage = "Link to KBloc homepage"
         ios.deploymentTarget = "14.1"
         framework {
-            baseName = "shared"
+            baseName = "kbloc-core"
         }
     }
     

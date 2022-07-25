@@ -7,5 +7,5 @@ pluginManagement {
 }
 
 rootProject.name = "compose_bloc"
-include(":shared")
+include(":kbloc_core")
 include(":compose_bloc")

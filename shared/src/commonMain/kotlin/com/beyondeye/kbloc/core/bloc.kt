@@ -74,7 +74,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
          */
         cscope_stateUpdate: CoroutineScope,
         initialState: State,
-        useReferenceEqualityForStateChanges: Boolean = false
+        useReferenceEqualityForStateChanges: Boolean
     ):super(initialState,cscope_stateUpdate,useReferenceEqualityForStateChanges) {
         _startEventHandlerJob()
     }
@@ -284,6 +284,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
      *  opinionated set of event transformers.
      *
      */
+    //todo rewrite this method using queuestateupdate and deferredstate
     public inline fun <reified E:Event>  on(noinline transformer:EventTransformer<E>?=null,noinline handler:EventHandler<E,State>) {
         val eventType = E::class
         val handlerExists = _handlers.find { it.type == eventType } != null

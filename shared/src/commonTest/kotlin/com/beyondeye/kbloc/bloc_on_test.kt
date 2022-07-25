@@ -39,7 +39,7 @@ class TestBloc(cscope:CoroutineScope,
                val onTestEventAA :onEvent<TestEventAA,TestState> = { _,_ -> },
                val onTestEventBA :onEvent<TestEventBA,TestState> = { _,_ -> },
 
-) : Bloc<TestEvent, TestState>(cscope, TestState())
+) : Bloc<TestEvent, TestState>(cscope, TestState(),false)
 {
     init {
         on<TestEventA>(handler = onTestEventA)
@@ -49,14 +49,14 @@ class TestBloc(cscope:CoroutineScope,
         on<TestEvent>(handler = onTestEvent)
     }
 }
-class DuplicateHandlerBloc(cscope: CoroutineScope) : Bloc<TestEvent,TestState>(cscope, TestState()) {
+class DuplicateHandlerBloc(cscope: CoroutineScope) : Bloc<TestEvent,TestState>(cscope, TestState(),false) {
     init {
         on<TestEvent> {_,_-> }
         on<TestEvent> {_,_-> }
     }
 }
 
-class MissingHandlerBloc(cscope: CoroutineScope) : Bloc<TestEvent,TestState>(cscope, TestState()) {
+class MissingHandlerBloc(cscope: CoroutineScope) : Bloc<TestEvent,TestState>(cscope, TestState(),false) {
     init {
 
     }

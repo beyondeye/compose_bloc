@@ -64,7 +64,7 @@ public interface Emittable<State:Any?> {
      * use this method if you need update the state from an async method.
      * usinq [queueStateUpdate] will garantee that multiple async state updates will be
      * executed in the same order as they were queued
-     * THIS METHOD IS NOT PRESENT IN THE ORIGINAL flutter implementation
+     * THIS METHOD IS NOT PRESENT IN THE ORIGINAL dart bloc implementation
      * @return deferred of the updated stated
      */
     public fun queueStateUpdate(stateUpdateFun:suspend (curState:State)->State):Deferred<State>
@@ -106,7 +106,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
                         * the coroutine scope used for running async state update function (queueStateUpdate)
                         */
                        cscope_stateUpdate: CoroutineScope,
-                       useReferenceEqualityForStateChanges:Boolean=false) {
+                       useReferenceEqualityForStateChanges:Boolean) {
         _useReferenceEqualityForStateChanges=useReferenceEqualityForStateChanges
         _stateController= MutableDeferredStateFlow(initialState,cscope_stateUpdate)
         _cscope_stateUpdate = cscope_stateUpdate

@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 class OnExceptionBloc(cscope: CoroutineScope,
                       val exception: Exception,
                       val onErrorCallback: (Throwable) -> Unit
-) : Bloc<CounterEvent, Int>(cscope, 0) {
+) : Bloc<CounterEvent, Int>(cscope, 0,false) {
     init {
         on<CounterEvent>(handler = ::_onCounterEvent)
     }

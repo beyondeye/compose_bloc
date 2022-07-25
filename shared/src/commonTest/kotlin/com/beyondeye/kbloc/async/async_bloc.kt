@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 
-class AsyncBloc(cscope: CoroutineScope) : Bloc<AsyncEvent,AsyncState>(cscope,AsyncState.initial())
+class AsyncBloc(cscope: CoroutineScope) : Bloc<AsyncEvent,AsyncState>(cscope,AsyncState.initial(),false)
 {
     init {
         on<AsyncEvent>(transformer = { events,mapper-> events.asyncExpand(mapper) }) { event,emit ->

@@ -9,7 +9,7 @@ class OnTransitionErrorBloc(
     cscope: CoroutineScope,
     val error: Throwable,
     val onErrorCallback: onErrorCallback
-) : Bloc<CounterEvent, Int>(cscope, 0) {
+) : Bloc<CounterEvent, Int>(cscope, 0,false) {
     init {
         on<CounterEvent>(handler = ::_onCounterEvent)
     }

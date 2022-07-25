@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 
 class OnEventErrorBloc(cscope: CoroutineScope,
                   val exception: Exception,
-) : Bloc<CounterEvent, Int>(cscope, 0) {
+) : Bloc<CounterEvent, Int>(cscope, 0,false) {
     init {
         on<CounterEvent> { _,_-> }
     }

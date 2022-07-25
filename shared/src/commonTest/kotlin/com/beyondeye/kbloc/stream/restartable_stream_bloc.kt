@@ -35,7 +35,7 @@ class UnawaitedOnEach :RestartableStreamEvent
 
 const val _delay_msecs= 100L
 
-class  RestartableStreamBloc(cscope:CoroutineScope,val inputEventsStream: Flow<Int>) :Bloc<RestartableStreamEvent,Int>(cscope,0) {
+class  RestartableStreamBloc(cscope:CoroutineScope,val inputEventsStream: Flow<Int>) :Bloc<RestartableStreamEvent,Int>(cscope,0,false) {
     init {
         //    message = "Flow analogues of 'switchMap' are 'transformLatest', 'flatMapLatest' and 'mapLatest'",
         on<ForEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })

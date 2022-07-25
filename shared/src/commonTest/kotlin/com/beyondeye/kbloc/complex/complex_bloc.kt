@@ -10,7 +10,7 @@ import kotlin.time.Duration
 
 const private val _delay_ms:Long =100
 
-class ComplexBloc(cscope:CoroutineScope) : Bloc<ComplexEvent, ComplexState>(cscope,ComplexStateA())
+class ComplexBloc(cscope:CoroutineScope) : Bloc<ComplexEvent, ComplexState>(cscope,ComplexStateA(),false)
 {
     init {
         on<ComplexEventA> { _,emit ->

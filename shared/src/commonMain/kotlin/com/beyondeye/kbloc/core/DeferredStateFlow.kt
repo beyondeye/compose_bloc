@@ -13,6 +13,10 @@ public interface DeferredStateFlow<out T> : SharedFlow<T> {
 }
 
 
+/**
+ * a [MutableStateFlow] where the state cannot be updated directly by writing to it, but instead by calling
+ * [queueStateUpdate] method
+ */
 public class MutableDeferredStateFlow<S:Any>(initialValue:S,
                                   public val cscope_stateUpdate: CoroutineScope):DeferredStateFlow<S> {
     private val _stateFlow = MutableStateFlow(initialValue)

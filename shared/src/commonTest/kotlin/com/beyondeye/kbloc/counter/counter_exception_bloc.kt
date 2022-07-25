@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
  * NOTE: in kotlin there is no much difference between Error and Exception like in Dart
  * so [CounterErrorBloc] and [CounterExceptionBloc] are basically the same thing
  */
-class CounterExceptionBloc(cscope: CoroutineScope) : Bloc<CounterEvent, Int>(cscope,0) {
+class CounterExceptionBloc(cscope: CoroutineScope) : Bloc<CounterEvent, Int>(cscope,0,false) {
     init {
         on<CounterEvent> { event, emit ->
             _onCounterEvent(event,emit)

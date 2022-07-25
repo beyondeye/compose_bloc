@@ -19,7 +19,7 @@ val customTransformer:EventTransformer<CounterEvent> = { events, mapper ->
 
 
 
-class MergeBloc(cscope:CoroutineScope,val  onTransitionCallback: onTransitionCallback?=null) : Bloc<CounterEvent, Int>(cscope,0) {
+class MergeBloc(cscope:CoroutineScope,val  onTransitionCallback: onTransitionCallback?=null) : Bloc<CounterEvent, Int>(cscope,0,false) {
     init {
         on<CounterEvent>(transformer = customTransformer, handler = ::_onCounterEvent)
     }

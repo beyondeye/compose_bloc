@@ -18,7 +18,7 @@ class CounterBloc(cscope:CoroutineScope,
                   val onEventCallback: OnEventCallback?=null,
                   val onTransitionCallback: onTransitionCallback?=null,
                   val onErrorCallback: onErrorCallback?=null
-)            :Bloc<CounterEvent,Int>(cscope,0)
+)            :Bloc<CounterEvent,Int>(cscope,0,false)
 {
     init {
         on<CounterEvent> { event, emit ->

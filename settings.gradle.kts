@@ -9,4 +9,3 @@ pluginManagement {
 rootProject.name = "compose_bloc"
 include(":shared")
 include(":compose_bloc")
-include(":myapplication")

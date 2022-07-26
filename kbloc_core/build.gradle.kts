@@ -16,7 +16,7 @@ kotlin {
 
     cocoapods {
         summary = "KBloc core module"
-        homepage = "Link to KBloc homepage"
+        homepage = "Link to KBloc core homepage"
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "kbloc-core"

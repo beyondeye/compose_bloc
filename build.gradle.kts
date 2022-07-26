@@ -1,6 +1,7 @@
 buildscript {
     //see https://developer.android.com/jetpack/androidx/releases/compose-kotlin
     val compose_version by extra("1.1.1")
+    val compose_activity by extra("1.5.0")
     repositories {
         gradlePluginPortal()
         google()

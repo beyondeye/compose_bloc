@@ -26,5 +26,5 @@ internal fun NavigatorBackHandler(
 
 @Composable
 internal fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
-    TODO("should call  androidx.activity.compose.BackHandler\n")
+    androidx.activity.compose.BackHandler(enabled,onBack)
 }

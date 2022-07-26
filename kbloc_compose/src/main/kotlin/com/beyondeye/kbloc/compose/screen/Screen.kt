@@ -1,11 +1,11 @@
 package com.beyondeye.kbloc.compose.screen
 
 import androidx.compose.runtime.Composable
+import java.io.Serializable
 
-public interface Screen {
+public interface Screen: Serializable {
 
-    public open val key: ScreenKey
-
+    public val key: ScreenKey get() =commonKeyGeneration()
     @Composable
     public fun Content()
 }

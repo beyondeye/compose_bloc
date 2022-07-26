@@ -57,7 +57,8 @@ dependencies {
     implementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
-    implementation("androidx.activity:activity-compose:1.5.0")
+    implementation("androidx.activity:activity-compose:${rootProject.extra["compose_activity"]}")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")

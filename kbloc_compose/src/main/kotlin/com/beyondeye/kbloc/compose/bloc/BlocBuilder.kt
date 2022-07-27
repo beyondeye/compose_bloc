@@ -10,6 +10,7 @@ import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 
 //TODO add here documentation translated from flutter bloc
+//TODO add all the additional options available in flutter BlocBuilder, like buildWhen parameter
 
 @Composable
 inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBuilder(

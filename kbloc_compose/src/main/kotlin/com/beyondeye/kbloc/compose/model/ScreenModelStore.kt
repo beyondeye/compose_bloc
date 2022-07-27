@@ -2,6 +2,7 @@ package com.beyondeye.kbloc.compose.model
 
 import androidx.compose.runtime.DisallowComposableCalls
 import com.beyondeye.kbloc.compose.concurrent.ThreadSafeMap
+import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.compose.screen.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -14,15 +15,40 @@ private typealias Dependency = Pair<DependencyInstance, DependencyOnDispose>
 
 public object ScreenModelStore {
 
+    /**
+     * a list of currently active [ScreenModel] instances. an active instance is an instance that
+     * is created/injected with method [Screen.rememberScreenModel] that is usually called at the
+     * beginning of [Screen.Content] method implementation.
+     * When a [Screen] is popped from the [Navigator] stack the method [ScreenModel.onDispose] is
+     * called and it is removed from this map
+     */
     @PublishedApi
     internal val screenModels: MutableMap<ScreenModelKey, ScreenModel> = ThreadSafeMap()
 
+    /**
+     * a list of [Dependency] of some [ScreenModel] instance. for example a [coroutineScope]
+     * associated to that specific [ScreenModel] instance. when a [Screen] is popped from the [Navigator]
+     * stack the [DependencyOnDispose] method associated to the dependency is called and it is removed
+     * from this map.
+     * Note that a [Dependency] although it is always defined relative to some specific [ScreenModel]
+     * instance, this relation is not used, but is instead used the relation to the [ScreenModel] parent
+     * [Screen], in the [remove] method that is called by the [Navigator] when a screen is popped from the stack
+     */
     @PublishedApi
     internal val dependencies: MutableMap<DependencyKey, Dependency> = ThreadSafeMap()
 
+    /**
+     * TODO why this is a MutableStateFlow? it is currently used only in [getDependencyKey]
+     * I don't like it. Need to understand this better
+     */
     @PublishedApi
     internal val lastScreenModelKey: MutableStateFlow<ScreenModelKey?> = MutableStateFlow(null)
 
+    /**
+     * key for a [ScreenModel] of a specific type T for a specific [screen], with an additional
+     * optional user defined [tag] appended in the end, in case there are more than one [ScreenModel]
+     * of the same type for this [Screen]
+     */
     @PublishedApi
     internal inline fun <reified T : ScreenModel> getKey(screen: Screen, tag: String?): ScreenModelKey =
         "${screen.key}:${T::class.qualifiedName}:${tag ?: "default"}"
@@ -49,6 +75,11 @@ public object ScreenModelStore {
         return screenModels.getOrPut(key, factory) as T
     }
 
+    /**
+     * @param onDispose: method analogous to [ScreenModel.onDispose] that is called when
+     * a [Screen] is popped from the [Navigator] stack and all its associated [ScreenModel]
+     * and ScreenModel dependencies are disposed
+     */
     public inline fun <reified T : Any> getOrPutDependency(
         screenModel: ScreenModel,
         name: String,
@@ -62,6 +93,10 @@ public object ScreenModelStore {
             .first as T
     }
 
+    /**
+     * method that is called from [Navigator.dispose] when a [Screen] is popped from the navigation
+     * stack
+     */
     public fun remove(screen: Screen) {
         screenModels.onEach(screen) { key ->
             screenModels[key]?.onDispose()
@@ -74,6 +109,11 @@ public object ScreenModelStore {
         }
     }
 
+    /**
+     * helper method to iterate on all keys of dependencies associated to a specific [Screen]
+     * This is needed because dependencies are created as associated to some [ScreenModel] instance
+     * so we need to find all the [ScreenModel] associated to the screen
+     */
     private fun Map<String, *>.onEach(screen: Screen, block: (String) -> Unit) =
         asSequence()
             .filter { it.key.startsWith(screen.key) }

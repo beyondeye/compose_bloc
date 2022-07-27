@@ -8,6 +8,9 @@ private typealias ProviderKey = KClass<out ScreenProvider>
 
 private typealias ScreenFactory = (ScreenProvider) -> Screen
 
+/**
+ * see https://voyager.adriel.cafe/navigation/multi-module-navigation
+ */
 public object ScreenRegistry {
 
     @PublishedApi

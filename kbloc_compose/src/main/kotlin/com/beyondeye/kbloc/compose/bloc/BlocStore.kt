@@ -1,20 +1,18 @@
 package com.beyondeye.kbloc.compose.model
 
-import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.*
 import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 private typealias BlocKey = String
 
 public class BlocStore {
-
-
     @PublishedApi
     internal val blocs_mutex = Mutex()
     @PublishedApi
@@ -120,3 +118,38 @@ public class BlocStore {
             }
 }
 
+/**
+ * the current set of active blocs is scoped to the current composition tree node
+ */
+//TODO is referentialEqualityPolicy() correct here? I think so since we already listen
+// see also https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary#referentialEqualityPolicy()
+//   separately to changes to the bloc state to trigger recomposition, so no need to
+//   listen to other things. Only if the actual instance of the bloc change then we should
+//   probably retrigger composition in addition to the state change trigger. need to think about this
+//TODO: should I use here staticCompositionLocalOf? the compose docs are not very clear about it
+// see https://developer.android.com/jetpack/compose/compositionlocal#creating-apis
+val LocalBlocStore = compositionLocalOf(policy = referentialEqualityPolicy()) { BlocStore() }
+
+@Composable
+public inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
+    tag: String? = null,
+    crossinline factory: @DisallowComposableCalls () -> T
+): T {
+    val store= LocalBlocStore.current
+    val res=remember(store.getKey<T>(this, tag)) {
+        store.getOrPut(this, tag, factory)
+    }
+    return res as T
+}
+
+//TODO do we need this method or not?
+@Composable
+public fun BlocBase<*>.coroutineScope(): CoroutineScope {
+    val store= LocalBlocStore.current
+    return store.getOrPutDependency(
+        bloc = this,
+        name = "ScreenModelCoroutineScope",
+        factory = { key -> MainScope() + CoroutineName(key) }, //MainScope() means Dispatchers.Main, the main thread, CoroutineName is only for debygging
+        onDispose = { scope -> scope.cancel() } //cancel all coroutine in this scope when onDispose is called
+    )
+}

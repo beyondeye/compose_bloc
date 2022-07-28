@@ -13,36 +13,38 @@ import kotlinx.coroutines.sync.withLock
 private typealias BlocKey = String
 
 //-----------------------------------------------------------
-public class BlocStore {
+public class BlocStore(
+    @PublishedApi
+    internal var blocs:PersistentMap<BlocKey, BlocBase<*>> = persistentHashMapOf(),
+    @PublishedApi
+    internal var blocs_dependencies:PersistentMap<DependencyKey,Dependency> = persistentHashMapOf()
+)   {
     @PublishedApi
     internal val blocs_mutex = Mutex()
     @PublishedApi
-    internal var blocs: PersistentMap<BlocKey, BlocBase<*>> = persistentHashMapOf()
-    @PublishedApi
     internal val blocs_dependencies_mutex = Mutex()
-    @PublishedApi
-    internal var blocs_dependencies:PersistentMap<DependencyKey,Dependency> = persistentHashMapOf()
-
 
     /**
+     * since we use [PersistentMap] we don't need to duplicate [blocs] and [blocs_dependencies] fields
+     */
+    public fun copy() = BlocStore(this.blocs,this.blocs_dependencies)
+    /**
      * key for a [BlocBase] of a specific type T for a specific [screen], with an additional
-     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase]
+     * optional user defined [blocTag] appended in the end, in case there are more than one [BlocBase]
      * of the same type for this [Screen]
      */
     @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> getBlocKey(screen: Screen, tag: String?): BlocKey =
-        "${screen.key}:${T::class.qualifiedName}:${tag ?: "default"}"
+    internal inline fun <reified T : BlocBase<*>> getBlocKey(screen: Screen, blocTag: String?): BlocKey =
+        "${screen.key}:${T::class.qualifiedName}:${blocTag ?: "default"}"
 
     /**
-     * define key for a [BlocBase] of a specific type T NOT BOUND to a specific screen, with an additional
-     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase]
-     * Being unbound the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
+     * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
+     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
+     * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
      */
     @PublishedApi
     internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
-        "__:${T::class.qualifiedName}:${tag ?: "default"}"
-
-    //TODO reference to unbound blocs must be managed in some way, to avoid dangling references and memory leaks!!
+        "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
 
     @PublishedApi
     internal fun getBlocDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey =
@@ -56,7 +58,9 @@ public class BlocStore {
             ?: "standalone:$name"
 
     /**
-     *
+     * same as method above but instead of searching for the bloc instance in the [blocs] store
+     * directly generate the bloc key with the same parameters that are used in [getBlocKey]
+     * that is [screen] and [blocTag]
      */
     @PublishedApi
     internal inline fun <reified T : BlocBase<*>>  getBlocDependencyKey(screen: Screen, blocTag: String?, name: String): DependencyKey {
@@ -65,6 +69,7 @@ public class BlocStore {
     }
 
 
+    //----------------------------------------------------------------
     @PublishedApi
     internal inline fun <reified T : BlocBase<*>> getOrPut(
         screen: Screen,
@@ -140,26 +145,7 @@ public class BlocStore {
 
 
 
-    @PublishedApi
-    internal inline fun <reified T : Any,reified B : BlocBase<*>> getOrPutDependency(
-        screen:Screen,
-        blockTag:String?,
-        name: String,
-        noinline onDispose: @DisallowComposableCalls (T) -> Unit = {},
-        noinline factory: @DisallowComposableCalls (DependencyKey) -> T
-    ): T {
-        val key = getBlocDependencyKey<B>(screen,blockTag, name)
 
-        var dep = blocs_dependencies.get(key)
-        if (dep != null) return dep as T
-        dep = factory(key) as Dependency
-        runBlocking {
-            blocs_dependencies_mutex.withLock {
-                blocs_dependencies = blocs_dependencies.put(key, dep)
-            }
-        }
-        return dep as T
-    }
 
     @PublishedApi
     internal inline fun <reified T : Any> getOrPutDependency(
@@ -183,6 +169,32 @@ public class BlocStore {
 
 
     /**
+     * same as method above but instead of passing a bloc instance, pass the directly the
+     * parameters needed for defining the block dependency key
+     */
+    @PublishedApi
+    internal inline fun <reified T : Any,reified B : BlocBase<*>> getOrPutDependency(
+        screen:Screen,
+        blockTag:String?,
+        name: String,
+        noinline onDispose: @DisallowComposableCalls (T) -> Unit = {},
+        noinline factory: @DisallowComposableCalls (DependencyKey) -> T
+    ): T {
+        val key = getBlocDependencyKey<B>(screen,blockTag, name)
+
+        var dep = blocs_dependencies.get(key)
+        if (dep != null) return dep as T
+        dep = factory(key) as Dependency
+        runBlocking {
+            blocs_dependencies_mutex.withLock {
+                blocs_dependencies = blocs_dependencies.put(key, dep)
+            }
+        }
+        return dep as T
+    }
+
+
+    /**
      * method that is called from [Navigator.dispose] when a [Screen] is popped from the navigation
      * stack
      */
@@ -192,7 +204,17 @@ public class BlocStore {
         //todo instead of runBlocking run it in a separate thread?
         runBlocking {
             for (key in bloc_keys_to_remove) {
-                blocs[key]?.close() //onDispose()
+                blocs[key]?.let { b->
+                    b.close()
+                    //todo cancel also bloc cscope or not? if we use the coroutinescope
+                    //obtained with rememberCoroutineScope, it is automatically cancelled when the
+                    // composable exit the composition
+                     //also this is cancel when dependency is removed
+                        //the question is, for simplifying things we should avoid defining the
+                        //coroutine scope as a separate dependency, because every bloc is ALWAYS
+                       //associated to a coroutine scope
+                    b.cscope.cancel()
+                }
                 blocs_mutex.withLock {
                     blocs = blocs.remove(key)
                 }
@@ -231,6 +253,18 @@ public class BlocStore {
 val LocalBlocStore = compositionLocalOf(policy = referentialEqualityPolicy()) { BlocStore() }
 
 
+/**
+ *
+ */
+@Composable
+public fun defineNewBlocStoreForSubTree(content_subtree: @Composable () -> Unit) {
+    //todo need to use remembersavable for the current localBlocStore here, but how can I serialize
+    // blocs?
+    // look at Navigator.kt
+    // look also at this discussion: https://github.com/adrielcafe/voyager/discussions/4
+    val newstore= LocalBlocStore.current.copy() //TODO: user remember here?
+    CompositionLocalProvider(LocalBlocStore provides newstore, content = content_subtree)
+}
 //-----------------------------------------------------------
 /**
  * todo: the [factory] perhaps should have a parameter that is the coroutinescope to use for the bloc
@@ -267,7 +301,8 @@ public fun BlocBase<*>.coroutineScope(): CoroutineScope {
  */
 
 //-----------------------------------------------------------
-//TODO do we need this method or not? or perhaps use the the scope of the screen?
+//TODO do we need this method or not? or perhaps use the the scope of the screen? and avoid defining this
+//as a dependency?
 @Composable
 public inline fun <reified B : BlocBase<*>> blocCoroutineScope(screen:Screen,blocTag: String?): CoroutineScope {
     //TODO use instead     //TODO use instead val scope = rememberCoroutineScope()? see https://developer.android.com/jetpack/compose/side-effects#remembercoroutinescope

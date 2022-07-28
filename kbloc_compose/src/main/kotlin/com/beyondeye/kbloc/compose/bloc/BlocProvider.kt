@@ -1,5 +1,76 @@
 package com.beyondeye.kbloc.compose.bloc
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import com.beyondeye.kbloc.compose.model.coroutineScope
+import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.screen.Screen
+import com.beyondeye.kbloc.core.BlocBase
+
+class BlocProvider//cannot be instantiated
+private constructor() {
+    companion object {
+        inline fun <reified BlockA: BlocBase<*>> of() {
+
+        }
+        @Composable
+        inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> value(
+            tag: String? = null,
+            value:BlockA,
+            body:@Composable (BlockAState)->Unit)
+        {
+         /*
+            val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
+            //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
+            //TODO use instead the bloc coroutine scope field?
+            val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
+            body(state.value)
+
+             */
+        }
+
+
+    }
+}
+
+/**
+        BlocProvider is a composable which provides a bloc to its children via BlocProvider.of<T>(context).
+         It is used as a dependency injection (DI) configuration so that a single instance
+         of a bloc can be provided to multiple child composables within a subtree.
+       By default, BlocProvider will create the bloc lazily, meaning create will get executed when
+        the bloc is looked up via BlocProvider.of<BlocA>(context).
+        BlocProvider is defined as extension method of [Screen] because its lifecycle is associated
+        to that of the screen. i.e. when the Screen is disposes so will be all blocs defined
+        with BlocProvider in that screen
+        If instead BlocProvider is used to provide an existing block to another navigation route
+        then use [BlocProviderValue] method. In this case
+ */
+@Composable
+inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocProvider(
+    tag: String? = null,
+    /**
+     * By default, BlocProvider will create the bloc lazily, meaning create will get executed when the bloc is looked up via BlocProvider.of<BlocA>(context).
+     */
+    lazy:Boolean=false,
+    crossinline create: @DisallowComposableCalls () -> BlockA,
+    body:@Composable (BlockAState)->Unit)
+{
+    /*
+    val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
+    //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
+    //TODO use instead the bloc coroutine scope field?
+    val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
+    body(state.value)
+
+     */
+}
+
+
+
+
+//
 /*
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';

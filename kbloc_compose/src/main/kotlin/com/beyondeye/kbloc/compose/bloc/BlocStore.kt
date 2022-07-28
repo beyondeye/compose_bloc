@@ -12,6 +12,7 @@ import kotlinx.coroutines.sync.withLock
 
 private typealias BlocKey = String
 
+//-----------------------------------------------------------
 public class BlocStore {
     @PublishedApi
     internal val blocs_mutex = Mutex()
@@ -29,11 +30,22 @@ public class BlocStore {
      * of the same type for this [Screen]
      */
     @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> getKey(screen: Screen, tag: String?): BlocKey =
+    internal inline fun <reified T : BlocBase<*>> getBlocKey(screen: Screen, tag: String?): BlocKey =
         "${screen.key}:${T::class.qualifiedName}:${tag ?: "default"}"
 
+    /**
+     * define key for a [BlocBase] of a specific type T NOT BOUND to a specific screen, with an additional
+     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase]
+     * Being unbound the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
+     */
     @PublishedApi
-    internal fun getDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey =
+    internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
+        "__:${T::class.qualifiedName}:${tag ?: "default"}"
+
+    //TODO reference to unbound blocs must be managed in some way, to avoid dangling references and memory leaks!!
+
+    @PublishedApi
+    internal fun getBlocDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey =
         blocs
             .firstNotNullOfOrNull {
                 if (it.value == bloc) it.key
@@ -43,23 +55,110 @@ public class BlocStore {
                 ?.let { "$it:$name" }
             ?: "standalone:$name"
 
+    /**
+     *
+     */
+    @PublishedApi
+    internal inline fun <reified T : BlocBase<*>>  getBlocDependencyKey(screen: Screen, blocTag: String?, name: String): DependencyKey {
+        val blocKey = getBlocKey<T>(screen,blocTag)
+        return "$blocKey:$name"
+    }
+
 
     @PublishedApi
     internal inline fun <reified T : BlocBase<*>> getOrPut(
         screen: Screen,
         tag: String?,
-        crossinline factory: @DisallowComposableCalls () -> T
+        cscope: CoroutineScope,
+        crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> T
     ): BlocBase<*> {
-        val key = getKey<T>(screen, tag)
+        val key = getBlocKey<T>(screen, tag)
         var b = blocs.get(key)
         if (b != null) return b
-        b = factory()
+        b = factory(cscope)
         runBlocking {
             blocs_mutex.withLock {
                 blocs = blocs.put(key, b)
             }
         }
         return b
+    }
+
+    /**
+     * put an UNBOUND bloc in the bloc store: an unbound bloc is a bloc not associated to a screen
+     * return the key
+     */
+    @PublishedApi
+    internal inline fun <reified T : BlocBase<*>> putUnbound(
+        bloc:T,
+        tag: String?,
+    ): String {
+        val key = getBlocKeyForUnboundBloc<T>(tag)
+        runBlocking {
+            blocs_mutex.withLock {
+                blocs = blocs.put(key, bloc)
+            }
+        }
+        return key
+    }
+    /**
+     * remove an UNBOUND bloc from the bloc store: an unbound bloc is a bloc not associated to a screen
+     * return the key
+     */
+    @PublishedApi
+    internal inline fun <reified T : BlocBase<*>> removeUnbound(
+        tag: String?,
+    ) {
+        val key = getBlocKeyForUnboundBloc<T>(tag)
+        runBlocking {
+            blocs_mutex.withLock {
+                blocs = blocs.remove(key)
+            }
+        }
+    }
+
+    /**
+     * put unbound and automatically remove it when the composable exit the composition
+     */
+    @Composable
+    internal inline fun <reified T : BlocBase<*>> putUnboundWithAutoRemove(
+        bloc:T,
+        tag: String?,
+    ) {
+        DisposableEffect(true) {
+            val key =putUnbound(bloc,tag)
+            onDispose {
+                runBlocking {
+                    blocs_mutex.withLock {
+                        blocs=blocs.remove(key)
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+    @PublishedApi
+    internal inline fun <reified T : Any,reified B : BlocBase<*>> getOrPutDependency(
+        screen:Screen,
+        blockTag:String?,
+        name: String,
+        noinline onDispose: @DisallowComposableCalls (T) -> Unit = {},
+        noinline factory: @DisallowComposableCalls (DependencyKey) -> T
+    ): T {
+        val key = getBlocDependencyKey<B>(screen,blockTag, name)
+
+        var dep = blocs_dependencies.get(key)
+        if (dep != null) return dep as T
+        dep = factory(key) as Dependency
+        runBlocking {
+            blocs_dependencies_mutex.withLock {
+                blocs_dependencies = blocs_dependencies.put(key, dep)
+            }
+        }
+        return dep as T
     }
 
     @PublishedApi
@@ -69,7 +168,7 @@ public class BlocStore {
         noinline onDispose: @DisallowComposableCalls (T) -> Unit = {},
         noinline factory: @DisallowComposableCalls (DependencyKey) -> T
     ): T {
-        val key = getDependencyKey(bloc, name)
+        val key = getBlocDependencyKey(bloc, name)
 
         var dep = blocs_dependencies.get(key)
         if (dep != null) return dep as T
@@ -118,6 +217,7 @@ public class BlocStore {
             }
 }
 
+//-----------------------------------------------------------
 /**
  * the current set of active blocs is scoped to the current composition tree node
  */
@@ -130,24 +230,51 @@ public class BlocStore {
 // see https://developer.android.com/jetpack/compose/compositionlocal#creating-apis
 val LocalBlocStore = compositionLocalOf(policy = referentialEqualityPolicy()) { BlocStore() }
 
+
+//-----------------------------------------------------------
+/**
+ * todo: the [factory] perhaps should have a parameter that is the coroutinescope to use for the bloc
+ */
 @Composable
 public inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     tag: String? = null,
-    crossinline factory: @DisallowComposableCalls () -> T
+    crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> T
 ): T {
     val store= LocalBlocStore.current
-    val res=remember(store.getKey<T>(this, tag)) {
-        store.getOrPut(this, tag, factory)
+    val cscope= blocCoroutineScope<T>(screen = this, blocTag = tag)
+    val res=remember(store.getBlocKey<T>(this, tag)) {
+        store.getOrPut(this, tag, cscope,factory)
     }
     return res as T
 }
 
-//TODO do we need this method or not?
+
+
+/*
+//-----------------------------------------------------------
+//TODO do we need this method or not? or perhaps use the the scope of the screen?
 @Composable
 public fun BlocBase<*>.coroutineScope(): CoroutineScope {
     val store= LocalBlocStore.current
     return store.getOrPutDependency(
         bloc = this,
+        name = "ScreenModelCoroutineScope",
+        factory = { key -> MainScope() + CoroutineName(key) }, //MainScope() means Dispatchers.Main, the main thread, CoroutineName is only for debygging
+        onDispose = { scope -> scope.cancel() } //cancel all coroutine in this scope when onDispose is called
+    )
+}
+
+ */
+
+//-----------------------------------------------------------
+//TODO do we need this method or not? or perhaps use the the scope of the screen?
+@Composable
+public inline fun <reified B : BlocBase<*>> blocCoroutineScope(screen:Screen,blocTag: String?): CoroutineScope {
+    //TODO use instead     //TODO use instead val scope = rememberCoroutineScope()? see https://developer.android.com/jetpack/compose/side-effects#remembercoroutinescope
+    val store= LocalBlocStore.current
+    return store.getOrPutDependency<CoroutineScope,B>(
+        screen,
+        blocTag,
         name = "ScreenModelCoroutineScope",
         factory = { key -> MainScope() + CoroutineName(key) }, //MainScope() means Dispatchers.Main, the main thread, CoroutineName is only for debygging
         onDispose = { scope -> scope.cancel() } //cancel all coroutine in this scope when onDispose is called

@@ -8,6 +8,7 @@ import com.beyondeye.kbloc.compose.model.coroutineScope
 import com.beyondeye.kbloc.compose.model.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
+import kotlinx.coroutines.CoroutineScope
 
 //TODO add here documentation translated from flutter bloc
 //TODO add all the additional options available in flutter BlocBuilder, like buildWhen parameter
@@ -16,11 +17,14 @@ import com.beyondeye.kbloc.core.BlocBase
 inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBuilder(
     block:BlockA?=null,
     tag: String? = null,
-    crossinline factory: @DisallowComposableCalls () -> BlockA,
-    body:@Composable (BlockAState)->Unit) {
+    crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlockA,
+    body:@Composable (BlockAState)->Unit)
+{
     val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
     //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
-    val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
+    //TODO use instead the bloc coroutine scope field?
+    //TODO use instead val scope = rememberCoroutineScope()?
+    val state =b.stream.collectAsState(context=b.cscope.coroutineContext)
     body(state.value)
 }
 

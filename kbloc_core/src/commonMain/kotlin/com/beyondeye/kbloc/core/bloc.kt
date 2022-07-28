@@ -80,7 +80,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
     }
     private fun _startEventHandlerJob() {
         //TODO use a different coroutine scope here? probably not
-        eventFlowJob = _cscope_stateUpdate.launch {
+        eventFlowJob = cscope.launch {
             _eventController.collect()
         }
     }
@@ -338,7 +338,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
 
         //TODO: does it make sense to use _cscope_stateUpdate here?
         val subscription=
-            _cscope_stateUpdate.launch { transformed_filtered_events_flow.cancellable().collect() }
+            cscope.launch { transformed_filtered_events_flow.cancellable().collect() }
 
 
         _subscriptions.add(subscription)

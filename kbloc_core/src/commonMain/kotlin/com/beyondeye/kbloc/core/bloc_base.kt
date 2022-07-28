@@ -96,8 +96,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
     internal val _useReferenceEqualityForStateChanges:Boolean
     //TODO: should not I will busing get() here, so that I always get the most updated version of current?
     protected val _blocObserver:BlocObserver<Any>? = BlocOverrides.current?.blocObserver
-    @PublishedApi
-    internal val _cscope_stateUpdate:CoroutineScope
+    public val cscope:CoroutineScope
     /**
      * see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/index.html
     */
@@ -110,7 +109,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
                        useReferenceEqualityForStateChanges:Boolean) {
         _useReferenceEqualityForStateChanges=useReferenceEqualityForStateChanges
         _stateController= MutableDeferredStateFlow(initialState,cscope_stateUpdate)
-        _cscope_stateUpdate = cscope_stateUpdate
+        cscope = cscope_stateUpdate
         // ignore: invalid_use_of_protected_member
         _blocObserver?.onCreate(this as BlocBase<Any>)
     }
@@ -165,7 +164,7 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
     }
 
     override fun queueStateUpdate(stateUpdateFun: suspend (curState: State) -> State): Deferred<State> {
-       return _cscope_stateUpdate.async {
+       return cscope.async {
             //note that exceptions thrown here will not bubble up unless the call await() on the returned Deferred object
            val updatedState:State
             try {

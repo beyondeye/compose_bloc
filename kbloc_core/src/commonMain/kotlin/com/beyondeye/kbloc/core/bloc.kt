@@ -298,7 +298,7 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
         val _transformer= transformer ?: _eventTransformer
 
         //extract from the general flow of events the specific flow of event of this type
-        val filtered_events_flow=_eventController.transform { if(it is E) emit(it)  }
+        val filtered_events_flow=_eventController.filterIsInstance<E>()
         val transformed_filtered_events_flow = _transformer(filtered_events_flow,
             {event:Any->
                 //wrap Bloc.emit() method, in order to force call to onTransition callback in addition to regular emit

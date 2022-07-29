@@ -1,32 +1,135 @@
 package com.beyondeye.kbloc.compose.bloc
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisallowComposableCalls
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import com.beyondeye.kbloc.compose.model.coroutineScope
+import androidx.compose.runtime.*
 import com.beyondeye.kbloc.compose.model.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
 
-//TODO add here documentation translated from flutter bloc
-//TODO add all the additional options available in flutter BlocBuilder, like buildWhen parameter
 
+/**
+* Signature for the `buildWhen` function which takes the previous `state` and
+* the current `state` and is responsible for returning a [bool] which
+* determines whether to rebuild [BlocBuilder] with the current `state`.
+ */
+typealias BlocBuilderCondition<S> = (previous:S?,current:S)->Boolean
+
+/**
+ *
+ */
+fun <BlockAState>buildWhenFilter(srcFlow:Flow<BlockAState>, buildWhen: BlocBuilderCondition<BlockAState>): Flow<BlockAState> {
+    var prevState:BlockAState?=null
+    return  srcFlow.transform { curState->
+        if(buildWhen(prevState,curState)) {
+            emit(curState)
+        }
+        prevState=curState
+    }
+}
+
+/**
+* {@template bloc_builder}
+* [BlocBuilder] handles building a widget in response to new `states`.
+* [BlocBuilder] is analogous to [StreamBuilder] but has simplified API to
+* reduce the amount of boilerplate code needed as well as [bloc]-specific
+* performance improvements.
+
+* Please refer to [BlocListener] if you want to "do" anything in response to
+* `state` changes such as navigation, showing a dialog, etc...
+*
+* If the [bloc] parameter is omitted, [BlocBuilder] will automatically
+* perform a lookup using [BlocProvider] and the current [BuildContext].
+*
+* ```dart
+* BlocBuilder<BlocA, BlocAState>(
+*   builder: (context, state) {
+*   // return widget here based on BlocA's state
+*   }
+* )
+* ```
+*
+* Only specify the [bloc] if you wish to provide a bloc that is otherwise
+* not accessible via [BlocProvider] and the current [BuildContext].
+*
+* ```dart
+* BlocBuilder<BlocA, BlocAState>(
+*   bloc: blocA,
+*   builder: (context, state) {
+*   // return widget here based on BlocA's state
+*   }
+* )
+* ```
+* {@endtemplate}
+*
+* {@template bloc_builder_build_when}
+* An optional [buildWhen] can be implemented for more granular control over
+* how often [BlocBuilder] rebuilds.
+* [buildWhen] should only be used for performance optimizations as it
+* provides no security about the state passed to the [builder] function.
+* [buildWhen] will be invoked on each [bloc] `state` change.
+* [buildWhen] takes the previous `state` and current `state` and must
+* return a [bool] which determines whether or not the [builder] function will
+* be invoked.
+* The previous `state` will be initialized to the `state` of the [bloc] when
+* the [BlocBuilder] is initialized.
+* [buildWhen] is optional and if omitted, it will default to `true`.
+*
+* ```dart
+* BlocBuilder<BlocA, BlocAState>(
+*   buildWhen: (previous, current) {
+*     // return true/false to determine whether or not
+*     // to rebuild the widget with state
+*   },
+*   builder: (context, state) {
+*     // return widget here based on BlocA's state
+*   }
+* )
+* ```
+* {@endtemplate}
+ * @param [blocTag]: not present in flutter_bloc: since we don't support
+ * compose-tree dependent bloc resolution in bloc-provider (for technical reason)
+ * then the optional [blocTag] can be used to identify a specific bloc instance in the bloc tree
+*/
 @Composable
 inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBuilder(
-    block:BlockA?=null,
-    tag: String? = null,
+    crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlockA,
+    blocTag: String? = null,
+    noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
+    body:@Composable (BlockAState)->Unit)
+{
+    val b = rememberBloc(blocTag,factory)
+    val collect_scope= rememberCoroutineScope()
+    val stream= if(buildWhen==null) b.stream else {
+        buildWhenFilter(b.stream,buildWhen)
+    }
+    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
+    body(state)
+}
+
+/**
+ * since here we use an externally provided bloc, this is a composable that can be called
+ * in any place not just a in [Screen.Content] member function
+ */
+@Composable
+inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> BlocBuilder(
+    externallyProvidedBlock:BlockA,
+    noinline buildWhen:BlocBuilderCondition<BlockAState>?,
     crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlockA,
     body:@Composable (BlockAState)->Unit)
 {
-    val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
-    //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
-    //TODO use instead the bloc coroutine scope field?
-    //TODO use instead val scope = rememberCoroutineScope()?
-    val state =b.stream.collectAsState(context=b.cscope.coroutineContext)
-    body(state.value)
+    val b =  remember { externallyProvidedBlock }
+    val collect_scope= rememberCoroutineScope()
+    val stream= if(buildWhen==null) b.stream else {
+        buildWhenFilter(b.stream,buildWhen)
+    }
+    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
+    body(state)
 }
+
+
+
 
 /*
 
@@ -35,69 +138,9 @@ inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBui
 /// This is analogous to the `builder` function in [StreamBuilder].
 typedef BlocWidgetBuilder<S> = Widget Function(BuildContext context, S state);
 
-/// Signature for the `buildWhen` function which takes the previous `state` and
-/// the current `state` and is responsible for returning a [bool] which
-/// determines whether to rebuild [BlocBuilder] with the current `state`.
-typedef BlocBuilderCondition<S> = bool Function(S previous, S current);
 
-/// {@template bloc_builder}
-/// [BlocBuilder] handles building a widget in response to new `states`.
-/// [BlocBuilder] is analogous to [StreamBuilder] but has simplified API to
-/// reduce the amount of boilerplate code needed as well as [bloc]-specific
-/// performance improvements.
 
-/// Please refer to [BlocListener] if you want to "do" anything in response to
-/// `state` changes such as navigation, showing a dialog, etc...
-///
-/// If the [bloc] parameter is omitted, [BlocBuilder] will automatically
-/// perform a lookup using [BlocProvider] and the current [BuildContext].
-///
-/// ```dart
-/// BlocBuilder<BlocA, BlocAState>(
-///   builder: (context, state) {
-///   // return widget here based on BlocA's state
-///   }
-/// )
-/// ```
-///
-/// Only specify the [bloc] if you wish to provide a [bloc] that is otherwise
-/// not accessible via [BlocProvider] and the current [BuildContext].
-///
-/// ```dart
-/// BlocBuilder<BlocA, BlocAState>(
-///   bloc: blocA,
-///   builder: (context, state) {
-///   // return widget here based on BlocA's state
-///   }
-/// )
-/// ```
-/// {@endtemplate}
-///
-/// {@template bloc_builder_build_when}
-/// An optional [buildWhen] can be implemented for more granular control over
-/// how often [BlocBuilder] rebuilds.
-/// [buildWhen] should only be used for performance optimizations as it
-/// provides no security about the state passed to the [builder] function.
-/// [buildWhen] will be invoked on each [bloc] `state` change.
-/// [buildWhen] takes the previous `state` and current `state` and must
-/// return a [bool] which determines whether or not the [builder] function will
-/// be invoked.
-/// The previous `state` will be initialized to the `state` of the [bloc] when
-/// the [BlocBuilder] is initialized.
-/// [buildWhen] is optional and if omitted, it will default to `true`.
-///
-/// ```dart
-/// BlocBuilder<BlocA, BlocAState>(
-///   buildWhen: (previous, current) {
-///     // return true/false to determine whether or not
-///     // to rebuild the widget with state
-///   },
-///   builder: (context, state) {
-///     // return widget here based on BlocA's state
-///   }
-/// )
-/// ```
-/// {@endtemplate}
+
 class BlocBuilder<B extends StateStreamable<S>, S>
     extends BlocBuilderBase<B, S> {
   /// {@macro bloc_builder}

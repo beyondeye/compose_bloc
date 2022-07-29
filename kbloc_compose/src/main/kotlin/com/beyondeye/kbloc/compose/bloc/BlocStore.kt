@@ -295,7 +295,8 @@ public fun DefineNewBlocStoreForSubTree(content_subtree: @Composable () -> Unit)
 @Composable
 public inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     tag: String? = null,
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> T
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> T,
+    dispatcher: CoroutineDispatcher? = null
 ): T {
 //    val store= LocalBlocStore.current
     val store = BlocStore
@@ -305,7 +306,8 @@ public inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     //we currently manually cancel the cscope when the bloc is closed, instead of using rememberCoroutineScope() that cancel it automatically
     // also we don't use blocCoroutineScope because we don't need to store a separate dependency for the scope
     // since we store it inside the bloc itself
-    val cscope = MainScope() + CoroutineName(bkey)
+    var cscope = MainScope() + CoroutineName(bkey)
+    if(dispatcher!=null) cscope +=dispatcher
     return remember(bkey) {
         store.getOrPut(bkey, cscope, factory) as T
     }

@@ -6,6 +6,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import com.beyondeye.kbloc.compose.concurrent.ThreadSafeList
 import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleStore
 import com.beyondeye.kbloc.compose.lifecycle.rememberScreenLifecycleOwner
+import com.beyondeye.kbloc.compose.model.BlocStore
 import com.beyondeye.kbloc.compose.model.ScreenModelStore
 import com.beyondeye.kbloc.compose.navigator.internals.*
 import com.beyondeye.kbloc.compose.navigator.internals.LocalNavigatorStateHolder
@@ -139,6 +140,8 @@ public class Navigator internal constructor(
         screen: Screen
     ) {
         ScreenModelStore.remove(screen)
+        //LocalBlocStore.current.remove(screen)
+        BlocStore.remove(screen)
         ScreenLifecycleStore.remove(screen)
         stateKeys
             .asSequence()

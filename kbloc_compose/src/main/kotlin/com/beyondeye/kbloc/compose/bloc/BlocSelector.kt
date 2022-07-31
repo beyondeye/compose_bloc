@@ -1,5 +1,73 @@
 package com.beyondeye.kbloc.compose.bloc
 
+import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.screen.Screen
+import com.beyondeye.kbloc.core.BlocBase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
+
+/// Signature for the `selector` function which
+/// is responsible for returning a selected value, [T], based on [state].
+typealias BlocWidgetSelector<S, T> = (S)->T
+
+/**
+ *
+ * {@template bloc_selector}
+ * [BlocSelector] is analogous to [BlocBuilder] but allows developers to
+ * filter updates by selecting a new value based on the bloc state.
+ * Unnecessary builds are prevented if the selected value does not change.
+ *
+ * **Note**: the selected value must be immutable in order for [BlocSelector]
+ * to accurately determine whether [builder] should be called again.
+ *
+ * ```dart
+ * BlocSelector<BlocA, BlocAState, SelectedState>(
+ *   selector: (state) {
+ *     // return selected state based on the provided state.
+ *   },
+ *   builder: (context, state) {
+ *     // return widget here based on the selected state.
+ *   },
+ * )
+ * ```
+ * {@endtemplate}
+ */
+@Composable
+inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState : Any> Screen.BlocSelector(
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
+    blocTag: String? = null,
+    crossinline selector:BlocWidgetSelector<BlockAState,BlockSelectedState>,
+    body:@Composable (BlockSelectedState)->Unit)
+{
+    val b = rememberBloc(blocTag,factory)
+    val collect_scope= rememberCoroutineScope()
+    val stream= b.stream.map{selector(it) }
+
+    val state:BlockSelectedState by stream.collectAsState(selector(b.state),collect_scope.coroutineContext)
+    body(state)
+}
+
+/**
+ * since here we use an externally provided bloc, this is a composable that can be called
+ * in any place not just a in [Screen.Content] member function
+ */
+@Composable
+inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState> BlocSelector(
+    externallyProvidedBlock:BlockA,
+    crossinline selector:BlocWidgetSelector<BlockAState,BlockSelectedState>,
+    body:@Composable (BlockSelectedState)->Unit)
+{
+    val b =  remember { externallyProvidedBlock }
+    val collect_scope= rememberCoroutineScope()
+    val stream= b.stream.map{selector(it) }
+
+    val state:BlockSelectedState by stream.collectAsState(selector(b.state),collect_scope.coroutineContext)
+    body(state)
+}
+
+
 /*
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

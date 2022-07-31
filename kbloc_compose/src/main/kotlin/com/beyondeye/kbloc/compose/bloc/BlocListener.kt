@@ -1,5 +1,149 @@
 package com.beyondeye.kbloc.compose.bloc
 
+import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.screen.Screen
+import com.beyondeye.kbloc.core.BlocBase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
+
+/**
+* Signature for the `listenWhen` function which takes the previous `state`
+* and the current `state` and is responsible for returning a [bool] which
+* determines whether or not to call [BlocWidgetListener] of [BlocListener]
+* with the current `state`.
+ * todo [BlocBuilderCondition] and [BlocListenerCondition] as exactly the same: merge them
+ */
+typealias BlocListenerCondition<S> =(previousState:S?,currentState:S)->Boolean
+
+
+/**
+ * todo [listenWhenFilter] and [buildWhenFilter] are exaclty the same: merge them
+ */
+fun <BlockAState>listenWhenFilter(srcFlow: Flow<BlockAState>, listenWhen: BlocListenerCondition<BlockAState>): Flow<BlockAState> {
+    var prevState:BlockAState?=null
+    return  srcFlow.transform { curState->
+        if(listenWhen(prevState,curState)) {
+            emit(curState)
+        }
+        prevState=curState
+    }
+}
+
+/**
+* {@template bloc_listener}
+* Takes a [BlocWidgetListener] and an optional [bloc] and invokes
+* the [listener] in response to `state` changes in the [bloc].
+* It should be used for functionality that needs to occur only in response to
+* a `state` change such as navigation, showing a `SnackBar`, showing
+* a `Dialog`, etc...
+* The [listener] is guaranteed to only be called once for each `state` change
+* unlike the `builder` in `BlocBuilder`.
+*
+* If the [bloc] parameter is omitted, [BlocListener] will automatically
+* perform a lookup using [BlocProvider] and the current `BuildContext`.
+*
+* ```dart
+* BlocListener<BlocA, BlocAState>(
+*   listener: (context, state) {
+*     // do stuff here based on BlocA's state
+*   },
+*   child: Container(),
+* )
+* ```
+* Only specify the [bloc] if you wish to provide a [bloc] that is otherwise
+* not accessible via [BlocProvider] and the current `BuildContext`.
+*
+* ```dart
+* BlocListener<BlocA, BlocAState>(
+*   value: blocA,
+*   listener: (context, state) {
+*     // do stuff here based on BlocA's state
+*   },
+*   child: Container(),
+* )
+* ```
+* {@endtemplate}
+*
+* {@template bloc_listener_listen_when}
+* An optional [listenWhen] can be implemented for more granular control
+* over when [listener] is called.
+* [listenWhen] will be invoked on each [bloc] `state` change.
+* [listenWhen] takes the previous `state` and current `state` and must
+* return a [bool] which determines whether or not the [listener] function
+* will be invoked.
+* The previous `state` will be initialized to the `state` of the [bloc]
+* when the [BlocListener] is initialized.
+* [listenWhen] is optional and if omitted, it will default to `true`.
+*
+* ```dart
+* BlocListener<BlocA, BlocAState>(
+*   listenWhen: (previous, current) {
+*     // return true/false to determine whether or not
+*     // to invoke listener with state
+*   },
+*   listener: (context, state) {
+*     // do stuff here based on BlocA's state
+*   }
+*   child: Container(),
+* )
+* ```
+* {@endtemplate}
+ */
+@Composable
+inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocListener(
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
+    blocTag: String? = null,
+    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    body:@Composable ()->Unit)
+{
+    //TODO: in the original code if b changes, then a recomposition is triggered with the new bloc
+    //      and new bloc state
+    val b = rememberBloc(blocTag,factory)
+    val collect_scope= rememberCoroutineScope()
+    val stream= if(listenWhen==null) b.stream else {
+        listenWhenFilter(b.stream,listenWhen)
+    }
+    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
+    //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
+    // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
+    // * events by way of storing callback data in [MutableState] passed to [key]
+    // is something that should no be done: need to understand better
+    LaunchedEffect(state) {
+        listener(state)
+    }
+    body()
+}
+
+/**
+ * since here we use an externally provided bloc, this is a composable that can be called
+ * in any place not just a in [Screen.Content] member function
+ */
+@Composable
+inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> BlocListener(
+    externallyProvidedBlock:BlockA,
+    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    body:@Composable ()->Unit)
+{
+    val b =  remember { externallyProvidedBlock }
+    val collect_scope= rememberCoroutineScope()
+    val stream= if(listenWhen==null) b.stream else {
+        listenWhenFilter(b.stream,listenWhen)
+    }
+    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
+    //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
+    // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
+    // * events by way of storing callback data in [MutableState] passed to [key]
+    // is something that should no be done: need to understand better
+    LaunchedEffect(state) {
+        listener(state)
+    }
+    body()
+}
+
 /*
 import 'dart:async';
 
@@ -16,11 +160,6 @@ mixin BlocListenerSingleChildWidget on SingleChildWidget {}
 /// `state` changes.
 typedef BlocWidgetListener<S> = void Function(BuildContext context, S state);
 
-/// Signature for the `listenWhen` function which takes the previous `state`
-/// and the current `state` and is responsible for returning a [bool] which
-/// determines whether or not to call [BlocWidgetListener] of [BlocListener]
-/// with the current `state`.
-typedef BlocListenerCondition<S> = bool Function(S previous, S current);
 
 /// {@template bloc_listener}
 /// Takes a [BlocWidgetListener] and an optional [bloc] and invokes

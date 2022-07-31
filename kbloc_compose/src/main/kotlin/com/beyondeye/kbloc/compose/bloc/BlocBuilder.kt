@@ -116,7 +116,6 @@ inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBui
 inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> BlocBuilder(
     externallyProvidedBlock:BlockA,
     noinline buildWhen:BlocBuilderCondition<BlockAState>?,
-    crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlockA,
     body:@Composable (BlockAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }

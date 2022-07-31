@@ -44,8 +44,7 @@ object BlocStore {
      * optional user defined [blocTag] appended in the end, in case there are more than one [BlocBase]
      * of the same type for this [Screen]
      */
-    @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> getBlocKey(
+    public inline fun <reified T : BlocBase<*>> getBlocKey(
         screen: Screen,
         blocTag: String?
     ): BlocKey =
@@ -165,6 +164,7 @@ object BlocStore {
     internal inline fun <reified T : Any> getOrPutDependency(
         bloc: BlocBase<*>,
         name: String,
+        //TODO: look how this was used in the original ScreenModelStore.getOrPutDependency()
         noinline onDispose: @DisallowComposableCalls (T) -> Unit = {},
         noinline factory: @DisallowComposableCalls (DependencyKey) -> T
     ): T {
@@ -191,6 +191,7 @@ object BlocStore {
         screen: Screen,
         blockTag: String?,
         name: String,
+        //TODO: look how this was used in the original ScreenModelStore.getOrPutDependency()
         noinline onDispose: @DisallowComposableCalls (T) -> Unit = {},
         noinline factory: @DisallowComposableCalls (DependencyKey) -> T
     ): T {
@@ -293,26 +294,25 @@ public fun DefineNewBlocStoreForSubTree(content_subtree: @Composable () -> Unit)
  * parameter because it is needed for building any [Bloc]
  */
 @Composable
-public inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
+@PublishedApi
+internal inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     tag: String? = null,
     crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> T,
     dispatcher: CoroutineDispatcher? = null
-): T {
-//    val store= LocalBlocStore.current
-    val store = BlocStore
-    val bkey = store.getBlocKey<T>(this, tag)
-//    val cscope= rememberCoroutineScope()
+): Pair<T,String> {
+    val bkey = BlocStore.getBlocKey<T>(this, tag)
+    //    val cscope= rememberCoroutineScope()
 //    val cscope= blocCoroutineScope<T>(screen = this, blocTag = tag)
     //we currently manually cancel the cscope when the bloc is closed, instead of using rememberCoroutineScope() that cancel it automatically
     // also we don't use blocCoroutineScope because we don't need to store a separate dependency for the scope
     // since we store it inside the bloc itself
     var cscope = MainScope() + CoroutineName(bkey)
-    if(dispatcher!=null) cscope +=dispatcher
-    return remember(bkey) {
-        store.getOrPut(bkey, cscope, factory) as T
+    if (dispatcher != null) cscope += dispatcher
+    val b =remember(bkey) {
+        BlocStore.getOrPut(bkey, cscope, factory) as T
     }
+    return Pair(b,bkey)
 }
-
 
 /*
 //-----------------------------------------------------------

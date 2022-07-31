@@ -93,19 +93,14 @@ fun <BlockAState>buildWhenFilter(srcFlow:Flow<BlockAState>, buildWhen: BlocBuild
  * then the optional [blocTag] can be used to identify a specific bloc instance in the bloc tree
 */
 @Composable
-inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBuilder(
+public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBuilder(
     crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlockA,
     blocTag: String? = null,
     noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
     body:@Composable (BlockAState)->Unit)
 {
     val b = rememberBloc(blocTag,factory)
-    val collect_scope= rememberCoroutineScope()
-    val stream= if(buildWhen==null) b.stream else {
-        buildWhenFilter(b.stream,buildWhen)
-    }
-    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
-    body(state)
+    BlockBuilderCore(b, buildWhen, body)
 }
 
 /**
@@ -113,19 +108,31 @@ inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBui
  * in any place not just a in [Screen.Content] member function
  */
 @Composable
-inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> BlocBuilder(
+public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> BlocBuilder(
     externallyProvidedBlock:BlockA,
     noinline buildWhen:BlocBuilderCondition<BlockAState>?,
     body:@Composable (BlockAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    val collect_scope= rememberCoroutineScope()
-    val stream= if(buildWhen==null) b.stream else {
-        buildWhenFilter(b.stream,buildWhen)
+    BlockBuilderCore(b,buildWhen,body)
+}
+
+
+@Composable
+@PublishedApi
+internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> BlockBuilderCore(
+    b: BlockA,
+    noinline buildWhen: BlocBuilderCondition<BlockAState>?,
+    body: @Composable (BlockAState) -> Unit
+) {
+    val collect_scope = rememberCoroutineScope()
+    val stream = if (buildWhen == null) b.stream else {
+        buildWhenFilter(b.stream, buildWhen)
     }
-    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
+    val state: BlockAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
     body(state)
 }
+
 
 
 

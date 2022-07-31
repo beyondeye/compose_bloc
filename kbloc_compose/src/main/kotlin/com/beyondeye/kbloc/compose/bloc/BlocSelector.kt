@@ -35,18 +35,14 @@ typealias BlocWidgetSelector<S, T> = (S)->T
  * {@endtemplate}
  */
 @Composable
-inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState : Any> Screen.BlocSelector(
+public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState : Any> Screen.BlocSelector(
     crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
     blocTag: String? = null,
     crossinline selector:BlocWidgetSelector<BlockAState,BlockSelectedState>,
     body:@Composable (BlockSelectedState)->Unit)
 {
     val b = rememberBloc(blocTag,factory)
-    val collect_scope= rememberCoroutineScope()
-    val stream= b.stream.map{selector(it) }
-
-    val state:BlockSelectedState by stream.collectAsState(selector(b.state),collect_scope.coroutineContext)
-    body(state)
+    BlocSelectorCore(b, selector, body)
 }
 
 /**
@@ -54,18 +50,33 @@ inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any,BlockSelectedS
  * in any place not just a in [Screen.Content] member function
  */
 @Composable
-inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState> BlocSelector(
+public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState:Any> BlocSelector(
     externallyProvidedBlock:BlockA,
     crossinline selector:BlocWidgetSelector<BlockAState,BlockSelectedState>,
     body:@Composable (BlockSelectedState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    val collect_scope= rememberCoroutineScope()
-    val stream= b.stream.map{selector(it) }
+    BlocSelectorCore(b, selector, body)
+}
 
-    val state:BlockSelectedState by stream.collectAsState(selector(b.state),collect_scope.coroutineContext)
+@PublishedApi
+@Composable
+internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any, BlockSelectedState : Any> BlocSelectorCore(
+    b: BlockA,
+    crossinline selector: BlocWidgetSelector<BlockAState, BlockSelectedState>,
+    body: @Composable (BlockSelectedState) -> Unit
+) {
+    val collect_scope = rememberCoroutineScope()
+    val stream = b.stream.map { selector(it) }
+
+    val state: BlockSelectedState by stream.collectAsState(
+        selector(b.state),
+        collect_scope.coroutineContext
+    )
     body(state)
 }
+
+
 
 
 /*

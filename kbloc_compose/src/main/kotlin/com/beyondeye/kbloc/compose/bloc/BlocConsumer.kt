@@ -1,5 +1,130 @@
 package com.beyondeye.kbloc.compose.bloc
 
+import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.screen.Screen
+import com.beyondeye.kbloc.core.BlocBase
+import kotlinx.coroutines.CoroutineScope
+
+/**
+ * {@template bloc_consumer}
+ * [BlocConsumer] exposes a [builder] and [listener] in order react to new
+ * states.
+ * [BlocConsumer] is analogous to a nested `BlocListener`
+ * and `BlocBuilder` but reduces the amount of boilerplate needed.
+ * [BlocConsumer] should only be used when it is necessary to both rebuild UI
+ * and execute other reactions to state changes in the [bloc].
+ *
+ * [BlocConsumer] takes a required `BlocWidgetBuilder`
+ * and `BlocWidgetListener` and an optional [bloc],
+ * `BlocBuilderCondition`, and `BlocListenerCondition`.
+ *
+ * If the [bloc] parameter is omitted, [BlocConsumer] will automatically
+ * perform a lookup using `BlocProvider` and the current `BuildContext`.
+ *
+ * ```dart
+ * BlocConsumer<BlocA, BlocAState>(
+ *   listener: (context, state) {
+ *     // do stuff here based on BlocA's state
+ *   },
+ *   builder: (context, state) {
+ *     // return widget here based on BlocA's state
+ *   }
+ * )
+ * ```
+ *
+ * An optional [listenWhen] and [buildWhen] can be implemented for more
+ * granular control over when [listener] and [builder] are called.
+ * The [listenWhen] and [buildWhen] will be invoked on each [bloc] `state`
+ * change.
+ * They each take the previous `state` and current `state` and must return
+ * a [bool] which determines whether or not the [builder] and/or [listener]
+ * function will be invoked.
+ * The previous `state` will be initialized to the `state` of the [bloc] when
+ * the [BlocConsumer] is initialized.
+ * [listenWhen] and [buildWhen] are optional and if they aren't implemented,
+ * they will default to `true`.
+ *
+ * ```dart
+ * BlocConsumer<BlocA, BlocAState>(
+ *   listenWhen: (previous, current) {
+ *     // return true/false to determine whether or not
+ *     // to invoke listener with state
+ *   },
+ *   listener: (context, state) {
+ *     // do stuff here based on BlocA's state
+ *   },
+ *   buildWhen: (previous, current) {
+ *     // return true/false to determine whether or not
+ *     // to rebuild the widget with state
+ *   },
+ *   builder: (context, state) {
+ *     // return widget here based on BlocA's state
+ *   }
+ * )
+ * ```
+ * {@endtemplate}
+ */
+@Composable
+public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocConsumer(
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
+    blocTag: String? = null,
+    noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
+    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    crossinline body:@Composable (BlockAState)->Unit)
+{
+    val b = rememberBloc(blocTag,factory)
+    BlocConsumerCore(b, listenWhen, listener, buildWhen, body)
+}
+
+@Composable
+public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> BlocConsumer(
+    externallyProvidedBlock:BlockA,
+    noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
+    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    crossinline body:@Composable (BlockAState)->Unit)
+{
+    val b =  remember { externallyProvidedBlock }
+    BlocConsumerCore(b, listenWhen, listener, buildWhen, body)
+}
+
+@Composable
+@PublishedApi
+internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> BlocConsumerCore(
+    b: BlockA,
+    noinline listenWhen: BlocListenerCondition<BlockAState>?,
+    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    noinline buildWhen: BlocBuilderCondition<BlockAState>?,
+    crossinline body: @Composable (BlockAState) -> Unit
+) {
+    val collect_scope = rememberCoroutineScope()
+    val listen_stream = if (listenWhen == null) b.stream else {
+        listenWhenFilter(b.stream, listenWhen)
+    }
+    val listen_state: BlockAState by listen_stream.collectAsState(
+        b.state,
+        collect_scope.coroutineContext
+    )
+    //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
+    // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
+    // * events by way of storing callback data in [MutableState] passed to [key]
+    // is something that should no be done: need to understand better
+    LaunchedEffect(listen_state) {
+        listener(listen_state)
+    }
+    val build_stream = if (buildWhen == null) b.stream else {
+        buildWhenFilter(b.stream, buildWhen)
+    }
+    val build_state: BlockAState by build_stream.collectAsState(
+        b.state,
+        collect_scope.coroutineContext
+    )
+    body(build_state)
+}
+
+
 /*
 /// {@template bloc_consumer}
 /// [BlocConsumer] exposes a [builder] and [listener] in order react to new

@@ -102,19 +102,7 @@ inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocLi
     //TODO: in the original code if b changes, then a recomposition is triggered with the new bloc
     //      and new bloc state
     val b = rememberBloc(blocTag,factory)
-    val collect_scope= rememberCoroutineScope()
-    val stream= if(listenWhen==null) b.stream else {
-        listenWhenFilter(b.stream,listenWhen)
-    }
-    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
-    //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
-    // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
-    // * events by way of storing callback data in [MutableState] passed to [key]
-    // is something that should no be done: need to understand better
-    LaunchedEffect(state) {
-        listener(state)
-    }
-    body()
+    BlocListenerCore(b, listenWhen, listener, body)
 }
 
 /**
@@ -129,11 +117,22 @@ inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> BlocListener(
     body:@Composable ()->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    val collect_scope= rememberCoroutineScope()
-    val stream= if(listenWhen==null) b.stream else {
-        listenWhenFilter(b.stream,listenWhen)
+    BlocListenerCore(b, listenWhen, listener, body)
+}
+
+@PublishedApi
+@Composable
+internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> BlocListenerCore(
+    b: BlockA,
+    noinline listenWhen: BlocListenerCondition<BlockAState>?,
+    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    body: @Composable () -> Unit
+) {
+    val collect_scope = rememberCoroutineScope()
+    val stream = if (listenWhen == null) b.stream else {
+        listenWhenFilter(b.stream, listenWhen)
     }
-    val state:BlockAState by stream.collectAsState(b.state,collect_scope.coroutineContext)
+    val state: BlockAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
     //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
     // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
     // * events by way of storing callback data in [MutableState] passed to [key]
@@ -143,6 +142,8 @@ inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> BlocListener(
     }
     body()
 }
+
+
 
 /*
 import 'dart:async';

@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose.bloc.internals
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -6,7 +6,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.beyondeye.kbloc.compose.model.BlocStore
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf

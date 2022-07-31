@@ -1,7 +1,7 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
@@ -35,14 +35,14 @@ typealias BlocWidgetSelector<S, T> = (S)->T
  * {@endtemplate}
  */
 @Composable
-public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState : Any> Screen.BlocSelector(
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState : Any> Screen.BlocSelector(
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
     blocTag: String? = null,
-    crossinline selector:BlocWidgetSelector<BlockAState,BlockSelectedState>,
+    crossinline selector:BlocWidgetSelector<BlocAState,BlockSelectedState>,
     body:@Composable (BlockSelectedState)->Unit)
 {
-    val b = rememberBloc(blocTag,factory)
-    BlocSelectorCore(b, selector, body)
+    val (b,bkey) = rememberBloc(blocTag,factory)
+    BlocSelectorCore(b,bkey, selector, body)
 }
 
 /**
@@ -50,20 +50,21 @@ public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any,BlockSe
  * in any place not just a in [Screen.Content] member function
  */
 @Composable
-public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any,BlockSelectedState:Any> BlocSelector(
-    externallyProvidedBlock:BlockA,
-    crossinline selector:BlocWidgetSelector<BlockAState,BlockSelectedState>,
+public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState:Any> BlocSelector(
+    externallyProvidedBlock:BlocA,
+    crossinline selector:BlocWidgetSelector<BlocAState,BlockSelectedState>,
     body:@Composable (BlockSelectedState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocSelectorCore(b, selector, body)
+    BlocSelectorCore(b,null, selector, body)
 }
 
 @PublishedApi
 @Composable
-internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any, BlockSelectedState : Any> BlocSelectorCore(
-    b: BlockA,
-    crossinline selector: BlocWidgetSelector<BlockAState, BlockSelectedState>,
+internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, BlockSelectedState : Any> BlocSelectorCore(
+    b: BlocA,
+    bkey:String?,
+    crossinline selector: BlocWidgetSelector<BlocAState, BlockSelectedState>,
     body: @Composable (BlockSelectedState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
@@ -73,6 +74,7 @@ internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any, 
         selector(b.state),
         collect_scope.coroutineContext
     )
+    //TODO if bkey!=null bind bloc
     body(state)
 }
 

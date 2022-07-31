@@ -1,7 +1,7 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
@@ -21,8 +21,8 @@ typealias BlocListenerCondition<S> =(previousState:S?,currentState:S)->Boolean
 /**
  * todo [listenWhenFilter] and [buildWhenFilter] are exaclty the same: merge them
  */
-fun <BlockAState>listenWhenFilter(srcFlow: Flow<BlockAState>, listenWhen: BlocListenerCondition<BlockAState>): Flow<BlockAState> {
-    var prevState:BlockAState?=null
+fun <BlocAState>listenWhenFilter(srcFlow: Flow<BlocAState>, listenWhen: BlocListenerCondition<BlocAState>): Flow<BlocAState> {
+    var prevState:BlocAState?=null
     return  srcFlow.transform { curState->
         if(listenWhen(prevState,curState)) {
             emit(curState)
@@ -92,17 +92,17 @@ fun <BlockAState>listenWhenFilter(srcFlow: Flow<BlockAState>, listenWhen: BlocLi
 * {@endtemplate}
  */
 @Composable
-inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocListener(
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocListener(
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
     blocTag: String? = null,
-    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
-    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+    noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     body:@Composable ()->Unit)
 {
     //TODO: in the original code if b changes, then a recomposition is triggered with the new bloc
     //      and new bloc state
-    val b = rememberBloc(blocTag,factory)
-    BlocListenerCore(b, listenWhen, listener, body)
+    val (b,bkey) = rememberBloc(blocTag,factory)
+    BlocListenerCore(b,bkey, listenWhen, listener, body)
 }
 
 /**
@@ -110,29 +110,30 @@ inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocLi
  * in any place not just a in [Screen.Content] member function
  */
 @Composable
-inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> BlocListener(
-    externallyProvidedBlock:BlockA,
-    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
-    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListener(
+    externallyProvidedBlock:BlocA,
+    noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     body:@Composable ()->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocListenerCore(b, listenWhen, listener, body)
+    BlocListenerCore(b,null, listenWhen, listener, body)
 }
 
 @PublishedApi
 @Composable
-internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> BlocListenerCore(
-    b: BlockA,
-    noinline listenWhen: BlocListenerCondition<BlockAState>?,
-    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
+internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocListenerCore(
+    b: BlocA,
+    bkey: String?,
+    noinline listenWhen: BlocListenerCondition<BlocAState>?,
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     body: @Composable () -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val stream = if (listenWhen == null) b.stream else {
         listenWhenFilter(b.stream, listenWhen)
     }
-    val state: BlockAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
+    val state: BlocAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
     //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
     // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
     // * events by way of storing callback data in [MutableState] passed to [key]
@@ -140,6 +141,7 @@ internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> 
     LaunchedEffect(state) {
         listener(state)
     }
+    //TODO if bkey!=null then bind bloc
     body()
 }
 

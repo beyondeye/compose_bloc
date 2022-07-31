@@ -1,7 +1,7 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
@@ -66,44 +66,45 @@ import kotlinx.coroutines.CoroutineScope
  * {@endtemplate}
  */
 @Composable
-public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocConsumer(
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlockA,
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocConsumer(
+    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
     blocTag: String? = null,
-    noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
-    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
-    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
-    crossinline body:@Composable (BlockAState)->Unit)
+    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
+    crossinline body:@Composable (BlocAState)->Unit)
 {
-    val b = rememberBloc(blocTag,factory)
-    BlocConsumerCore(b, listenWhen, listener, buildWhen, body)
+    val (b,bkey) = rememberBloc(blocTag,factory)
+    BlocConsumerCore(b,bkey, listenWhen, listener, buildWhen, body)
 }
 
 @Composable
-public inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> BlocConsumer(
-    externallyProvidedBlock:BlockA,
-    noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
-    noinline listenWhen: BlocListenerCondition<BlockAState>?=null,
-    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
-    crossinline body:@Composable (BlockAState)->Unit)
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsumer(
+    externallyProvidedBlock:BlocA,
+    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
+    crossinline body:@Composable (BlocAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocConsumerCore(b, listenWhen, listener, buildWhen, body)
+    BlocConsumerCore(b,null, listenWhen, listener, buildWhen, body)
 }
 
 @Composable
 @PublishedApi
-internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> BlocConsumerCore(
-    b: BlockA,
-    noinline listenWhen: BlocListenerCondition<BlockAState>?,
-    crossinline listener: @DisallowComposableCalls suspend (BlockAState) -> Unit,
-    noinline buildWhen: BlocBuilderCondition<BlockAState>?,
-    crossinline body: @Composable (BlockAState) -> Unit
+internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocConsumerCore(
+    b: BlocA,
+    bkey: String?,
+    noinline listenWhen: BlocListenerCondition<BlocAState>?,
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
+    noinline buildWhen: BlocBuilderCondition<BlocAState>?,
+    crossinline body: @Composable (BlocAState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val listen_stream = if (listenWhen == null) b.stream else {
         listenWhenFilter(b.stream, listenWhen)
     }
-    val listen_state: BlockAState by listen_stream.collectAsState(
+    val listen_state: BlocAState by listen_stream.collectAsState(
         b.state,
         collect_scope.coroutineContext
     )
@@ -117,10 +118,11 @@ internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> 
     val build_stream = if (buildWhen == null) b.stream else {
         buildWhenFilter(b.stream, buildWhen)
     }
-    val build_state: BlockAState by build_stream.collectAsState(
+    val build_state: BlocAState by build_stream.collectAsState(
         b.state,
         collect_scope.coroutineContext
     )
+    //TODO if bkey !=null then bind bloc
     body(build_state)
 }
 

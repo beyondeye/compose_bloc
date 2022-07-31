@@ -1,6 +1,9 @@
-package com.beyondeye.kbloc.compose.model
+package com.beyondeye.kbloc.compose.bloc.internals
 
 import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.model.Dependency
+import com.beyondeye.kbloc.compose.model.DependencyKey
+import com.beyondeye.kbloc.compose.model.ScreenModelStore
 import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase

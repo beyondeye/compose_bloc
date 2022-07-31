@@ -2,24 +2,26 @@ package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import com.beyondeye.kbloc.compose.model.coroutineScope
-import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.bloc.internals.BindBloc
+import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
+import com.beyondeye.kbloc.compose.bloc.internals.LocalBlocBindings
+import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
+import kotlinx.coroutines.CoroutineScope
 
 class BlocProvider//cannot be instantiated
 private constructor() {
     companion object {
-        inline fun <reified BlockA: BlocBase<*>> of() {
+        inline fun <reified BlocA: BlocBase<*>> of() {
 
         }
         @Composable
-        inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> value(
+        inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> value(
             tag: String? = null,
-            value:BlockA,
-            body:@Composable (BlockAState)->Unit)
+            value:BlocA,
+            body:@Composable (BlocAState)->Unit)
         {
          /*
             val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
@@ -48,15 +50,45 @@ private constructor() {
         then use [BlocProviderValue] method. In this case
  */
 @Composable
-inline fun <reified BlockA: BlocBase<BlockAState>,BlockAState:Any> Screen.BlocProvider(
+inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocProvider(
     tag: String? = null,
     /**
      * By default, BlocProvider will create the bloc lazily, meaning create will get executed when the bloc is looked up via BlocProvider.of<BlocA>(context).
+     * TODO: currently lazy mode is not support
      */
     lazy:Boolean=false,
-    crossinline create: @DisallowComposableCalls () -> BlockA,
-    body:@Composable (BlockAState)->Unit)
+    crossinline create: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
+    crossinline child:@Composable ()->Unit)
 {
+    val (b,bkey)=rememberBloc(tag,create)
+
+    BindBloc(b,bkey) {
+        child()
+    }
+    /*
+    val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
+    //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
+    //TODO use instead the bloc coroutine scope field?
+    val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
+    body(state.value)
+
+     */
+}
+
+@Composable
+inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any>
+        blocProviderOf():BlocA?
+{
+    val curBindings=LocalBlocBindings.current
+    return remember {
+        val bkey=curBindings.bindingMaps[BlocA::class.qualifiedName]
+        BlocStore.blocs.get(bkey) as BlocA?
+    }
+    /*
+    val b=rememberBloc(tag,create)
+    child()
+
+     */
     /*
     val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
     //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed

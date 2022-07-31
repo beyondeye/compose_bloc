@@ -1,7 +1,7 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.model.rememberBloc
+import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
@@ -19,8 +19,8 @@ typealias BlocBuilderCondition<S> = (previous:S?,current:S)->Boolean
 /**
  *
  */
-fun <BlockAState>buildWhenFilter(srcFlow:Flow<BlockAState>, buildWhen: BlocBuilderCondition<BlockAState>): Flow<BlockAState> {
-    var prevState:BlockAState?=null
+fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: BlocBuilderCondition<BlocAState>): Flow<BlocAState> {
+    var prevState:BlocAState?=null
     return  srcFlow.transform { curState->
         if(buildWhen(prevState,curState)) {
             emit(curState)
@@ -93,14 +93,14 @@ fun <BlockAState>buildWhenFilter(srcFlow:Flow<BlockAState>, buildWhen: BlocBuild
  * then the optional [blocTag] can be used to identify a specific bloc instance in the bloc tree
 */
 @Composable
-public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.BlocBuilder(
-    crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlockA,
+public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> Screen.BlocBuilder(
+    crossinline factory: @DisallowComposableCalls (cscope:CoroutineScope) -> BlocA,
     blocTag: String? = null,
-    noinline buildWhen:BlocBuilderCondition<BlockAState>?=null,
-    body:@Composable (BlockAState)->Unit)
+    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    body:@Composable (BlocAState)->Unit)
 {
-    val b = rememberBloc(blocTag,factory)
-    BlockBuilderCore(b, buildWhen, body)
+    val (b,bkey) = rememberBloc(blocTag,factory)
+    BlockBuilderCore(b,bkey, buildWhen, body)
 }
 
 /**
@@ -108,28 +108,30 @@ public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> Screen.
  * in any place not just a in [Screen.Content] member function
  */
 @Composable
-public inline fun <reified BlockA:BlocBase<BlockAState>,BlockAState:Any> BlocBuilder(
-    externallyProvidedBlock:BlockA,
-    noinline buildWhen:BlocBuilderCondition<BlockAState>?,
-    body:@Composable (BlockAState)->Unit)
+public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
+    externallyProvidedBlock:BlocA,
+    noinline buildWhen:BlocBuilderCondition<BlocAState>?,
+    body:@Composable (BlocAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlockBuilderCore(b,buildWhen,body)
+    BlockBuilderCore(b,null,buildWhen,body)
 }
 
 
 @Composable
 @PublishedApi
-internal inline fun <reified BlockA : BlocBase<BlockAState>, BlockAState : Any> BlockBuilderCore(
-    b: BlockA,
-    noinline buildWhen: BlocBuilderCondition<BlockAState>?,
-    body: @Composable (BlockAState) -> Unit
+internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlockBuilderCore(
+    b: BlocA,
+    bkey: String?,
+    noinline buildWhen: BlocBuilderCondition<BlocAState>?,
+    body: @Composable (BlocAState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val stream = if (buildWhen == null) b.stream else {
         buildWhenFilter(b.stream, buildWhen)
     }
-    val state: BlockAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
+    val state: BlocAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
+    //TODO if bkey!=null the bind bloc
     body(state)
 }
 

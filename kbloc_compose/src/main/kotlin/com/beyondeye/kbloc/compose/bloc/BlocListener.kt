@@ -93,16 +93,13 @@ fun <BlocAState>listenWhenFilter(srcFlow: Flow<BlocAState>, listenWhen: BlocList
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocListener(
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
-    blocTag: String? = null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     body:@Composable ()->Unit)
 {
-    //TODO: in the original code if b changes, then a recomposition is triggered with the new bloc
-    //      and new bloc state
-    val (b,bkey) = rememberBloc(blocTag,factory)
-    BlocListenerCore(b,bkey, listenWhen, listener, body)
+    rememberProvidedBlocOf<BlocA>()?.let { b->
+        BlocListenerCore(b, listenWhen, listener, body)
+    }
 }
 
 /**
@@ -117,14 +114,13 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListe
     content:@Composable ()->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocListenerCore(b,null, listenWhen, listener, content)
+    BlocListenerCore(b, listenWhen, listener, content)
 }
 
 @PublishedApi
 @Composable
 internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocListenerCore(
     b: BlocA,
-    bkey: String?,
     noinline listenWhen: BlocListenerCondition<BlocAState>?,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     content: @Composable () -> Unit
@@ -141,7 +137,6 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     LaunchedEffect(state) {
         listener(state)
     }
-    //TODO if bkey!=null then bind bloc
     content()
 }
 

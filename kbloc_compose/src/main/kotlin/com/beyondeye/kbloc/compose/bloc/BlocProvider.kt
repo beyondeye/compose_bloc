@@ -11,32 +11,6 @@ import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
 
-class BlocProvider//cannot be instantiated
-private constructor() {
-    companion object {
-        inline fun <reified BlocA: BlocBase<*>> of() {
-
-        }
-        @Composable
-        inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> value(
-            tag: String? = null,
-            value:BlocA,
-            body:@Composable (BlocAState)->Unit)
-        {
-         /*
-            val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
-            //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
-            //TODO use instead the bloc coroutine scope field?
-            val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
-            body(state.value)
-
-             */
-        }
-
-
-    }
-}
-
 /**
         BlocProvider is a composable which provides a bloc to its children via BlocProvider.of<T>(context).
          It is used as a dependency injection (DI) configuration so that a single instance
@@ -56,47 +30,32 @@ inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocProvi
      * By default, BlocProvider will create the bloc lazily, meaning create will get executed when the bloc is looked up via BlocProvider.of<BlocA>(context).
      * TODO: currently lazy mode is not support
      */
-    lazy:Boolean=false,
+//    lazy:Boolean=false,
     crossinline create: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
-    crossinline child:@Composable ()->Unit)
+    crossinline content:@Composable ()->Unit)
 {
     val (b,bkey)=rememberBloc(tag,create)
 
     BindBloc(b,bkey) {
-        child()
+        content()
     }
-    /*
-    val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
-    //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
-    //TODO use instead the bloc coroutine scope field?
-    val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
-    body(state.value)
-
-     */
 }
 
+/**
+ * original method was BlocProvider.of<Type> in flutter_bloc. we have renamed to reflect
+ * the usage of remember that is specific to compose.
+ * Use this method to obtain a bloc that was previously configured with [BlocProvider]
+ * in a parent composable
+ */
 @Composable
-inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any>
-        blocProviderOf():BlocA?
+inline fun <reified BlocA: BlocBase<*>>
+        rememberProvidedBlocOf():BlocA?
 {
     val curBindings=LocalBlocBindings.current
-    return remember {
+    return remember(curBindings) { //recalculate if curBindings change
         val bkey=curBindings.bindingMaps[BlocA::class.qualifiedName]
         BlocStore.blocs.get(bkey) as BlocA?
     }
-    /*
-    val b=rememberBloc(tag,create)
-    child()
-
-     */
-    /*
-    val b = if(block!=null) remember { block } else rememberBloc(tag,factory)
-    //TODO is this correct? I want to stream collection to be cancelled when a bloc is closed
-    //TODO use instead the bloc coroutine scope field?
-    val state =b.stream.collectAsState(context=b.coroutineScope().coroutineContext)
-    body(state.value)
-
-     */
 }
 
 

@@ -5,8 +5,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.buildBlocBindingKey
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.toPersistentHashMap
 
@@ -46,21 +48,68 @@ private fun blocBindingsSaver(): Saver<BlocBindings, Map<String,String>> =
     )
 
 @Composable
-fun <B:BlocBase<*>>rememberSaveableBlocBindings(blocKey:String, b:B, curBlocBindings: BlocBindings):BlocBindings {
+fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBloc(
+    b: B,
+    tag:String?,
+    blocKey: String,
+    curBlocBindings: BlocBindings
+):BlocBindings {
     return rememberSaveable(saver = blocBindingsSaver()) {
         val curMap=curBlocBindings.bindingMaps
         //add the new bound key
-        val newMap=curMap.put(b::class.qualifiedName!!,blocKey)
+        val newMap=curMap.put(buildBlocBindingKey(b, tag),blocKey)
         BlocBindings(newMap)
     }
 }
+
+
+/**
+ * [blist] is list of pairs of bloc and blocKey
+ */
+@Composable
+fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBlocs(
+    blist: List<Triple<B, String,String>>,
+    curBlocBindings: BlocBindings
+): BlocBindings {
+    return rememberSaveable(saver = blocBindingsSaver()) {
+        val curMap=curBlocBindings.bindingMaps
+        //add the new bound keys
+        val newMap=curMap.mutate { map->
+            for ((b,tag,bkey) in blist) {
+                map.put(buildBlocBindingKey(b, tag),bkey)
+            }
+        }
+        BlocBindings(newMap)
+    }
+}
+
+
 @PublishedApi
 internal val LocalBlocBindings = staticCompositionLocalOf { BlocBindings() }
 
 @Composable
-public inline fun BindBloc(b:BlocBase<*>, blocKey:String, crossinline content:@Composable ()->Unit) {
-    val newBindings= rememberSaveableBlocBindings(blocKey, b, curBlocBindings = LocalBlocBindings.current)
+public inline fun BindBloc(
+    b: BlocBase<*>,
+    tag: String?,
+    blocKey: String,
+    crossinline content: @Composable () -> Unit
+) {
+    val newBindings= rememberSaveableBlocBindingsWithAddedBloc(
+        b, tag,blocKey, curBlocBindings = LocalBlocBindings.current
+    )
     CompositionLocalProvider(LocalBlocBindings provides newBindings) {
         content()
     }
 }
+
+/**
+ * [blist] is list of triples of bloc, bloc_tags and blocKey
+ */
+@Composable
+public inline fun BindBlocs(blist:List<Triple<BlocBase<*>,String,String>>, crossinline content:@Composable ()->Unit) {
+    val newBindings= rememberSaveableBlocBindingsWithAddedBlocs(blist, curBlocBindings = LocalBlocBindings.current)
+    CompositionLocalProvider(LocalBlocBindings provides newBindings) {
+        content()
+    }
+}
+

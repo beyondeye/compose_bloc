@@ -53,14 +53,26 @@ object BlocStore {
     ): BlocKey =
         "${screen.key}:${T::class.qualifiedName}:${blocTag ?: "default"}"
 
+
     /**
-     * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
-     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
-     * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
+     * key used internally to store a binding for a certain Bloc type and a certain [bloc_tag]
+     * in the composable local content
      */
     @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
-        "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
+    internal inline fun <reified B : BlocBase<*>> buildBlocBindingKey(bloc_tag: String?) =
+        B::class.qualifiedName!! + (bloc_tag ?: "")
+    internal fun <B : BlocBase<*>> buildBlocBindingKey(bloc:B,bloc_tag: String?) =
+        bloc::class.qualifiedName!! + (bloc_tag ?: "")
+
+
+//    /**
+//     * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
+//     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
+//     * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
+//     */
+//    @PublishedApi
+//    internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
+//        "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
 
     @PublishedApi
     internal fun getBlocDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey =
@@ -108,59 +120,59 @@ object BlocStore {
         return b
     }
 
-    /**
-     * put an UNBOUND bloc in the bloc store: an unbound bloc is a bloc not associated to a screen
-     * return the key
-     */
-    @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> putUnbound(
-        bloc: T,
-        tag: String?,
-    ): String {
-        val key = getBlocKeyForUnboundBloc<T>(tag)
-        runBlocking {
-            blocs_mutex.withLock {
-                blocs = blocs.put(key, bloc)
-            }
-        }
-        return key
-    }
+//    /**
+//     * put an UNBOUND bloc in the bloc store: an unbound bloc is a bloc not associated to a screen
+//     * return the key
+//     */
+//    @PublishedApi
+//    internal inline fun <reified T : BlocBase<*>> putUnbound(
+//        bloc: T,
+//        tag: String?,
+//    ): String {
+//        val key = getBlocKeyForUnboundBloc<T>(tag)
+//        runBlocking {
+//            blocs_mutex.withLock {
+//                blocs = blocs.put(key, bloc)
+//            }
+//        }
+//        return key
+//    }
 
-    /**
-     * remove an UNBOUND bloc from the bloc store: an unbound bloc is a bloc not associated to a screen
-     * return the key
-     */
-    @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> removeUnbound(
-        tag: String?,
-    ) {
-        val key = getBlocKeyForUnboundBloc<T>(tag)
-        runBlocking {
-            blocs_mutex.withLock {
-                blocs = blocs.remove(key)
-            }
-        }
-    }
+//    /**
+//     * remove an UNBOUND bloc from the bloc store: an unbound bloc is a bloc not associated to a screen
+//     * return the key
+//     */
+//    @PublishedApi
+//    internal inline fun <reified T : BlocBase<*>> removeUnbound(
+//        tag: String?,
+//    ) {
+//        val key = getBlocKeyForUnboundBloc<T>(tag)
+//        runBlocking {
+//            blocs_mutex.withLock {
+//                blocs = blocs.remove(key)
+//            }
+//        }
+//    }
 
-    /**
-     * put unbound and automatically remove it when the composable exit the composition
-     */
-    @Composable
-    internal inline fun <reified T : BlocBase<*>> putUnboundWithAutoRemove(
-        bloc: T,
-        tag: String?,
-    ) {
-        DisposableEffect(true) {
-            val key = putUnbound(bloc, tag)
-            onDispose {
-                runBlocking {
-                    blocs_mutex.withLock {
-                        blocs = blocs.remove(key)
-                    }
-                }
-            }
-        }
-    }
+//    /**
+//     * put unbound and automatically remove it when the composable exit the composition
+//     */
+//    @Composable
+//    internal inline fun <reified T : BlocBase<*>> putUnboundWithAutoRemove(
+//        bloc: T,
+//        tag: String?,
+//    ) {
+//        DisposableEffect(true) {
+//            val key = putUnbound(bloc, tag)
+//            onDispose {
+//                runBlocking {
+//                    blocs_mutex.withLock {
+//                        blocs = blocs.remove(key)
+//                    }
+//                }
+//            }
+//        }
+//    }
 
 
     @PublishedApi

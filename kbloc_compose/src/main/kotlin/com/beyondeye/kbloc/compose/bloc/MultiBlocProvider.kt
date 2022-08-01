@@ -1,5 +1,47 @@
 package com.beyondeye.kbloc.compose.bloc
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
+import com.beyondeye.kbloc.compose.bloc.internals.BindBlocs
+import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
+import com.beyondeye.kbloc.compose.screen.Screen
+import com.beyondeye.kbloc.core.BlocBase
+import kotlinx.coroutines.CoroutineScope
+
+
+/**
+ * define multiple bloc providers to be available to some composable subtree
+ * The syntax for defining the list is as follows:
+ * MultiBlocProvider.BlocProvider { scope -> BlocA() }.BlocProvider { scope -> BlocB() }.forContent { content() }
+ * where content() is a composable function() for which we want the blocs made available
+ * Any number of BlocProvider definitions is supported
+ */
+@Composable
+public fun Screen.MultiBlocProvider():_BlocProviderList {
+    return _BlocProviderList(this)
+}
+
+/**
+ * [blist] is a list of triples (Bloc:BlocBase<*>,bloc_tag:String,bloc_key:String)
+ */
+class _BlocProviderList(val screen: Screen, val blist:MutableList<Triple<BlocBase<*>,String,String>> = mutableListOf()) {
+    @Composable
+    public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocProvider(
+        tag: String? = null,
+        crossinline create: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA
+    )    : _BlocProviderList
+    {
+        val (b,bkey)=screen.rememberBloc(tag,create)
+        blist.add(Triple(b,tag?:"",bkey))
+        return this
+    }
+    @Composable
+    public fun forContent(content:@Composable ()->Unit) {
+        BindBlocs(blist,content)
+        blist.clear()
+    }
+}
+
 //
 /*
 import 'package:flutter/widgets.dart';

@@ -72,10 +72,10 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.Bl
     noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    crossinline body:@Composable (BlocAState)->Unit)
+    crossinline content:@Composable (BlocAState)->Unit)
 {
     val (b,bkey) = rememberBloc(blocTag,factory)
-    BlocConsumerCore(b,bkey, listenWhen, listener, buildWhen, body)
+    BlocConsumerCore(b,bkey, listenWhen, listener, buildWhen, content)
 }
 
 @Composable
@@ -84,10 +84,10 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsu
     noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    crossinline body:@Composable (BlocAState)->Unit)
+    crossinline content:@Composable (BlocAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocConsumerCore(b,null, listenWhen, listener, buildWhen, body)
+    BlocConsumerCore(b,null, listenWhen, listener, buildWhen, content)
 }
 
 @Composable
@@ -98,7 +98,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     noinline listenWhen: BlocListenerCondition<BlocAState>?,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     noinline buildWhen: BlocBuilderCondition<BlocAState>?,
-    crossinline body: @Composable (BlocAState) -> Unit
+    crossinline content: @Composable (BlocAState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val listen_stream = if (listenWhen == null) b.stream else {
@@ -123,7 +123,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
         collect_scope.coroutineContext
     )
     //TODO if bkey !=null then bind bloc
-    body(build_state)
+    content(build_state)
 }
 
 

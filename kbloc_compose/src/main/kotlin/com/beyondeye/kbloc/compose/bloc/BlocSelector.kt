@@ -6,7 +6,6 @@ import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.transform
 
 /// Signature for the `selector` function which
 /// is responsible for returning a selected value, [T], based on [state].
@@ -39,10 +38,10 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelec
     crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
     blocTag: String? = null,
     crossinline selector:BlocWidgetSelector<BlocAState,BlockSelectedState>,
-    body:@Composable (BlockSelectedState)->Unit)
+    content:@Composable (BlockSelectedState)->Unit)
 {
     val (b,bkey) = rememberBloc(blocTag,factory)
-    BlocSelectorCore(b,bkey, selector, body)
+    BlocSelectorCore(b,bkey, selector, content)
 }
 
 /**
@@ -53,10 +52,10 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelec
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState:Any> BlocSelector(
     externallyProvidedBlock:BlocA,
     crossinline selector:BlocWidgetSelector<BlocAState,BlockSelectedState>,
-    body:@Composable (BlockSelectedState)->Unit)
+    content:@Composable (BlockSelectedState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocSelectorCore(b,null, selector, body)
+    BlocSelectorCore(b,null, selector, content)
 }
 
 @PublishedApi
@@ -65,7 +64,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, Blo
     b: BlocA,
     bkey:String?,
     crossinline selector: BlocWidgetSelector<BlocAState, BlockSelectedState>,
-    body: @Composable (BlockSelectedState) -> Unit
+    content: @Composable (BlockSelectedState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val stream = b.stream.map { selector(it) }
@@ -75,7 +74,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, Blo
         collect_scope.coroutineContext
     )
     //TODO if bkey!=null bind bloc
-    body(state)
+    content(state)
 }
 
 

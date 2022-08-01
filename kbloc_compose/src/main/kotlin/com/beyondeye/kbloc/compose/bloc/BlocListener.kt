@@ -114,10 +114,10 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListe
     externallyProvidedBlock:BlocA,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    body:@Composable ()->Unit)
+    content:@Composable ()->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocListenerCore(b,null, listenWhen, listener, body)
+    BlocListenerCore(b,null, listenWhen, listener, content)
 }
 
 @PublishedApi
@@ -127,7 +127,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     bkey: String?,
     noinline listenWhen: BlocListenerCondition<BlocAState>?,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    body: @Composable () -> Unit
+    content: @Composable () -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val stream = if (listenWhen == null) b.stream else {
@@ -142,7 +142,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
         listener(state)
     }
     //TODO if bkey!=null then bind bloc
-    body()
+    content()
 }
 
 

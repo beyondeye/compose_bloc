@@ -1,10 +1,8 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 
 /// Signature for the `selector` function which
@@ -34,14 +32,13 @@ typealias BlocWidgetSelector<S, T> = (S)->T
  * {@endtemplate}
  */
 @Composable
-public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState : Any> Screen.BlocSelector(
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
-    blocTag: String? = null,
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState : Any> BlocSelector(
     crossinline selector:BlocWidgetSelector<BlocAState,BlockSelectedState>,
     content:@Composable (BlockSelectedState)->Unit)
 {
-    val (b,bkey) = rememberBloc(blocTag,factory)
-    BlocSelectorCore(b,bkey, selector, content)
+    rememberProvidedBlocOf<BlocA>()?.let { b->
+        BlocSelectorCore(b, selector, content)
+    }
 }
 
 /**
@@ -55,25 +52,23 @@ public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any,BlockSelect
     content:@Composable (BlockSelectedState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocSelectorCore(b,null, selector, content)
+    BlocSelectorCore(b, selector, content)
 }
 
 @PublishedApi
 @Composable
 internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, BlockSelectedState : Any> BlocSelectorCore(
     b: BlocA,
-    bkey:String?,
     crossinline selector: BlocWidgetSelector<BlocAState, BlockSelectedState>,
     content: @Composable (BlockSelectedState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val stream = b.stream.map { selector(it) }
-
+    val initialState=selector(b.state)
     val state: BlockSelectedState by stream.collectAsState(
-        selector(b.state),
+        initialState,
         collect_scope.coroutineContext
     )
-    //TODO if bkey!=null bind bloc
     content(state)
 }
 

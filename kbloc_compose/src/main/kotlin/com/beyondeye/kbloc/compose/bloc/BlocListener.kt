@@ -1,10 +1,8 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 
@@ -92,7 +90,7 @@ fun <BlocAState>listenWhenFilter(srcFlow: Flow<BlocAState>, listenWhen: BlocList
 * {@endtemplate}
  */
 @Composable
-public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocListener(
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListener(
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     body:@Composable ()->Unit)

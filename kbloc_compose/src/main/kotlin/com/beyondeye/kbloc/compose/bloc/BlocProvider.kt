@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
         with BlocProvider in that screen
         If instead BlocProvider is used to provide an existing block to another navigation route
         then use [BlocProviderValue] method. In this case
+        IMPORTANT NOTE: the lifecycle of the bloc is tied to the lifecycle of the associated Screen
  */
 @Composable
 inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocProvider(

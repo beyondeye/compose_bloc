@@ -1,10 +1,7 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
-import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * {@template bloc_consumer}
@@ -66,7 +63,7 @@ import kotlinx.coroutines.CoroutineScope
  * {@endtemplate}
  */
 @Composable
-public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocConsumer(
+public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsumer(
     noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,

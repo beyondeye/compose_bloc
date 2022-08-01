@@ -67,15 +67,14 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocConsumer(
-    crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
-    blocTag: String? = null,
     noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     crossinline content:@Composable (BlocAState)->Unit)
 {
-    val (b,bkey) = rememberBloc(blocTag,factory)
-    BlocConsumerCore(b,bkey, listenWhen, listener, buildWhen, content)
+    rememberProvidedBlocOf<BlocA>() ?.let { b->
+        BlocConsumerCore(b, listenWhen, listener, buildWhen, content)
+    }
 }
 
 @Composable
@@ -87,14 +86,13 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsu
     crossinline content:@Composable (BlocAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocConsumerCore(b,null, listenWhen, listener, buildWhen, content)
+    BlocConsumerCore(b, listenWhen, listener, buildWhen, content)
 }
 
 @Composable
 @PublishedApi
 internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocConsumerCore(
     b: BlocA,
-    bkey: String?,
     noinline listenWhen: BlocListenerCondition<BlocAState>?,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     noinline buildWhen: BlocBuilderCondition<BlocAState>?,
@@ -122,7 +120,6 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
         b.state,
         collect_scope.coroutineContext
     )
-    //TODO if bkey !=null then bind bloc
     content(build_state)
 }
 

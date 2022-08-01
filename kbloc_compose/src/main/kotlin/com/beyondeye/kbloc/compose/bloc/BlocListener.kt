@@ -88,15 +88,18 @@ fun <BlocAState>listenWhenFilter(srcFlow: Flow<BlocAState>, listenWhen: BlocList
 * )
 * ```
 * {@endtemplate}
+ * NOTE: in original DART code BlocListener is a Widget that declare a child.
+ * In Compose there is no need to do such a thing. By removing it also there is actually no need
+ * for the MultiBlocListener class that is present in flutter_bloc code
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListener(
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
-    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    body:@Composable ()->Unit)
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit
+)
 {
     rememberProvidedBlocOf<BlocA>()?.let { b->
-        BlocListenerCore(b, listenWhen, listener, body)
+        BlocListenerCore(b, listenWhen, listener)
     }
 }
 
@@ -108,11 +111,11 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListe
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListener(
     externallyProvidedBlock:BlocA,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
-    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    content:@Composable ()->Unit)
+    crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit
+)
 {
     val b =  remember { externallyProvidedBlock }
-    BlocListenerCore(b, listenWhen, listener, content)
+    BlocListenerCore(b, listenWhen, listener)
 }
 
 @PublishedApi
@@ -121,7 +124,6 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     b: BlocA,
     noinline listenWhen: BlocListenerCondition<BlocAState>?,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
-    content: @Composable () -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
     val stream = if (listenWhen == null) b.stream else {
@@ -135,7 +137,6 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     LaunchedEffect(state) {
         listener(state)
     }
-    content()
 }
 
 

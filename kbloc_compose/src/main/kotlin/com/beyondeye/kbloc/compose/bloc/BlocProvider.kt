@@ -26,7 +26,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Composable
 inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocProvider(
-    tag: String? = null,
+    blocTag: String? = null,
     /**
      * By default, BlocProvider will create the bloc lazily, meaning create will get executed when the bloc is looked up via BlocProvider.of<BlocA>(context).
      * TODO: currently lazy mode is not support
@@ -35,9 +35,9 @@ inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocProvi
     crossinline create: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
     crossinline content:@Composable ()->Unit)
 {
-    val (b,bkey)=rememberBloc(tag,create)
+    val (b,bkey)=rememberBloc(blocTag,create)
 
-    BindBloc(b,tag,bkey) {
+    BindBloc(b,blocTag,bkey) {
         content()
     }
 }
@@ -50,11 +50,11 @@ inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> Screen.BlocProvi
  */
 @Composable
 inline fun <reified BlocA: BlocBase<*>>
-        rememberProvidedBlocOf(tag:String?=null):BlocA?
+        rememberProvidedBlocOf(blocTag:String?=null):BlocA?
 {
     val curBindings=LocalBlocBindings.current
     return remember(curBindings) { //recalculate if curBindings change
-        val bkey=curBindings.bindingMaps[buildBlocBindingKey<BlocA>(tag)]
+        val bkey=curBindings.bindingMaps[buildBlocBindingKey<BlocA>(blocTag)]
         BlocStore.blocs.get(bkey) as BlocA?
     }
 }

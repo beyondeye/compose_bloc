@@ -10,14 +10,16 @@ import kotlinx.coroutines.flow.transform
 /**
 * Signature for the `buildWhen` function which takes the previous `state` and
 * the current `state` and is responsible for returning a [bool] which
-* determines whether to rebuild [BlocBuilder] with the current `state`.
+* determines whether or not to trigger a rebuild of [BlocBuilder] with the current `state`.
  */
 typealias BlocBuilderCondition<S> = (previous:S?,current:S)->Boolean
 
 /**
- *
+ *  create a new flow that filter the [srcFlow] and emit only states that satisfy the [buildWhen]
+ *  condition, that compare prevState and curState
  */
-fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: BlocBuilderCondition<BlocAState>): Flow<BlocAState> {
+@PublishedApi
+internal fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: BlocBuilderCondition<BlocAState>): Flow<BlocAState> {
     var prevState:BlocAState?=null
     return  srcFlow.transform { curState->
         if(buildWhen(prevState,curState)) {
@@ -29,7 +31,8 @@ fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: BlocBuilder
 
 /**
 * {@template bloc_builder}
-* [BlocBuilder] handles building a widget in response to new `states`.
+ * [BlocBuilder] handles retrieving
+* [BlocBuilder] handles transforming a providing the building a widget in response to new `states`.
 * [BlocBuilder] is analogous to [StreamBuilder] but has simplified API to
 * reduce the amount of boilerplate code needed as well as [bloc]-specific
 * performance improvements.
@@ -92,10 +95,11 @@ fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: BlocBuilder
 */
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
+    blocTag:String?=null,
     noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     content:@Composable (BlocAState)->Unit)
 {
-    rememberProvidedBlocOf<BlocA>()?.let { b->
+    rememberProvidedBlocOf<BlocA>(blocTag)?.let { b->
         BlockBuilderCore(b, buildWhen, content)
     }
 

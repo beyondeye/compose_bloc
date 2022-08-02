@@ -33,10 +33,11 @@ typealias BlocWidgetSelector<S, T> = (S)->T
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState : Any> BlocSelector(
+    blocTag:String?=null,
     crossinline selector:BlocWidgetSelector<BlocAState,BlockSelectedState>,
     content:@Composable (BlockSelectedState)->Unit)
 {
-    rememberProvidedBlocOf<BlocA>()?.let { b->
+    rememberProvidedBlocOf<BlocA>(blocTag)?.let { b->
         BlocSelectorCore(b, selector, content)
     }
 }

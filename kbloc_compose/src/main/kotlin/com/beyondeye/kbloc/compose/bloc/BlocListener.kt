@@ -94,11 +94,12 @@ fun <BlocAState>listenWhenFilter(srcFlow: Flow<BlocAState>, listenWhen: BlocList
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocListener(
+    blocTag:String?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit
 )
 {
-    rememberProvidedBlocOf<BlocA>()?.let { b->
+    rememberProvidedBlocOf<BlocA>(blocTag)?.let { b->
         BlocListenerCore(b, listenWhen, listener)
     }
 }

@@ -64,12 +64,13 @@ import com.beyondeye.kbloc.core.BlocBase
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsumer(
+    blocTag:String?=null,
     noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     crossinline content:@Composable (BlocAState)->Unit)
 {
-    rememberProvidedBlocOf<BlocA>() ?.let { b->
+    rememberProvidedBlocOf<BlocA>(blocTag) ?.let { b->
         BlocConsumerCore(b, listenWhen, listener, buildWhen, content)
     }
 }

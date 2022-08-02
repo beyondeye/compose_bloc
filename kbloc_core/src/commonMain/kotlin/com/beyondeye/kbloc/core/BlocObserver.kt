@@ -19,17 +19,19 @@ public interface BlocObserver<State:Any> {
      * In many cases, a cubit may be lazily instantiated and
      * [onCreate] can be used to observe exactly when the cubit
      * instance is created.
+     * NOTE: lazy bloc intantiation is not actually current supported in in compose_bloc
+     *       it is supported in the original flutter_bloc implementation
      */
     //@protected
     @MustCallSuper
-    public fun onCreate(bloc:BlocBase<State>):Unit {  }
+    public fun onCreate(bloc:BlocBase<State>) {  }
     /**
      * Called whenever an [event] is `added` to any [bloc] with the given [bloc]
      * and [event].
      */
     //@protected
     @MustCallSuper
-    public fun onEvent(bloc:Bloc<Any,State>,event:Any?):Unit  {}
+    public fun onEvent(bloc:Bloc<Any,State>,event:Any?)  {}
     /**
      * Called whenever a [Change] occurs in any [bloc]
      * A [change] occurs when a new state is emitted.
@@ -37,7 +39,7 @@ public interface BlocObserver<State:Any> {
      */
     //@protected
     @MustCallSuper
-    public fun onChange(bloc:BlocBase<State>,change: Change<State>):Unit  {}
+    public fun onChange(bloc:BlocBase<State>,change: Change<State>)  {}
     /**
      * Called whenever a transition occurs in any [bloc] with the given [bloc]
      * and [transition].
@@ -47,14 +49,14 @@ public interface BlocObserver<State:Any> {
      */
     //@protected
     @MustCallSuper
-    public fun onTransition(bloc:Bloc<Any,State>, transition: Transition<Any?,State>):Unit  {}
+    public fun onTransition(bloc:Bloc<Any,State>, transition: Transition<Any?,State>)  {}
     /**
      * Called whenever an [error] is thrown in any [Bloc] or [Cubit].
      * the stackTrace can be obtained (if present) from field [error.stackTraceToString()]
      */
     //@protected
     @MustCallSuper
-    public fun onError(bloc:BlocBase<State>,error:Throwable):Unit  {}
+    public fun onError(bloc:BlocBase<State>,error:Throwable)  {}
 
     /**
      * Called whenever a [Bloc] is closed.
@@ -64,6 +66,6 @@ public interface BlocObserver<State:Any> {
      */
     //@protected
     @MustCallSuper
-    public fun onClose(bloc:BlocBase<State>):Unit  {}
+    public fun onClose(bloc:BlocBase<State>)  {}
 }
 

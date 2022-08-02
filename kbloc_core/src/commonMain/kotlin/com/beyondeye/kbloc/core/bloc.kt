@@ -57,7 +57,17 @@ public typealias EventHandler<Event,State> = suspend (event:Event,emit:Emitter<S
 /** Takes a `Stream` of `Events` as input
 * and transforms them into a `Stream` of `States` as output.
  */
-public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEventSink<Event> {
+public abstract class Bloc<Event : Any, State : Any>
+/**
+ * the coroutine scope used for running async state update function (queueStateUpdate)
+ * and suspend functions in event handlers
+ */ public constructor(
+    /**
+     * the coroutine scope used for running async state update function (queueStateUpdate)
+     * and suspend functions in event handlers
+     */
+    cscope: CoroutineScope, initialState: State, useReferenceEqualityForStateChanges: Boolean
+) : BlocBase<State>(initialState, cscope, useReferenceEqualityForStateChanges), BlocEventSink<Event> {
 
     private var eventFlowJob:Job?=null
     //see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-shared-flow/index.html
@@ -71,14 +81,8 @@ public abstract class Bloc<Event : Any, State : Any>: BlocBase<State>, BlocEvent
     @PublishedApi
     internal val _eventTransformer:EventTransformer<Any> =
     BlocOverrides.current?.eventTransformer ?: _defaultEventTransformer
-    public constructor(
-        /**
-         * the coroutine scope used for running async state update function (queueStateUpdate)
-         */
-        cscope_stateUpdate: CoroutineScope,
-        initialState: State,
-        useReferenceEqualityForStateChanges: Boolean
-    ):super(initialState,cscope_stateUpdate,useReferenceEqualityForStateChanges) {
+
+    init {
         _startEventHandlerJob()
     }
     private fun _startEventHandlerJob() {

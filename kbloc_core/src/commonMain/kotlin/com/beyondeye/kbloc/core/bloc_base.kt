@@ -88,31 +88,31 @@ public interface ErrorSink :Closable {
 /** An interface for the core functionality implemented by
  * both [Bloc] and [Cubit].
  */
-public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittable<State>,ErrorSink
+public abstract class BlocBase<State:Any>// ignore: invalid_use_of_protected_member
+/**
+ * the coroutine scope used for running async state update function (queueStateUpdate)
+ * and suspend functions in event handlers
+ */ public constructor(
+    initialState: State,
+    /**
+     * the coroutine scope used for running async state update function (queueStateUpdate)
+     * and suspend functions in event handlers
+     */
+    public val cscope: CoroutineScope, useReferenceEqualityForStateChanges: Boolean
+) :StateStreamableSource<State>,Emittable<State>,ErrorSink
 {
     @PublishedApi
     internal var _emitted:Boolean=false
     @PublishedApi
-    internal val _useReferenceEqualityForStateChanges:Boolean
+    internal val _useReferenceEqualityForStateChanges:Boolean = useReferenceEqualityForStateChanges
+
     //TODO: should not I will busing get() here, so that I always get the most updated version of current?
     protected val _blocObserver:BlocObserver<Any>? = BlocOverrides.current?.blocObserver
-    public val cscope:CoroutineScope
+
     /**
      * see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/index.html
     */
     private val _stateController:MutableDeferredStateFlow<State>
-    public constructor(initialState: State,
-                       /**
-                        * the coroutine scope used for running async state update function (queueStateUpdate)
-                        */
-                       cscope_stateUpdate: CoroutineScope,
-                       useReferenceEqualityForStateChanges:Boolean) {
-        _useReferenceEqualityForStateChanges=useReferenceEqualityForStateChanges
-        _stateController= MutableDeferredStateFlow(initialState,cscope_stateUpdate)
-        cscope = cscope_stateUpdate
-        // ignore: invalid_use_of_protected_member
-        _blocObserver?.onCreate(this as BlocBase<Any>)
-    }
     public override val state:State get() = runBlocking { _stateController.valueDeferred.await() }
     public override val stream: StateFlow<State> get() = _stateController
 
@@ -256,5 +256,10 @@ public abstract class BlocBase<State:Any> :StateStreamableSource<State>,Emittabl
     override suspend fun close() {
         _blocObserver?.onClose(this as BlocBase<Any>)
         _isClosed=true
+    }
+
+    init {
+        _stateController= MutableDeferredStateFlow(initialState,cscope)
+        _blocObserver?.onCreate(this as BlocBase<Any>)
     }
 }

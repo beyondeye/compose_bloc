@@ -46,8 +46,11 @@ public typealias EventTransformer<Event> = (events:Flow<Event>,mapper:EventMappe
 /**
  * An event handler is responsible for reacting to an incoming [Event]
  * and can emit zero or more states via the [Emitter].
+ * NOTE: in the original DART code: EventHandler<Event,State> return a future that is automatically awaited().
+ *       In kotlin, with suspend functions, this is introduces useless complexity, so in our implementation
+ *       EventHandler is a SUSPEND function that return Unit
  */
-public typealias EventHandler<Event,State> = suspend (event:Event,emit:Emitter<State>)->Unit
+public typealias EventHandler<Event,State> = suspend (event:Event,emit:Emitter<State>) ->Unit
 
 @PublishedApi internal class _Handler<Event:Any>(val isType:(value:Any)->Boolean, val type: KClass<Event>)
 

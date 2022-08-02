@@ -127,7 +127,6 @@ internal class _Emitter<State>(private val _emit: (State) -> Unit,private val _c
     override fun call(state: State) {
         //TODO throw error instead of assert?
         assert(!_isCompleted) {
-            //TODO rewrite for kotlin this error string
             """
 \n\n
 emit was called after an event handler completed normally.
@@ -137,15 +136,22 @@ and use emit.isDone after asynchronous operations before calling emit() to
 ensure the event handler has not completed.
 
   **BAD**
-  on<Event>((event, emit) {
-    future.whenComplete(() => emit(...));
-  });
+  on<Event>{ event, emit-> 
+    async {
+        //..some async ops
+        emit(...)
+    }
+  }
 
   **GOOD**
-  on<Event>((event, emit) async {
-    await future.whenComplete(() => emit(...));
-  });            
-        """
+  on<Event>{ event, emit-> 
+    val deferred=async {
+        //..some async ops
+        emit(...)
+    }
+    deferred.await()
+  }
+"""
         }
         if (!_isCanceled) _emit(state)
     }
@@ -168,22 +174,15 @@ This is most likely due to an unawaited emit.forEach or emit.onEach.
 Please make sure to await all asynchronous operations within event handlers.
 
   **BAD**
-  on<Event>((event, emit) {
-    emit.forEach(...);
-  });
+  on<Event>{ event, emit ->
+    emit.forEach(...)
+  }
 
   **GOOD**
-  on<Event>((event, emit) async {
-    await emit.forEach(...);
-  });
-
-  **GOOD**
-  on<Event>((event, emit) {
-    return emit.forEach(...);
-  });
-
-  **GOOD**
-  on<Event>((event, emit) => emit.forEach(...));        
+  on<Event>{ event, emit ->
+    val job=emit.forEach(...)
+    job.join()
+  }
 """
         }
         _isCompleted = true

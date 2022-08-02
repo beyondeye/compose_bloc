@@ -53,6 +53,14 @@ object BlocStore {
     ): BlocKey =
         "${screen.key}:${T::class.qualifiedName}:${blocTag ?: "default"}"
 
+   /**
+    * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
+    * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
+    * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
+    */
+   @PublishedApi
+   internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
+       "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
 
     /**
      * key used internally to store a binding for a certain Bloc type and a certain [bloc_tag]
@@ -65,14 +73,7 @@ object BlocStore {
         bloc::class.qualifiedName!! + (bloc_tag ?: "")
 
 
-//    /**
-//     * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
-//     * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
-//     * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
-//     */
-//    @PublishedApi
-//    internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
-//        "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
+
 
     @PublishedApi
     internal fun getBlocDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey =

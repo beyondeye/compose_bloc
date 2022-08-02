@@ -36,8 +36,8 @@ class CounterBloc(cscope:CoroutineScope,
     }
 
     override fun onError(error: Throwable) {
-        super.onError(error)
         onErrorCallback?.invoke(error)
+        super.onError(error)
     }
     private fun _onCounterEvent(event: CounterEvent, emit: Emitter<Int>) {
         when(event) {

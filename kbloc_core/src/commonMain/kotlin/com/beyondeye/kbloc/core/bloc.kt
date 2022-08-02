@@ -1,5 +1,7 @@
 package com.beyondeye.kbloc.core
 
+import com.beyondeye.kbloc.concurrency.EventTransformer_concurrent
+import com.beyondeye.kbloc.concurrency.EventTransformer_sequential
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
@@ -40,11 +42,12 @@ public typealias EventMapper<Event> = (Event) -> Flow<Event>
 /**
  *  Used to change how events are processed.
  *  By default events are processed concurrently.
+ *  see also [EventTransformer_concurrent] and [EventTransformer_sequential]
  */
 public typealias EventTransformer<Event> = (events:Flow<Event>,mapper:EventMapper<Event>) -> Flow<Event>
 
 /**
- * An event handler is responsible for reacting to an incoming [Event]
+ * An event handler is responsible for reacting to an incoming [event]
  * and can emit zero or more states via the [Emitter].
  * NOTE: in the original DART code: EventHandler<Event,State> return a future that is automatically awaited().
  *       In kotlin, with suspend functions, this is introduces useless complexity, so in our implementation
@@ -54,19 +57,22 @@ public typealias EventHandler<Event,State> = suspend (event:Event,emit:Emitter<S
 
 @PublishedApi internal class _Handler<Event:Any>(val isType:(value:Any)->Boolean, val type: KClass<Event>)
 
-/** Takes a `Stream` of `Events` as input
-* and transforms them into a `Stream` of `States` as output.
+/**
+ * This is the central class of the library.
+ * In brief what it does is:
+ * Takes a `Stream` of `Events` as input and transforms them into a `Stream` of `States` as output.
  */
 public abstract class Bloc<Event : Any, State : Any>
-/**
- * the coroutine scope used for running async state update function (queueStateUpdate)
- * and suspend functions in event handlers
- */ public constructor(
+ public constructor(
     /**
      * the coroutine scope used for running async state update function (queueStateUpdate)
      * and suspend functions in event handlers
      */
-    cscope: CoroutineScope, initialState: State, useReferenceEqualityForStateChanges: Boolean
+    cscope: CoroutineScope, initialState: State,
+    /**
+     * in the original dart code this is always false
+     */
+    useReferenceEqualityForStateChanges: Boolean
 ) : BlocBase<State>(initialState, cscope, useReferenceEqualityForStateChanges), BlocEventSink<Event> {
 
     private var eventFlowJob:Job?=null
@@ -151,16 +157,14 @@ public abstract class Bloc<Event : Any, State : Any>
     *  A great spot to add logging/analytics at the individual [Bloc] level.
     * 
     *  **Note: `super.onEvent` should always be called first.**
-    *  ```dart
-    *  @override
-    *  void onEvent(Event event) {
+    *  override fun onEvent(event:Event) {
     *    // Always call super.onEvent with the current event
-    *    super.onEvent(event);
+    *    super.onEvent(event)
     * 
     *    // Custom onEvent logic goes here
+     *   // ...
     *  }
-    *  ```
-    * 
+    *
     *  See also:
     * 
     *  * [BlocObserver.onEvent] for observing events globally.
@@ -173,19 +177,17 @@ public abstract class Bloc<Event : Any, State : Any>
 
     /** **[emit] is only for internal use and should never be called directly
     *  outside of tests. The [Emitter] instance provided to each [EventHandler]
-    *  should be used instead.**
+    *  should be used instead. See below for example**
     * 
-    *  ```dart
-    *  class MyBloc extends Bloc<MyEvent, MyState> {
-    *    MyBloc() : super(MyInitialState()) {
-    *      on<MyEvent>((event, emit) {
+    *  class MyBloc(cscope:CoroutineScope) :Bloc<MyEvent, MyState>(cscope,MyInitialState())  {
+    *    init {
+    *      on<MyEvent>{ event, emit ->
     *        // use `emit` to update the state.
-    *        emit(MyOtherState());
-    *      });
+    *        emit(MyOtherState())
+    *      }
     *    }
     *  }
-    *  ```
-    * 
+    *
     *  Updates the state of the bloc to the provided [state].
     *  A bloc's state should only be updated by `emitting` a new `state`
     *  from an [EventHandler] in response to an incoming event.
@@ -205,16 +207,14 @@ public abstract class Bloc<Event : Any, State : Any>
     *  A great spot to add logging/analytics at the individual [Bloc] level.
     * 
     *  **Note: `super.onTransition` should always be called first.**
-    *  ```dart
-    *  @override
-    *  void onTransition(Transition<Event, State> transition) {
+    *  override fun onTransition(transition:Transition<Event, State>) {
     *    // Always call super.onTransition with the current transition
-    *    super.onTransition(transition);
+    *    super.onTransition(transition)
     * 
     *    // Custom onTransition logic goes here
+     *   // ...
     *  }
-    *  ```
-    * 
+    *
     *  See also:
     * 
     *  * [BlocObserver.onTransition] for observing transitions globally.
@@ -227,7 +227,7 @@ public abstract class Bloc<Event : Any, State : Any>
         _blocObserver?.onTransition(this as Bloc<Any, Any>, transition as Transition<Any?, Any>)
     }
 
-    /** Closes the `event` and `state` `Streams`.
+    /** Closes the `event` stream and the `state` stream.
     *  This method should be called when a [Bloc] is no longer needed.
     *  Once [close] is called, `events` that are [add]ed will not be
     *  processed.
@@ -268,16 +268,16 @@ public abstract class Bloc<Event : Any, State : Any>
     /** Register event handler for an event of type `E`.
      *  There should only ever be one event handler per event type `E`.
      *
-     *  ```dart
-     *  abstract class CounterEvent {}
-     *  class CounterIncrementPressed extends CounterEvent {}
+     *  interface CounterEvent
+     *  class CounterIncrementPressed :CounterEvent
      *
-     *  class CounterBloc extends Bloc<CounterEvent, int> {
-     *    CounterBloc() : super(0) {
-     *      on<CounterIncrementPressed>((event, emit) => emit(state + 1));
+     *  class CounterBloc(cscope:CoroutineScope) : Bloc<CounterEvent, int>(cscope,0) {
+     *    init {
+     *      on<CounterIncrementPressed>( event, emit  -> emit(state + 1) }
      *    }
      *  }
-     *  ```
+     *
+     *
      *
      *  * A [StateError] will be thrown if there are multiple event handlers
      *  registered for the same type `E`.
@@ -287,8 +287,8 @@ public abstract class Bloc<Event : Any, State : Any>
      *  See also:
      *
      *  * [EventTransformer] to customize how events are processed.
-     *  * [package:bloc_concurrency](https://pub.dev/packages/bloc_concurrency) for an
-     *  opinionated set of event transformers.
+     *  see also [EventTransformer_sequential], [EventTransformer_concurrent] and others in
+     *   package com.beyondeye.kbloc.concurrency for an opinionated set of event transformers.
      *
      */
     //todo rewrite this method using queuestateupdate and deferredstate

@@ -28,33 +28,35 @@ public fun <E,T> Flow<T>.asyncExpand(convert: (T) -> Flow<E>): Flow<E> {
 }
 
 
-/// Like [asyncExpand] but the [convert] callback may be called for an element
-/// before the [Stream] emitted by the previous element has closed.
-///
-/// Events on the result stream will be emitted in the order they are emitted
-/// by the sub streams, which may not match the order of the original stream.
-///
-/// Errors from [convert], the source stream, or any of the sub streams are
-/// forwarded to the result stream.
-///
-/// The result stream will not close until the source stream closes and all
-/// sub streams have closed.
-///
-/// If the source stream is a broadcast stream, the result will be as well,
-/// regardless of the types of streams created by [convert]. In this case,
-/// some care should be taken:
-/// -  If [convert] returns a single subscription stream it may be listened to
-/// and never canceled.
-/// -  For any period of time where there are no listeners on the result
-/// stream, any sub streams from previously emitted events will be ignored,
-/// regardless of whether they emit further events after a listener is added
-/// back.
-///
-/// See also:
-///
-///  * [switchMap], which cancels subscriptions to the previous sub
-///    stream instead of concurrently emitting events from all sub streams.
-public fun <T> Flow<T>.concurrentAsyncExpand(mapper: (T) -> Flow<T>): Flow<T> {
+/**
+* Like [asyncExpand] but the [convert] callback may be called for an element
+* before the [Stream] emitted by the previous element has closed.
+*
+* Events on the result stream will be emitted in the order they are emitted
+* by the sub streams, which may not match the order of the original stream.
+*
+* Errors from [convert], the source stream, or any of the sub streams are
+* forwarded to the result stream.
+*
+* The result stream will not close until the source stream closes and all
+* sub streams have closed.
+*
+* If the source stream is a broadcast stream, the result will be as well,
+* regardless of the types of streams created by [convert]. In this case,
+* some care should be taken:
+* -  If [convert] returns a single subscription stream it may be listened to
+* and never canceled.
+* -  For any period of time where there are no listeners on the result
+* stream, any sub streams from previously emitted events will be ignored,
+* regardless of whether they emit further events after a listener is added
+* back.
+*
+* See also:
+*
+*  * [switchMap], which cancels subscriptions to the previous sub
+*    stream instead of concurrently emitting events from all sub streams.
+*/
+public fun <T> Flow<T>.concurrentAsyncExpand(convert: (T) -> Flow<T>): Flow<T> {
     //see also https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/flat-map-merge.html
-    return flatMapMerge(transform = mapper)
+    return flatMapMerge(transform = convert)
 }

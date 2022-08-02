@@ -123,11 +123,8 @@ internal class _Emitter<State>(private val _emit: (State) -> Unit,private val _c
     override fun isDone(): Boolean {
         return _isCanceled || _isCompleted
     }
-
-    override fun call(state: State) {
-        //TODO throw error instead of assert?
-        assert(!_isCompleted) {
-            """
+    val notAwaitedJobInEventHandlerErrorMsg =
+"""
 \n\n
 emit was called after an event handler completed normally.
 This is usually due to an unawaited future in an event handler.
@@ -152,7 +149,9 @@ ensure the event handler has not completed.
     deferred.await()
   }
 """
-        }
+    override fun call(state: State) {
+        //TODO throw error instead of assert?
+        if(_isCompleted) throw Exception(notAwaitedJobInEventHandlerErrorMsg)
         if (!_isCanceled) _emit(state)
     }
 
@@ -161,13 +160,7 @@ ensure the event handler has not completed.
         _isCanceled = true
         _close()
     }
-
-    fun complete() {
-        if (isDone()) return
-        //TODO throw error instead of assert?
-        assert(_disposables.isEmpty()) {
-            //TODO rewrite for kotlin this error message
-            """
+    val pendingSubscriptionsErrorMsg = """
 \n\n
 An event handler completed but left pending subscriptions behind.
 This is most likely due to an unawaited emit.forEach or emit.onEach.
@@ -184,6 +177,12 @@ Please make sure to await all asynchronous operations within event handlers.
     job.join()
   }
 """
+
+    fun complete() {
+        if (isDone()) return
+        //TODO throw error instead of assert?
+        if(!_disposables.isEmpty()) {
+            throw Exception(pendingSubscriptionsErrorMsg)
         }
         _isCompleted = true
         _close()

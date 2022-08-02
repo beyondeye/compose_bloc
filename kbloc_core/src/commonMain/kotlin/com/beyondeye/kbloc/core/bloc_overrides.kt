@@ -1,5 +1,7 @@
 package com.beyondeye.kbloc.core
 
+import com.beyondeye.kbloc.concurrency.EventTransformer_concurrent
+import com.beyondeye.kbloc.concurrency.EventTransformer_sequential
 import kotlinx.coroutines.flow.*
 
 /**
@@ -44,9 +46,9 @@ public abstract class BlocOverrides {
      *  it will take precendence over the global transformer.
      * 
      *  See also:
-     * 
-     *  * [package:bloc_concurrency](https://pub.dev/packages/bloc_concurrency) for an
-     *  opinionated set of event transformers.
+     *
+     *  see also [EventTransformer_sequential], [EventTransformer_concurrent] and others in
+     *   package com.beyondeye.kbloc.concurrency for an opinionated set of event transformers.
      * 
     */
     public open val eventTransformer:EventTransformer<Any> get() = _defaultEventTransformer
@@ -68,14 +70,17 @@ public abstract class BlocOverrides {
             return  zoneOverrides[_token] as BlocOverrides?
         }
         /**
-         * Runs [body] in a fresh [Zone] using the provided overrides.
+         * Runs [body] using the provided overrides.
+         * NOTE: in Dart there is a concept of zone: see https://api.dart.dev/stable/2.17.6/dart-async/Zone-class.html
+         *     in kotlin we have mantained the name of the method, although there is no such concept in kotlin
+         *     we simply run [body] ovveriding [blocObserver] and [eventTransformer]
          */
         public fun <R>runZoned(
             blocObserver: BlocObserver<Any>?=null,
             eventTransformer:EventTransformer<Any>?=null,
             body:()->R,
         ): R {
-            val overrides = _BlocOverridesScope(blocObserver, eventTransformer);
+            val overrides = _BlocOverridesScope(blocObserver, eventTransformer)
             //original code: return _asyncRunZoned(body, zoneValues: {_token: overrides});
             //TODO in the
             val prev = zoneOverrides[_token]

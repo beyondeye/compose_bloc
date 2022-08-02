@@ -207,15 +207,13 @@ public abstract class BlocBase<State : Any>// ignore: invalid_use_of_protected_m
      *  [onChange] is a great spot to add logging/analytics for a specific `cubit`.
      *
      *  **Note: `super.onChange` should always be called first.**
-     *  ```dart
-     *  @override
-     *  void onChange(Change change) {
+     *  override fun onChange(change:Change) {
      *    // Always call super.onChange with the current change
-     *    super.onChange(change);
+     *    super.onChange(change)
      *
      *    // Custom onChange logic goes here
+     *    //...
      *  }
-     *  ```
      *
      *  See also:
      *

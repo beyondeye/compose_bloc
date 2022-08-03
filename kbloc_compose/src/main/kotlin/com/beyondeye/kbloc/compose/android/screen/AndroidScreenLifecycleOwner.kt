@@ -2,13 +2,22 @@ package com.beyondeye.kbloc.compose.android.screen
 
 import android.app.Activity
 import android.content.Context
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.lifecycle.*
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleHooks
 import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleOwner
+import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleStore
 import com.beyondeye.kbloc.compose.screen.Screen
 import java.util.concurrent.atomic.AtomicReference
 
-/*
 public class AndroidScreenLifecycleOwner private constructor() :
     ScreenLifecycleOwner,
     LifecycleOwner,
@@ -55,8 +64,8 @@ public class AndroidScreenLifecycleOwner private constructor() :
     override fun getLifecycle(): Lifecycle = registry
 
     override fun getViewModelStore(): ViewModelStore = store
-
-    override fun getSavedStateRegistry(): SavedStateRegistry = controller.savedStateRegistry
+    override val savedStateRegistry: SavedStateRegistry
+        get() = controller.savedStateRegistry
 
     public companion object {
 
@@ -76,4 +85,3 @@ public class AndroidScreenLifecycleOwner private constructor() :
     }
 }
 
- */

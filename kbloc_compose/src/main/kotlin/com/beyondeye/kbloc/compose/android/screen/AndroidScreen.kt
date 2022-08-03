@@ -6,7 +6,6 @@ import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.compose.screen.ScreenKey
 import com.beyondeye.kbloc.compose.screen.uniqueScreenKey
 
-/*
 public abstract class AndroidScreen : Screen, ScreenLifecycleProvider {
 
     override val key: ScreenKey = uniqueScreenKey
@@ -14,4 +13,3 @@ public abstract class AndroidScreen : Screen, ScreenLifecycleProvider {
     override fun getLifecycleOwner(): ScreenLifecycleOwner = AndroidScreenLifecycleOwner.get(this)
 }
 
- */

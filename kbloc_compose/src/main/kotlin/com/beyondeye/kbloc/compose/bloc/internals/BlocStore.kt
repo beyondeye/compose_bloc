@@ -17,7 +17,7 @@ import kotlinx.coroutines.sync.withLock
 private typealias BlocKey = String
 
 //-----------------------------------------------------------
-object BlocStore {
+class BlocStore {
     @PublishedApi
     /**
      *  multiplatform persistent map: see https://github.com/Kotlin/kotlinx.collections.immutable
@@ -42,64 +42,7 @@ object BlocStore {
     //public fun copy() = BlocStore(this.blocs,this.blocs_dependencies)
 
 
-    /**
-     * key for a [BlocBase] of a specific type T for a specific [screen], with an additional
-     * optional user defined [blocTag] appended in the end, in case there are more than one [BlocBase]
-     * of the same type for this [Screen]
-     */
-    public inline fun <reified T : BlocBase<*>> getBlocKey(
-        screen: Screen,
-        blocTag: String?
-    ): BlocKey =
-        "${screen.key}:${T::class.qualifiedName}:${blocTag ?: "default"}"
 
-   /**
-    * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
-    * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
-    * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
-    */
-   @PublishedApi
-   internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
-       "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
-
-    /**
-     * key used internally to store a binding for a certain Bloc type and a certain [bloc_tag]
-     * in the composable local content
-     */
-    @PublishedApi
-    internal inline fun <reified B : BlocBase<*>> buildBlocBindingKey(bloc_tag: String?) =
-        B::class.qualifiedName!! + (bloc_tag ?: "")
-    internal fun <B : BlocBase<*>> buildBlocBindingKey(bloc:B,bloc_tag: String?) =
-        bloc::class.qualifiedName!! + (bloc_tag ?: "")
-
-
-
-
-    @PublishedApi
-    internal fun getBlocDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey =
-        blocs
-            .firstNotNullOfOrNull {
-                if (it.value == bloc) it.key
-                else null
-            }
-            ?: ScreenModelStore.lastScreenModelKey.value
-                ?.let { "$it:$name" }
-            ?: "standalone:$name"
-
-    /**
-     * same as method above but instead of searching for the bloc instance in the [blocs] store
-     * directly generate the bloc key with the same parameters that are used in [getBlocKey]
-     * that is [screen] and [blocTag]
-     */
-    @PublishedApi
-    internal inline fun <reified T : BlocBase<*>> getBlocDependencyKey(
-        screen: Screen,
-        blocTag: String?,
-        name: String
-    ): DependencyKey {
-        val blocKey = getBlocKey<T>(screen, blocTag)
-        return "$blocKey:$name"
-    }
 
 
     //----------------------------------------------------------------
@@ -197,11 +140,29 @@ object BlocStore {
         return dep as T
     }
 
+    @PublishedApi
+    internal fun getBlocDependencyKey(bloc: BlocBase<*>, name: String): DependencyKey {
+        //TODO perhaps avoid using lastScreenModelKey here so I don't need to access blocStore
+       return  blocs
+            .firstNotNullOfOrNull {
+                if (it.value == bloc) it.key
+                else null
+            }
+//*DARIO*
+// removed use of lastScreenModelKey here so I don't need to access ScreenModelStore
+// because now in order to access it I need to make  getBlocDependencyKey composalbe
+// In any case I am not currently using Bloc dependency at all
+//            ?: ScreenModelStore.lastScreenModelKey.value
+                ?.let { "$it:$name" }
+            ?: "standalone:$name"
 
+    }
     /**
-     * same as method above but instead of passing a bloc instance, pass the directly the
-     * parameters needed for defining the block dependency key
+     * same as method above but instead of searching for the bloc instance in the [blocs] store
+     * directly generate the bloc key with the same parameters that are used in [getBlocKey]
+     * that is [screen] and [blocTag]
      */
+
     @PublishedApi
     internal inline fun <reified T : Any, reified B : BlocBase<*>> getOrPutDependency(
         screen: Screen,
@@ -235,10 +196,7 @@ object BlocStore {
         //todo instead of runBlocking run it in a separate thread?
         runBlocking {
             for (key in bloc_keys_to_remove) {
-                blocs[key]?.let { b ->
-                    b.close()
-                    b.cscope.cancel()
-                }
+                blocs[key]?.dispose()
             }
             blocs_mutex.withLock {
                 blocs = blocs.mutate {
@@ -267,11 +225,56 @@ object BlocStore {
         }
     }
 
-    private fun Map<String, *>.extractKeyAssociatedToScreen(screen: Screen) =
-        mapNotNull {
-            val k = it.key
-            if (k.startsWith(screen.key)) k else null
+    companion object {
+        /**
+         * key for a [BlocBase] of a specific type T for a specific [screen], with an additional
+         * optional user defined [blocTag] appended in the end, in case there are more than one [BlocBase]
+         * of the same type for this [Screen]
+         */
+        public inline fun <reified T : BlocBase<*>> getBlocKey(
+            screen: Screen,
+            blocTag: String?
+        ): BlocKey =
+            "${screen.key}:${T::class.qualifiedName}:${blocTag ?: "default"}"
+
+        /**
+         * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
+         * optional user defined [tag] appended in the end, in case there are more than one [BlocBase] of that type
+         * the meaning of a bloc being unbound is that the lifecycle of the bloc will be managed elsewhere. (i.e. some other specific screen)
+         */
+        @PublishedApi
+        internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
+            "__unbound:${T::class.qualifiedName}:${tag ?: "default"}"
+
+        /**
+         * key used internally to store a binding for a certain Bloc type and a certain [bloc_tag]
+         * in the composable local content
+         */
+        @PublishedApi
+        internal inline fun <reified B : BlocBase<*>> buildBlocBindingKey(bloc_tag: String?) =
+            B::class.qualifiedName!! + (bloc_tag ?: "")
+        internal fun <B : BlocBase<*>> buildBlocBindingKey(bloc:B,bloc_tag: String?) =
+            bloc::class.qualifiedName!! + (bloc_tag ?: "")
+
+        /**
+         * same as method above but instead of passing a bloc instance, pass the directly the
+         * parameters needed for defining the block dependency key
+         */
+        @PublishedApi
+        internal inline fun <reified T : BlocBase<*>> getBlocDependencyKey(
+            screen: Screen,
+            blocTag: String?,
+            name: String
+        ): DependencyKey {
+            val blocKey = getBlocKey<T>(screen, blocTag)
+            return "$blocKey:$name"
         }
+        private fun Map<String, *>.extractKeyAssociatedToScreen(screen: Screen) =
+            mapNotNull {
+                val k = it.key
+                if (k.startsWith(screen.key)) k else null
+            }
+    }
 }
 
 //-----------------------------------------------------------
@@ -316,6 +319,7 @@ internal inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     crossinline factory: @DisallowComposableCalls (cscope: CoroutineScope) -> T,
     dispatcher: CoroutineDispatcher? = null
 ): Pair<T,String> {
+    val store =LocalBlocStoreOwner.current.blocStore
     val bkey = BlocStore.getBlocKey<T>(this, tag)
     //    val cscope= rememberCoroutineScope()
 //    val cscope= blocCoroutineScope<T>(screen = this, blocTag = tag)
@@ -325,7 +329,7 @@ internal inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     var cscope = MainScope() + CoroutineName(bkey)
     if (dispatcher != null) cscope += dispatcher
     val b =remember(bkey) {
-        BlocStore.getOrPut(bkey, cscope, factory) as T
+        store.getOrPut(bkey, cscope, factory) as T
     }
     return Pair(b,bkey)
 }
@@ -355,8 +359,7 @@ public inline fun <reified B : BlocBase<*>> blocCoroutineScope(
     blocTag: String?
 ): CoroutineScope {
     //TODO use instead     //TODO use instead val scope = rememberCoroutineScope()? see https://developer.android.com/jetpack/compose/side-effects#remembercoroutinescope
-//    val store= LocalBlocStore.current
-    val store = BlocStore
+    val store =LocalBlocStoreOwner.current.blocStore
     return store.getOrPutDependency<CoroutineScope, B>(
         screen,
         blocTag,

@@ -1,11 +1,8 @@
 package com.beyondeye.kbloc.core
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.runBlocking
 
 class StateError(msg: String) : Exception(msg)
 
@@ -262,6 +259,14 @@ public abstract class BlocBase<State : Any>// ignore: invalid_use_of_protected_m
     override suspend fun close() {
         _blocObserver?.onClose(this as BlocBase<Any>)
         _isClosed = true
+    }
+
+    /**
+     * *DARIO* combine [close] and [cscope].cancel()
+     */
+    public suspend fun dispose() {
+        close()
+        cscope.cancel()
     }
 
     init {

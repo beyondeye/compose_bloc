@@ -50,6 +50,7 @@ public class AndroidScreenLifecycleOwner private constructor() :
     override fun getHooks(): ScreenLifecycleHooks {
         atomicContext.compareAndSet(null, LocalContext.current)
 
+        //*DARIO* this is wrong: cannot give control of android lifecycle to a screen.
         return remember(this) {
             ScreenLifecycleHooks(
                 providers = listOf(

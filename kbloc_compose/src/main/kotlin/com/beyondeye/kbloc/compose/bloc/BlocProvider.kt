@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
 import com.beyondeye.kbloc.compose.bloc.internals.*
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.buildBlocBindingKey
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.getBlocKeyForUnboundBloc
+import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.Companion.buildBlocBindingKey
+import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.Companion.getBlocKeyForUnboundBloc
 import com.beyondeye.kbloc.compose.bloc.internals.LocalBlocBindings
 import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
 import com.beyondeye.kbloc.compose.model.ScreenModel
@@ -87,8 +87,9 @@ inline fun <reified BlocA: BlocBase<*>>
         rememberProvidedBlocOf(blocTag:String?=null):BlocA?
 {
     val curBindings=LocalBlocBindings.current
+    val store = LocalBlocStoreOwner.current.blocStore
     return remember(curBindings) { //recalculate if curBindings change
         val bkey=curBindings.bindingMaps[buildBlocBindingKey<BlocA>(blocTag)]
-        BlocStore.blocs.get(bkey) as BlocA?
+        store.blocs.get(bkey) as BlocA?
     }
 }

@@ -47,7 +47,7 @@ private fun <Item : Any> stackSaver(
         restore = { items -> SnapshotStateStack(items, minSize) }
     )
 
-public class SnapshotStateStack<Item>(
+public open class SnapshotStateStack<Item>(
     items: List<Item>,
     minSize: Int = 0
 ) : Stack<Item> {
@@ -69,7 +69,7 @@ public class SnapshotStateStack<Item>(
     internal val stateStack: SnapshotStateList<Item> = items.toMutableStateList()
 
     public override var lastEvent: StackEvent by mutableStateOf(StackEvent.Idle, neverEqualPolicy())
-        private set
+        internal set
 
     public override val items: List<Item> by derivedStateOf {
         stateStack.toList()
@@ -79,6 +79,10 @@ public class SnapshotStateStack<Item>(
         stateStack.lastOrNull()
     }
 
+    @Deprecated(
+        message = "Use 'lastItemOrNull' instead. Will be removed in 1.0.0.",
+        replaceWith = ReplaceWith("lastItemOrNull")
+    )
     public override val lastOrNull: Item? by derivedStateOf {
         lastItemOrNull
     }
@@ -117,36 +121,48 @@ public class SnapshotStateStack<Item>(
         lastEvent = StackEvent.Replace
     }
 
-    public override fun pop(): Boolean =
+    public fun pop_and_return_last(): Item? =
         if (canPop) {
-            stateStack.removeLast()
             lastEvent = StackEvent.Pop
-            true
+            stateStack.removeLast()
         } else {
-            false
+            null
         }
+
+    public override fun pop(): Boolean = pop_and_return_last()!=null
 
     public override fun popAll() {
         popUntil { false }
     }
 
-    public override infix fun popUntil(predicate: (Item) -> Boolean): Boolean {
-        var success = false
+    /**
+     * return list of removed items (in the order they were removed)
+     * remove while [predicate] is false
+     */
+    public fun popUntil_and_return_popped(predicate: (Item) -> Boolean): List<Item> {
+        val popped= mutableListOf<Item>()
         val shouldPop = {
             lastItemOrNull
                 ?.let(predicate)
-                ?.also { success = it }
                 ?.not()
                 ?: false
         }
 
         while (canPop && shouldPop()) {
-            stateStack.removeLast()
+           popped+= stateStack.removeLast()
         }
 
         lastEvent = StackEvent.Pop
 
-        return success
+        return popped
+    }
+
+    /**
+     * *DARIO* I think the returned value was defined differently in the original code, or the was a bug
+     * there, but in any it was not used
+     */
+    public override infix fun popUntil(predicate: (Item) -> Boolean): Boolean {
+        return popUntil_and_return_popped(predicate).size!=0
     }
 
     public override operator fun plusAssign(item: Item) {

@@ -5,7 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.buildBlocBindingKey
+import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.Companion.buildBlocBindingKey
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate

@@ -13,7 +13,10 @@ private typealias DependencyInstance = Any
 private typealias DependencyOnDispose = (Any) -> Unit
 internal typealias Dependency = Pair<DependencyInstance, DependencyOnDispose>
 
-public object ScreenModelStore {
+/**
+ * *DARIO* made this a class instead of object
+ */
+public class ScreenModelStore {
 
     /**
      * a list of currently active [ScreenModel] instances. an active instance is an instance that
@@ -91,6 +94,13 @@ public object ScreenModelStore {
         return dependencies
             .getOrPut(key) { (factory(key) to onDispose) as Dependency }
             .first as T
+    }
+    public fun <T : Any> getDependencyOrNull(
+        screenModel: ScreenModel,
+        name: String,
+    ): T? {
+        val key = getDependencyKey(screenModel, name)
+        return dependencies.get(key) as T?
     }
 
     /**

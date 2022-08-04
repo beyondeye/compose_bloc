@@ -5,17 +5,12 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
 import com.beyondeye.kbloc.compose.concurrent.ThreadSafeList
-import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleStore
-import com.beyondeye.kbloc.compose.lifecycle.rememberScreenLifecycleOwner
 import com.beyondeye.kbloc.compose.model.ScreenModelStore
 import com.beyondeye.kbloc.compose.navigator.internals.*
 import com.beyondeye.kbloc.compose.navigator.internals.LocalNavigatorStateHolder
-import com.beyondeye.kbloc.compose.navigator.internals.NavigatorDisposableEffect
-import com.beyondeye.kbloc.compose.navigator.internals.StepDisposableEffect
 import com.beyondeye.kbloc.compose.navigator.internals.rememberNavigator
 import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.compose.stack.Stack
-import com.beyondeye.kbloc.compose.stack.toMutableStateStack
+import com.beyondeye.kbloc.compose.stack.SnapshotStateStack
 
 
 public typealias NavigatorContent = @Composable (navigator: Navigator) -> Unit
@@ -67,20 +62,40 @@ public fun Navigator(
         LocalNavigatorStateHolder providesDefault rememberSaveableStateHolder()
     ) {
         val navigator = rememberNavigator(screens, disposeBehavior, LocalNavigator.current)
+        //*DARIO* Screen is no more LifecyleOwner, it was not working
+        // see for example https://github.com/adrielcafe/voyager/issues/62
+        //  lifecycleOwner must remain the parent activity of the screen
+        /*
         val lifecycleOwner = rememberScreenLifecycleOwner(navigator.lastItem)
         val hooks = lifecycleOwner.getHooks()
+        val compositionLocalOverrides=hooks.providers.toTypedArray()
+         */
+        val compositionLocalOverrides = arrayOf<ProvidedValue<*>>()
 
+        /* *DARIO* this was not working, see https://github.com/adrielcafe/voyager/issues/62
+         * we have substituted this we explicit call to navigator.dispose()
+         * TODO what to do when there are screens to dispose under this screen (child screen)
+         *  or is it impossible now that we dispose screen on explicitely when screen is popped?
+         */
+        /*
         if (navigator.parent?.disposeBehavior?.disposeNestedNavigators != false) {
             NavigatorDisposableEffect(navigator)
         }
+         */
 
         CompositionLocalProvider(
             LocalNavigator provides navigator,
-            *hooks.providers.toTypedArray()
+            *compositionLocalOverrides
         ) {
+            /* *DARIO* this was not working see https://github.com/adrielcafe/voyager/issues/62
+            * TODO: *SMS* I am not sure with what this was used for and I am not sure with what I should
+            *  substitute it
+            */
+            /*
             if (disposeBehavior.disposeSteps) {
                 StepDisposableEffect(navigator)
             }
+             */
 
             NavigatorBackHandler(navigator, onBackPressed)
 
@@ -93,8 +108,10 @@ public class Navigator internal constructor(
     screens: List<Screen>,
     private val stateHolder: SaveableStateHolder,
     public val disposeBehavior: NavigatorDisposeBehavior,
-    public val parent: Navigator? = null
-) : Stack<Screen> by screens.toMutableStateStack(minSize = 1) {
+    public val parent: Navigator? = null,
+    internal val screenModelStore: ScreenModelStore,
+    internal val blocStore: BlocStore,
+) : SnapshotStateStack<Screen>(screens,1) {
 
     public val level: Int =
         parent?.level?.inc() ?: 0
@@ -128,6 +145,23 @@ public class Navigator internal constructor(
         popUntilRoot(this)
     }
 
+
+    override fun pop(): Boolean {
+        val last= pop_and_return_last()
+        last?.let { dispose(it)  }
+        return last!=null
+    }
+
+    override fun popAll() {
+        popUntil({ false })
+    }
+
+    override fun popUntil(predicate: (Screen) -> Boolean): Boolean {
+        val popped=popUntil_and_return_popped(predicate)
+        for (p in popped) { dispose(p) }
+        return popped.size>0
+    }
+
     private tailrec fun popUntilRoot(navigator: Navigator) {
         navigator.popAll()
 
@@ -139,10 +173,10 @@ public class Navigator internal constructor(
     internal fun dispose(
         screen: Screen
     ) {
-        ScreenModelStore.remove(screen)
-        //LocalBlocStore.current.remove(screen)
-        BlocStore.remove(screen)
-        ScreenLifecycleStore.remove(screen)
+        screenModelStore.remove(screen)
+        blocStore.remove(screen)
+        //*DARIO* we have currently disabled all lifecycle handling linked to specific screens not activity
+        //ScreenLifecycleStore.remove(screen)
         stateKeys
             .asSequence()
             .filter { it.startsWith(screen.key) }

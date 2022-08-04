@@ -3,6 +3,7 @@ package com.beyondeye.kbloc.compose.model
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
+import com.beyondeye.kbloc.compose.model.internals.LocalScreenModelStoreOwner
 import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.compose.screen.Screen
 import kotlinx.coroutines.*
@@ -16,13 +17,23 @@ import kotlinx.coroutines.flow.asStateFlow
  * you can change the dispatcher for example by supplying a dispatcher argument to [CoroutineScope.async] and [CoroutineScope.launch]
  * or creating a new [CoroutineScope] with [CoroutineScope.newCoroutineContext]
  */
-public val ScreenModel.coroutineScope: CoroutineScope
-    get() = ScreenModelStore.getOrPutDependency(
-        screenModel = this,
-        name = "ScreenModelCoroutineScope",
-        factory = { key -> MainScope() + CoroutineName(key) }, //MainScope() means Dispatchers.Main, the main thread, CoroutineName is only for debygging
-        onDispose = { scope -> scope.cancel() } //cancel all coroutine in this scope when onDispose is called
-    )
+private val screenModelCoroutineScopeTag = "ScreenModelCoroutineScope"
+@Composable
+public fun ScreenModel.coroutineScope(): CoroutineScope {
+    val store= LocalScreenModelStoreOwner.current.screenModelStore
+    return remember {
+        store.getOrPutDependency(
+            screenModel = this,
+            name = screenModelCoroutineScopeTag,
+            factory = { key -> MainScope() + CoroutineName(key) }, //MainScope() means Dispatchers.Main, the main thread, CoroutineName is only for debygging
+            onDispose = { scope -> scope.cancel() } //cancel all coroutine in this scope when onDispose is called
+        )
+    }
+}
+
+public fun ScreenModelStore.coroutineScopeOrNull(model:ScreenModel): CoroutineScope? {
+    return getDependencyOrNull<CoroutineScope>(model,screenModelCoroutineScopeTag)
+}
 
 /**
  * method usually called at the beginning of  [Screen.Content] method, in order to obtain an instance
@@ -34,10 +45,12 @@ public val ScreenModel.coroutineScope: CoroutineScope
 public inline fun <reified T : ScreenModel> Screen.rememberScreenModel(
     tag: String? = null,
     factory: @DisallowComposableCalls () -> T
-): T =
-    remember(ScreenModelStore.getKey<T>(this, tag)) {
-        ScreenModelStore.getOrPut(this, tag, factory)
+): T {
+    val store= LocalScreenModelStoreOwner.current.screenModelStore
+    return remember(store.getKey<T>(this, tag)) {
+        store.getOrPut(this, tag, factory)
     }
+}
 
 /**
  * a [ScreenModel] is data associated to specific [Screen] that is created or injected

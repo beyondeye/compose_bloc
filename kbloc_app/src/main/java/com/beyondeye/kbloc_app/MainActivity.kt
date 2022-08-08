@@ -36,6 +36,7 @@ class MainScreen: Screen {
                         Button(onClick={ navigator.push(Test0Screen())}) { Text("click for test0") }
                         Button(onClick={ navigator.push(Test1BasicCounterBlocScreen())}) { Text("Basic Counter Bloc") }
                         Button(onClick={ navigator.push(Test2BasicBlocListenerScreen())}) { Text("Basic Counter Bloc Listener") }
+                        Button(onClick={ navigator.push(Test3BasicBlocConsumerScreen())}) { Text("Basic Counter Bloc Consumer") }
                     }
                 }
 

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
 import com.beyondeye.kbloc.compose.android.screen.RootNavigator
 import com.beyondeye.kbloc.compose.navigator.LocalNavigator
 import com.beyondeye.kbloc.compose.navigator.currentOrThrow
@@ -35,7 +34,7 @@ class MainScreen: Screen {
                 content = { paddingvalues ->
                     Column {
                         Button(onClick={ navigator.push(Test0Screen())}) { Text("click for test0") }
-                        Button(onClick={ navigator.push(Test1Screen())}) { Text("click for test1") }
+                        Button(onClick={ navigator.push(Test1BasicCounterBlocScreen())}) { Text("Basic Counter Bloc") }
                         Button(onClick={ navigator.push(Test2Screen())}) { Text("click for test2") }
                     }
                 }

@@ -2,11 +2,15 @@ package com.beyondeye.kbloc_app
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.beyondeye.kbloc.compose.bloc.BlocBuilder
 import com.beyondeye.kbloc.compose.bloc.BlocProvider
 import com.beyondeye.kbloc.compose.bloc.rememberProvidedBlocOf
@@ -37,7 +41,7 @@ class CounterBloc(cscope:CoroutineScope, startCounter:Int=0): Bloc<CounterEvent,
 
 }
 
-class Test1Screen: Screen {
+class Test1BasicCounterBlocScreen: Screen {
     @Composable
     override fun Content() {
         Test1ScreenContent()
@@ -45,25 +49,21 @@ class Test1Screen: Screen {
 
     @Composable
     private fun Test1ScreenContent() {
-        Column(modifier=Modifier.fillMaxWidth()) {
-            Text(text="Test1")
-            Text(text="Test2")
+        Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             BlocProvider(create = {cscope-> CounterBloc(cscope,1)} ) {
                 val b= rememberProvidedBlocOf<CounterBloc>()
-                //there is a deadlock when waiting to obtain the current value of b?.state?.counter
-                //TODO perhaps because this is run on the main thread, but this should not cause a deadlock:
-                //what it is happening?
-                //need to change the DISPATCHER used to be multithreaded and not main for processing
-                // bloc event etc?? need to check
-//                Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b?.state?.counter}")
-                Log.e(LOGTAG,"obtained counter bloc: $b")
-                /*
+                Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b?.state?.counter}")
                 BlocBuilder<CounterBloc,CounterState>() { counterState->
                     Text("Counter value: ${counterState.counter}")
-                    Button(onClick = { b?.add(IncrementEvent) }) { Text(text="Increment") }
-                    Button(onClick = { b?.add(DecrementEvent) }) { Text(text="Decrement") }
+                    Row {
+                        Button(
+                            onClick = { b?.add(DecrementEvent) },
+                            modifier = Modifier.padding(horizontal = 8.dp)) { Text(text="-") }
+                        Button(
+                            onClick = { b?.add(IncrementEvent) },
+                            modifier = Modifier.padding(horizontal = 8.dp)) { Text(text="+") }
+                    }
                 }
-                 */
             }
         }
     }

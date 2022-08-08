@@ -18,7 +18,7 @@ import com.beyondeye.kbloc.compose.model.internals.ScreenModelStoreOwner
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 
-private class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel() {
+internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel() {
     override val screenModelStore: ScreenModelStore
         get() = store
     private val store:ScreenModelStore= ScreenModelStore()
@@ -44,7 +44,7 @@ private class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel
     }
 }
 
-private class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
+internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
     override val blocStore: BlocStore
         get() = store
     private val store:BlocStore= BlocStore()

@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.beyondeye.kbloc.compose.bloc.BlocBuilder
+import com.beyondeye.kbloc.compose.bloc.BlocListener
 import com.beyondeye.kbloc.compose.bloc.BlocProvider
 import com.beyondeye.kbloc.compose.bloc.rememberProvidedBlocOf
 import com.beyondeye.kbloc.compose.screen.Screen
@@ -23,10 +24,7 @@ class Test2BasicBlocListenerScreen: Screen {
     @Composable
     private fun Test2ScreenContent() {
         Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            // out of the BlocProvider composable subtree the bloc is not available
-            val bnull= rememberProvidedBlocOf<CounterBloc>()
-            Log.e(LOGTAG,"obtained bnull counter bloc: $bnull")  //this must be null
-            //BlocProvider makes available the specified bloc (CounterBloc) to associated the composable subtree
+            //BlocProvider makes available the specified bloc (CounterBloc) to the associated  composable subtree
             BlocProvider(create = {cscope-> CounterBloc(cscope,1)} ) {
                 //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified
                 //bloc type as defined by closest enclosing BlocProvider
@@ -34,44 +32,28 @@ class Test2BasicBlocListenerScreen: Screen {
                 Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b.state.counter}")
                 val onIncrement = { b.add(IncrementEvent) }
                 val onDecrement = { b.add(DecrementEvent) }
-                //BlocBuilder search of the specified bloc type as defined by the closest enclosing
-                //bloc provider and subscribe to its states update as Composable state that
+                //BlocBuilder search for the specified bloc type as defined by the closest enclosing
+                //blocProvider and subscribes to its states updates, as a Composable state that
                 //when changes trigger recomposition
-                BlocBuilder<CounterBloc,CounterState>() { counterState->
-                    CounterControls("Counter display updated always",counterState, onDecrement, onIncrement)
+                BlocBuilder<CounterBloc,CounterState> { counterState ->
+                    CounterControls(
+                        "Counter display updated always",
+                        counterState, onDecrement, onIncrement
+                    )
                 }
-                Divider(modifier = Modifier.height(2.dp))
-                //the buildWhen condition here causes update of counterState value  when counter is even
-                BlocBuilder<CounterBloc,CounterState>(
-                    buildWhen = {prev,cur -> cur.counter%2==0 }) { onlyEvenCounterState->
-                    CounterControls("Counter display updated only for even values",onlyEvenCounterState, onDecrement, onIncrement)
+                //BlocListener search of the specified bloc type as defined by the closest enclosing
+                //bloc provider and subscribe to its states updates. the stream of state updates
+                // trigger a listener callback
+                BlocListener<CounterBloc, CounterState>() { counterState ->
+                    Log.e(LOGTAG, "listener1 triggered with count ${counterState.counter} ")
+                }
+                //the listenWhen condition here causes updates of onlyEvenCounterState  only when counter is even
+                BlocListener<CounterBloc, CounterState>(
+                    listenWhen = { prev, cur -> cur.counter % 2 == 0 }) { onlyEvenCounterState ->
+                    Log.e(LOGTAG, "listener_only_even triggered with count ${onlyEvenCounterState.counter} "
+                    )
                 }
             }
-            // out of the BlocProvider composable subtree the bloc is not available
-            val bnull2= rememberProvidedBlocOf<CounterBloc>()
-            Log.e(LOGTAG,"obtained bnull2 counter bloc: $bnull2") //this must be null
-
         }
-    }
-}
-
-@Composable
-private fun CounterControls(
-    explanatoryText:String,
-    counterState: CounterState,
-    onDecrement: () -> Unit,
-    onIncrement: () -> Unit
-) {
-    Text(explanatoryText)
-    Text("Counter value: ${counterState.counter}")
-    Row {
-        Button(
-            onClick = onDecrement,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) { Text(text = "-") }
-        Button(
-            onClick = onIncrement,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) { Text(text = "+") }
     }
 }

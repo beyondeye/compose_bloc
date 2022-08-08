@@ -21,8 +21,8 @@ object IncrementEvent:CounterEvent
 object DecrementEvent:CounterEvent
 data class CounterState(val counter:Int=0)
 
-class CounterBloc(cscope:CoroutineScope): Bloc<CounterEvent,CounterState>(cscope,
-    CounterState(0),false
+class CounterBloc(cscope:CoroutineScope, startCounter:Int=0): Bloc<CounterEvent,CounterState>(cscope,
+    CounterState(startCounter),false
 ) {
     init {
         on<IncrementEvent> { event, emit ->
@@ -48,16 +48,23 @@ class Test1Screen: Screen {
         Column(modifier=Modifier.fillMaxWidth()) {
             Text(text="Test1")
             Text(text="Test2")
-            /*
-            BlocProvider(create = {cscope-> CounterBloc(cscope)} ) {
+            BlocProvider(create = {cscope-> CounterBloc(cscope,1)} ) {
                 val b= rememberProvidedBlocOf<CounterBloc>()
+                //there is a deadlock when waiting to obtain the current value of b?.state?.counter
+                //TODO perhaps because this is run on the main thread, but this should not cause a deadlock:
+                //what it is happening?
+                //need to change the DISPATCHER used to be multithreaded and not main for processing
+                // bloc event etc?? need to check
+//                Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b?.state?.counter}")
+                Log.e(LOGTAG,"obtained counter bloc: $b")
+                /*
                 BlocBuilder<CounterBloc,CounterState>() { counterState->
                     Text("Counter value: ${counterState.counter}")
                     Button(onClick = { b?.add(IncrementEvent) }) { Text(text="Increment") }
                     Button(onClick = { b?.add(DecrementEvent) }) { Text(text="Decrement") }
                 }
+                 */
             }
-             */
         }
     }
 }

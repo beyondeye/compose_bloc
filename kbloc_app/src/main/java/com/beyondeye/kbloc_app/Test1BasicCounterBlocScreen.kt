@@ -50,21 +50,39 @@ class Test1BasicCounterBlocScreen: Screen {
     @Composable
     private fun Test1ScreenContent() {
         Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            val bnull= rememberProvidedBlocOf<CounterBloc>()
+            Log.e(LOGTAG,"obtained bnull counter bloc: $bnull")  //this must be null
             BlocProvider(create = {cscope-> CounterBloc(cscope,1)} ) {
-                val b= rememberProvidedBlocOf<CounterBloc>()
-                Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b?.state?.counter}")
+                val b= rememberProvidedBlocOf<CounterBloc>()?:return@BlocProvider
+                Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b.state.counter}")
+                val onIncrement = { b.add(IncrementEvent) }
+                val onDecrement = { b.add(DecrementEvent) }
                 BlocBuilder<CounterBloc,CounterState>() { counterState->
-                    Text("Counter value: ${counterState.counter}")
-                    Row {
-                        Button(
-                            onClick = { b?.add(DecrementEvent) },
-                            modifier = Modifier.padding(horizontal = 8.dp)) { Text(text="-") }
-                        Button(
-                            onClick = { b?.add(IncrementEvent) },
-                            modifier = Modifier.padding(horizontal = 8.dp)) { Text(text="+") }
-                    }
+                    CounterControls(counterState, onDecrement, onIncrement)
                 }
             }
+            val bnull2= rememberProvidedBlocOf<CounterBloc>()
+            Log.e(LOGTAG,"obtained bnull2 counter bloc: $bnull2") //this must be null
+
         }
+    }
+}
+
+@Composable
+private fun CounterControls(
+    counterState: CounterState,
+    onDecrement: () -> Unit,
+    onIncrement: () -> Unit
+) {
+    Text("Counter value: ${counterState.counter}")
+    Row {
+        Button(
+            onClick = onDecrement,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        ) { Text(text = "-") }
+        Button(
+            onClick = onIncrement,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        ) { Text(text = "+") }
     }
 }

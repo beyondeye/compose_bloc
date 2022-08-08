@@ -23,23 +23,31 @@ class Test2BasicBlocListenerScreen: Screen {
     @Composable
     private fun Test2ScreenContent() {
         Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            // out of the BlocProvider composable subtree the bloc is not available
             val bnull= rememberProvidedBlocOf<CounterBloc>()
             Log.e(LOGTAG,"obtained bnull counter bloc: $bnull")  //this must be null
+            //BlocProvider makes available the specified bloc (CounterBloc) to associated the composable subtree
             BlocProvider(create = {cscope-> CounterBloc(cscope,1)} ) {
+                //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified
+                //bloc type as defined by closest enclosing BlocProvider
                 val b= rememberProvidedBlocOf<CounterBloc>()?:return@BlocProvider
                 Log.e(LOGTAG,"obtained counter bloc: $b, with count ${b.state.counter}")
                 val onIncrement = { b.add(IncrementEvent) }
                 val onDecrement = { b.add(DecrementEvent) }
+                //BlocBuilder search of the specified bloc type as defined by the closest enclosing
+                //bloc provider and subscribe to its states update as Composable state that
+                //when changes trigger recomposition
                 BlocBuilder<CounterBloc,CounterState>() { counterState->
                     CounterControls("Counter display updated always",counterState, onDecrement, onIncrement)
                 }
                 Divider(modifier = Modifier.height(2.dp))
-                //update this only when counter is even
+                //the buildWhen condition here causes update of counterState value  when counter is even
                 BlocBuilder<CounterBloc,CounterState>(
-                    buildWhen = {prev,cur -> cur.counter%2==0 }) { counterState->
-                    CounterControls("Counter display updated only for even values",counterState, onDecrement, onIncrement)
+                    buildWhen = {prev,cur -> cur.counter%2==0 }) { onlyEvenCounterState->
+                    CounterControls("Counter display updated only for even values",onlyEvenCounterState, onDecrement, onIncrement)
                 }
             }
+            // out of the BlocProvider composable subtree the bloc is not available
             val bnull2= rememberProvidedBlocOf<CounterBloc>()
             Log.e(LOGTAG,"obtained bnull2 counter bloc: $bnull2") //this must be null
 

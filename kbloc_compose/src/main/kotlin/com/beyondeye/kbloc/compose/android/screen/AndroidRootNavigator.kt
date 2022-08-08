@@ -27,17 +27,18 @@ private class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel
      * <p>
      * It is useful when ViewModel observes some data and you need to clear this subscription to
      * prevent a leak of this ViewModel.
+     * see implementation of [ScreenModelStore.remove]
      */
     override fun onCleared() {
+        // first dispose all dependencies
+        for (entry in store.dependencies) {
+            val (instance,onDispose)= entry.value
+            onDispose(instance)
+        }
+        // then dispose all screenModels
         for(entry in store.screenModels) {
             val model=entry.value
-            /**
-             * TODO: implementation here is not complete, check again implementation of [ScreenModelStore.remove]
-             * it is also problematic to have two different places with the same logic but written differently, to dispose data
-             */
-            aa
             model.onDispose()
-            store.coroutineScopeOrNull(model)?.cancel()
         }
         super.onCleared()
     }
@@ -52,15 +53,18 @@ private class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
      * <p>
      * It is useful when ViewModel observes some data and you need to clear this subscription to
      * prevent a leak of this ViewModel.
+     *
+     * see implementation of [BlocStore.remove]
      */
     override fun onCleared() {
+        //first clear depedendencies
+        for (entry in store.blocs_dependencies) {
+            val (instance,onDispose) = entry.value
+            onDispose(instance)
+        }
+        //then clear blocs
         for (entry in store.blocs.entries) {
             val b=entry.value
-            /**
-             * TODO: implementation here is not complete, check again implementation of [BlocStore.remove]
-             * it is also problematic to have two different places with the same logic but written differently, to dispose data
-             */
-            aa
             runBlocking {
                 b.dispose()
             }

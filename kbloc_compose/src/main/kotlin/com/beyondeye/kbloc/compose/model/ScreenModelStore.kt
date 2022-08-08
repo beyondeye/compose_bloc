@@ -10,7 +10,9 @@ private typealias ScreenModelKey = String
 
 internal typealias DependencyKey = String
 private typealias DependencyInstance = Any
-private typealias DependencyOnDispose = (Any) -> Unit
+
+internal typealias DependencyOnDispose = (Any) -> Unit
+
 internal typealias Dependency = Pair<DependencyInstance, DependencyOnDispose>
 
 /**

@@ -3,6 +3,7 @@ package com.beyondeye.kbloc.compose.bloc.internals
 import androidx.compose.runtime.*
 import com.beyondeye.kbloc.compose.model.Dependency
 import com.beyondeye.kbloc.compose.model.DependencyKey
+import com.beyondeye.kbloc.compose.model.DependencyOnDispose
 import com.beyondeye.kbloc.compose.model.ScreenModelStore
 import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.compose.screen.Screen
@@ -119,6 +120,7 @@ class BlocStore {
 //    }
 
 
+
     @PublishedApi
     internal inline fun <reified T : Any> getOrPutDependency(
         bloc: BlocBase<*>,
@@ -130,14 +132,14 @@ class BlocStore {
         val key = getBlocDependencyKey(bloc, name)
 
         var dep = blocs_dependencies.get(key)
-        if (dep != null) return dep as T
-        dep = factory(key) as Dependency
+        if (dep != null) return dep.first as T
+        dep = Pair(factory(key) as Any , onDispose as DependencyOnDispose)
         runBlocking {
             blocs_dependencies_mutex.withLock {
                 blocs_dependencies = blocs_dependencies.put(key, dep)
             }
         }
-        return dep as T
+        return dep.first as T
     }
 
     @PublishedApi
@@ -326,7 +328,7 @@ internal inline fun <reified T : BlocBase<*>> Screen.rememberBloc(
     //we currently manually cancel the cscope when the bloc is closed, instead of using rememberCoroutineScope() that cancel it automatically
     // also we don't use blocCoroutineScope because we don't need to store a separate dependency for the scope
     // since we store it inside the bloc itself
-    var cscope = MainScope() + CoroutineName(bkey)
+    var cscope = MainScope() + Dispatchers.Default+ CoroutineName(bkey)
     if (dispatcher != null) cscope += dispatcher
     val b =remember(bkey) {
         store.getOrPut(bkey, cscope, factory) as T
@@ -364,7 +366,7 @@ public inline fun <reified B : BlocBase<*>> blocCoroutineScope(
         screen,
         blocTag,
         name = "ScreenModelCoroutineScope",
-        factory = { key -> MainScope() + CoroutineName(key) }, //MainScope() means Dispatchers.Main, the main thread, CoroutineName is only for debygging
+        factory = { key -> MainScope()+Dispatchers.Default + CoroutineName(key) }, //MainScope() means Dispatchers.Main+SupervisorJob, the main thread, but we change to Dispatchers.Default CoroutineName is only for debygging
         onDispose = { scope -> scope.cancel() } //cancel all coroutine in this scope when onDispose is called
     )
 }

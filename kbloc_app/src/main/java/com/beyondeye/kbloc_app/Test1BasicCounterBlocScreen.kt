@@ -1,10 +1,7 @@
 package com.beyondeye.kbloc_app
 
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -58,7 +55,13 @@ class Test1BasicCounterBlocScreen: Screen {
                 val onIncrement = { b.add(IncrementEvent) }
                 val onDecrement = { b.add(DecrementEvent) }
                 BlocBuilder<CounterBloc,CounterState>() { counterState->
-                    CounterControls(counterState, onDecrement, onIncrement)
+                    CounterControls("Counter display updated always",counterState, onDecrement, onIncrement)
+                }
+                Divider(modifier = Modifier.height(2.dp))
+                //update this only when counter is even
+                BlocBuilder<CounterBloc,CounterState>(
+                    buildWhen = {prev,cur -> cur.counter%2==0 }) { counterState->
+                    CounterControls("Counter display updated only for even values",counterState, onDecrement, onIncrement)
                 }
             }
             val bnull2= rememberProvidedBlocOf<CounterBloc>()
@@ -70,10 +73,12 @@ class Test1BasicCounterBlocScreen: Screen {
 
 @Composable
 private fun CounterControls(
+    explanatoryText:String,
     counterState: CounterState,
     onDecrement: () -> Unit,
     onIncrement: () -> Unit
 ) {
+    Text(explanatoryText)
     Text("Counter value: ${counterState.counter}")
     Row {
         Button(

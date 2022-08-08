@@ -50,8 +50,12 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     val listen_stream = if (listenWhen == null) b.stream else {
         listenWhenFilter(b.stream, listenWhen)
     }
-    val listen_state: BlocAState by listen_stream.collectAsState(
-        b.state,
+
+    val start_state=b.state
+    val filtered_start_state_listen=if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
+
+    val listen_state: BlocAState? by listen_stream.collectAsState(
+        filtered_start_state_listen,
         collect_scope.coroutineContext
     )
     //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
@@ -59,14 +63,17 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     // * events by way of storing callback data in [MutableState] passed to [key]
     // is something that should no be done: need to understand better
     LaunchedEffect(listen_state) {
-        listener(listen_state)
+        if(listen_state!=null) listener(listen_state!!) //listen_state can be null if initial state does not satisfy listenWhen condition
     }
     val build_stream = if (buildWhen == null) b.stream else {
         buildWhenFilter(b.stream, buildWhen)
     }
-    val build_state: BlocAState by build_stream.collectAsState(
-        b.state,
+
+    val filtered_start_state_build=if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
+
+    val build_state: BlocAState? by build_stream.collectAsState(
+        filtered_start_state_build,
         collect_scope.coroutineContext
     )
-    content(build_state)
+    if(build_state!=null) content(build_state!!) //build_state can be null if initial state does not satisfy buildWhen condition
 }

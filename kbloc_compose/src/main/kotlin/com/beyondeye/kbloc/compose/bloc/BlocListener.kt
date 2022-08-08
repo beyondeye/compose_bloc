@@ -99,13 +99,15 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     val stream = if (listenWhen == null) b.stream else {
         listenWhenFilter(b.stream, listenWhen)
     }
-    val state: BlocAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
+    val start_state=b.state
+    val filtered_start_state=if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
+    val state: BlocAState? by stream.collectAsState(filtered_start_state, collect_scope.coroutineContext)
     //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
     // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
     // * events by way of storing callback data in [MutableState] passed to [key]
     // is something that should no be done: need to understand better
     LaunchedEffect(state) {
-        listener(state)
+        if(state!=null) listener(state!!) //state can be null if initial state does not satisfy listenWhen condition
     }
 }
 

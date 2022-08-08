@@ -92,6 +92,10 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     val stream = if (buildWhen == null) b.stream else {
         buildWhenFilter(b.stream, buildWhen)
     }
-    val state: BlocAState by stream.collectAsState(b.state, collect_scope.coroutineContext)
-    content(state)
+    val start_state=b.state
+    val filtered_start_state=if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
+
+
+    val state: BlocAState? by stream.collectAsState(filtered_start_state, collect_scope.coroutineContext)
+    if(state!=null) content(state!!) //state can be null if initial state does not satisfy buildWhen condition
 }

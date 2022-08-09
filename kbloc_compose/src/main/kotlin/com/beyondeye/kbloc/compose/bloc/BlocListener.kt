@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.transform
  * with the current `state`.
  * todo [BlocBuilderCondition] and [BlocListenerCondition] are exactly the same: merge them
  */
-typealias BlocListenerCondition<S> = (previousState: S?, currentState: S) -> Boolean
+typealias BlocListenerCondition<S> = @DisallowComposableCalls (previousState: S?, currentState: S) -> Boolean
 
 
 /**

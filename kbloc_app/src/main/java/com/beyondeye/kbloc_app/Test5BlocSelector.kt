@@ -44,21 +44,21 @@ class Test5BlocSelector: Screen {
                     }
 
                     //2nd and third template argument types are inferred automatically
-                    BlocSelector<MultiCounterBloc,_,_>(selector = {state -> state.counter[0]})
+                    BlocSelector<MultiCounterBloc,_,_>(selectorFn = { state -> state.counter[0]})
                     { counterValue->
                         CounterControls("Counter[0]",counterValue, onDecr0,onIncr0)
 
                     }
                     Divider(modifier = Modifier.height(2.dp))
                     //2nd and third template argument types are inferred automatically
-                    BlocSelector<MultiCounterBloc,_,_>(selector = {state -> state.counter[1]})
+                    BlocSelector<MultiCounterBloc,_,_>(selectorFn = { state -> state.counter[1]})
                     { counterValue->
                         CounterControls("Counter[1]",counterValue, onDecr1,onIncr1)
 
                     }
                     Divider(modifier = Modifier.height(2.dp))
                     //2nd and third template argument types are inferred automatically
-                    BlocSelector<MultiCounterBloc,_,_>(selector = {state -> state.counter[2]})
+                    BlocSelector<MultiCounterBloc,_,_>(selectorFn = { state -> state.counter[2]})
                     { counterValue->
                         CounterControls("Counter[2]",counterValue, onDecr2,onIncr2)
 

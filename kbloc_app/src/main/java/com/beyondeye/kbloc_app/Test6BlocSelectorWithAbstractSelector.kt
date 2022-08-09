@@ -3,6 +3,7 @@ package com.beyondeye.kbloc_app
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,9 +26,11 @@ class Test6BlocSelectorWithAbstractSelector: Screen {
                     //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified
                     //bloc type as defined by the closest enclosing BlocProvider
                     val bloc= rememberProvidedBlocOf<ABCCounterBloc>()?:return@BlocProvider
-                    val onIncr_a = {
+                    //TODO should I use remember for definition of all these callbacks?
+                    //     (also in other tests)
+                    val onIncr_a =remember { {
                         bloc.add(MultiAddEvent(0,1))
-                    }
+                    } }
                     val onIncr_b = {
                         bloc.add(MultiAddEvent(1,1))
                     }
@@ -43,23 +46,23 @@ class Test6BlocSelectorWithAbstractSelector: Screen {
                     val onDecr_c = {
                         bloc.add(MultiSubEvent(2,1))
                     }
-
+                    val selb=SelectorBuilder<ABCCounterState>()
                     //2nd and third template argument types are inferred automatically
-                    BlocSelector<ABCCounterBloc,_,_>(select = { SelectorBuilder<ABCCounterState>().withSingleField { a } })
+                    BlocSelector<ABCCounterBloc,_,_>(select = { selb.withSingleField { a } })
                     { counterValue->
                         CounterControls("a",counterValue, onDecr_a,onIncr_a)
 
                     }
                     Divider(modifier = Modifier.height(2.dp))
                     //2nd and third template argument types are inferred automatically
-                    BlocSelector<ABCCounterBloc,_,_>(select = { SelectorBuilder<ABCCounterState>().withSingleField { b } })
+                    BlocSelector<ABCCounterBloc,_,_>(select = { selb.withSingleField { b } })
                     { counterValue->
                         CounterControls("b",counterValue, onDecr_b,onIncr_b)
 
                     }
                     Divider(modifier = Modifier.height(2.dp))
                     //2nd and third template argument types are inferred automatically
-                    BlocSelector<ABCCounterBloc,_,_>(select = { SelectorBuilder<ABCCounterState>().withSingleField { c } })
+                    BlocSelector<ABCCounterBloc,_,_>(select = { selb.withSingleField { c } })
                     { counterValue->
                         CounterControls("c",counterValue, onDecr_c,onIncr_c)
 

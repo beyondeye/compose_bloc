@@ -39,6 +39,7 @@ class MainScreen: Screen {
                         Button(onClick={ navigator.push(Test3BasicBlocConsumerScreen())}) { Text("Basic Counter Bloc Consumer") }
                         Button(onClick={ navigator.push(Test4MultiBlocProviderScreen())}) { Text("Basic Counter MultiBloc provider") }
                         Button(onClick={ navigator.push(Test5BlocSelector())}) { Text("MultiCounter BlocSelector") }
+                        Button(onClick={ navigator.push(Test6BlocSelectorWithAbstractSelector())}) { Text("MultiCounter BlocSelector with AbstractSelector") }
                     }
                 }
 

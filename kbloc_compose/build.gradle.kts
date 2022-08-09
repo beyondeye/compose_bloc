@@ -54,6 +54,7 @@ dependencies {
     compileOnly("androidx.activity:activity-compose:${rootProject.extra["compose_activity"]}")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation ("org.assertj:assertj-core:1.7.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     //androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")

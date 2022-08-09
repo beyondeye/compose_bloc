@@ -40,14 +40,22 @@ class Test1BasicCounterBlocScreen: Screen {
                 //BlocBuilder search for the specified bloc type as defined by the closest enclosing
                 //blocProvider and subscribes to its states updates, as a Composable state that
                 //when changes trigger recomposition
-                BlocBuilder<CounterBloc,CounterState>() { counterState->
-                    CounterControls("Counter display updated always",counterState, onDecrement, onIncrement)
+                //2nd template argument type  (bloc state type) is inferred automatically
+                BlocBuilder<CounterBloc,_> { counterState->
+                    CounterControls(
+                        "Counter display updated always",
+                        counterState.counter,
+                        onDecrement, onIncrement)
                 }
                 Divider(modifier = Modifier.height(2.dp))
                 //the buildWhen condition here filter updates of onlyEvenCounterState value only  when counter is even
-                BlocBuilder<CounterBloc,CounterState>(
+                //2nd template argument type  (bloc state type) is inferred automatically
+                BlocBuilder<CounterBloc,_>(
                     buildWhen = {prev,cur -> cur.counter%2==0 }) { onlyEvenCounterState->
-                    CounterControls("Counter display updated only for even values",onlyEvenCounterState, onDecrement, onIncrement)
+                    CounterControls(
+                        "Counter display updated only for even values",
+                        onlyEvenCounterState.counter,
+                        onDecrement, onIncrement)
                 }
             }
             // out of the BlocProvider composable subtree the bloc is not available
@@ -61,12 +69,12 @@ class Test1BasicCounterBlocScreen: Screen {
 @Composable
 fun CounterControls(
     explanatoryText:String,
-    counterState: CounterState,
+    counterValue: Int,
     onDecrement: () -> Unit,
     onIncrement: () -> Unit
 ) {
     Text(explanatoryText)
-    Text("Counter value: ${counterState.counter}")
+    Text("Counter value: ${counterValue}")
     Row {
         Button(
             onClick = onDecrement,

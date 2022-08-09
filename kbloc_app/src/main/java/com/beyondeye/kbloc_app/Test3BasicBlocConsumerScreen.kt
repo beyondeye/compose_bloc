@@ -35,12 +35,14 @@ class Test3BasicBlocConsumerScreen: Screen {
                 //blocProvider and subscribes to its states updates, as a Composable state that
                 //when changes trigger recomposition and also add a callback function triggered by state updates
                 //it is basically a BlocBuilder and BlocListener combined
-                BlocConsumer<CounterBloc,CounterState>(listener=listener,
+                //2nd template argument type  (bloc state type) is inferred automatically
+                BlocConsumer<CounterBloc,_>(listener=listener,
                     listenWhen = { prev, cur -> cur.counter % 2 == 0 },
                     buildWhen = {prev, cur -> cur.counter % 1 == 0}) { counterState ->
                     CounterControls(
                         "Counter display updated always",
-                        counterState, onDecrement, onIncrement
+                        counterState.counter,
+                        onDecrement, onIncrement
                     )
                 }
             }

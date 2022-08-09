@@ -35,23 +35,26 @@ class Test2BasicBlocListenerScreen: Screen {
                 //BlocBuilder search for the specified bloc type as defined by the closest enclosing
                 //blocProvider and subscribes to its states updates, as a Composable state that
                 //when changes trigger recomposition
-                BlocBuilder<CounterBloc,CounterState> { counterState ->
+                //2nd template argument type  (bloc state type) is inferred automatically
+                BlocBuilder<CounterBloc,_> { counterState ->
                     CounterControls(
                         "Counter display updated always",
-                        counterState, onDecrement, onIncrement
+                        counterState.counter,
+                        onDecrement, onIncrement
                     )
                 }
                 //BlocListener search of the specified bloc type as defined by the closest enclosing
                 //bloc provider and subscribe to its states updates. the stream of state updates
                 // trigger a listener callback
-                BlocListener<CounterBloc, CounterState>() { counterState ->
+                //2nd template argument type  (bloc state type) is inferred automatically
+                BlocListener<CounterBloc, _> { counterState ->
                     Log.e(LOGTAG, "listener1 triggered with count ${counterState.counter} ")
                 }
                 //the listenWhen condition here causes updates of onlyEvenCounterState  only when counter is even
-                BlocListener<CounterBloc, CounterState>(
+                //2nd template argument type  (bloc state type) is inferred automatically
+                BlocListener<CounterBloc, _>(
                     listenWhen = { prev, cur -> cur.counter % 2 == 0 }) { onlyEvenCounterState ->
-                    Log.e(LOGTAG, "listener_only_even triggered with count ${onlyEvenCounterState.counter} "
-                    )
+                    Log.e(LOGTAG, "listener_only_even triggered with count ${onlyEvenCounterState.counter} ")
                 }
             }
         }

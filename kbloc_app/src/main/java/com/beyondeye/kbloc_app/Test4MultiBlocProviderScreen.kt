@@ -52,16 +52,22 @@ class Test4MultiBlocProviderScreen: Screen {
                     val onDecrement20 = {
                         b20.add(SubtractionEvent(20))
                     }
-                    BlocBuilder<CounterBloc,CounterState>("cnt1") { counterState->
-                        CounterControls("Counter 1",counterState, onDecrement, onIncrement)
+                    //2nd template argument type (bloc state type) is inferred automatically
+                    BlocBuilder<CounterBloc,_>("cnt1") { counterState->
+                        CounterControls("Counter 1",
+                            counterState.counter, onDecrement, onIncrement)
                     }
                     Divider(modifier = Modifier.height(2.dp))
-                    BlocBuilder<CounterBloc,CounterState>("cnt10") { counterState->
-                        CounterControls("Counter 10",counterState, onDecrement10, onIncrement10)
+                    //2nd template argument type (bloc state type)  is inferred automatically
+                    BlocBuilder<CounterBloc,_>("cnt10") { counterState->
+                        CounterControls("Counter 10",
+                            counterState.counter, onDecrement10, onIncrement10)
                     }
                     Divider(modifier = Modifier.height(2.dp))
-                    BlocBuilder<CounterBloc,CounterState>("cnt20") { counterState->
-                        CounterControls("Counter 20",counterState, onDecrement20, onIncrement20)
+                    //2nd template argument type  (bloc state type) is inferred automatically
+                    BlocBuilder<CounterBloc,_>("cnt20") { counterState->
+                        CounterControls("Counter 20",
+                            counterState.counter, onDecrement20, onIncrement20)
                     }
 
                 }

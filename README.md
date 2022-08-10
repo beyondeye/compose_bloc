@@ -1,5 +1,7 @@
+# What is it
+a port  for Compose Multiplatform of [flutter bloc](https://github.com/felangel/bloc) library for state management 
+and compose multiplatform integrated with a kotlin multiplaform navigation library
+(a fork of [voyager](https://github.com/adrielcafe/voyager) library)
 
-a port of flutter library for state management https://github.com/felangel/bloc for compose 
-and compose multiplatform
-
-==License==
+# License
+see [License.md]

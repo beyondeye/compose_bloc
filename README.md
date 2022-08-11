@@ -4,4 +4,5 @@ and compose multiplatform integrated with a kotlin multiplaform navigation libra
 (a fork of [voyager](https://github.com/adrielcafe/voyager) library)
 
 # License
-see the [license](License.md)
+Apache 2.0
+see details [here](License.md)

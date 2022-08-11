@@ -1,7 +1,15 @@
 # What is it
-a port  for Compose Multiplatform of [flutter bloc](https://github.com/felangel/bloc) library for state management 
-and compose multiplatform integrated with a kotlin multiplaform navigation library
+A port for Compose Multiplatform of [flutter bloc](https://github.com/felangel/bloc) for state management 
+integrated with a navigation library
 (a fork of [voyager](https://github.com/adrielcafe/voyager) library)
+
+# Documentation
+
+see it [here](https://beyondeye.gitbook.io/compose-bloc/)
+
+# Motivation
+
+
 
 # License
 Apache 2.0

@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.vanniktech.maven.publish")
 }
 
 android {
@@ -42,8 +43,8 @@ android {
 dependencies {
     api(project(":kbloc_core"))
     implementation("androidx.core:core-ktx:1.8.0")
-    compileOnly("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
-    compileOnly("androidx.compose.runtime:runtime-saveable:${rootProject.extra["compose_version"]}")
+    implementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
+    implementation("androidx.compose.runtime:runtime-saveable:${rootProject.extra["compose_version"]}")
 
     //implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     //implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
@@ -58,8 +59,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     //androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
-    debugImplementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
-    debugImplementation("androidx.compose.runtime:runtime-saveable:${rootProject.extra["compose_version"]}")
 //    debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
 //    debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
 

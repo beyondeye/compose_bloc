@@ -53,10 +53,12 @@ dependencies {
 //    implementation(project(":kbloc_core"))
     implementation(project(":kbloc_compose"))
     implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
+    implementation("androidx.compose.runtime:runtime-saveable:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.activity:activity-compose:${rootProject.extra["compose_activity"]}")
 
     testImplementation("junit:junit:4.13.2")

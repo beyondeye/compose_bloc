@@ -4,9 +4,8 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("com.vanniktech.maven.publish")
 }
-
-version = "1.0"
 
 kotlin {
     android()
@@ -27,7 +26,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 //https://github.com/Kotlin/kotlinx.coroutines/releases
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 //https://github.com/Kotlin/kotlinx-datetime
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 api("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
@@ -40,7 +39,7 @@ kotlin {
                 implementation ("io.mockk:mockk-common:1.12.4")
                 //see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-test/index.html
                 //sse https://developer.android.com/kotlin/coroutines/test#testdispatchers
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
             }
         }
         val androidMain by getting

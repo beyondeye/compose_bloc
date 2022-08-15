@@ -73,7 +73,7 @@ public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilde
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
     externallyProvidedBlock:BlocA,
-    noinline buildWhen:BlocBuilderCondition<BlocAState>?,
+    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
     content:@Composable (BlocAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }

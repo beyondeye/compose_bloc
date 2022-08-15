@@ -11,6 +11,6 @@ import com.beyondeye.kbloc.core.concurrentAsyncExpand
  * an order that does not match the order in which the corresponding events
  * were added.
  */
-fun <Event>EventTransformer_concurrent():EventTransformer<Event> = { events, mapper ->
+public fun <Event>EventTransformer_concurrent():EventTransformer<Event> = { events, mapper ->
     events.concurrentAsyncExpand(mapper)
 }

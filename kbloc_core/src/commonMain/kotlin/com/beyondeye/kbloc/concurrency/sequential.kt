@@ -10,6 +10,6 @@ import com.beyondeye.kbloc.core.asyncExpand
  * **Note**: there is no event handler overlap and every event is guaranteed
  * to be handled in the order it was received.
  */
-fun <Event>EventTransformer_sequential():EventTransformer<Event> = { events, mapper ->
+public fun <Event>EventTransformer_sequential():EventTransformer<Event> = { events, mapper ->
     events.asyncExpand(mapper)
 }

@@ -50,7 +50,7 @@ class SimpleBlocTests {
     @Test
     fun simple_bloc_triggers_onCreate_on_observer_when_instantiated() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             val bloc = SimpleBloc(GlobalScope)
             verify(exactly = 1) { observer.onCreate(bloc as BlocBase<Any>) }
         }
@@ -59,7 +59,7 @@ class SimpleBlocTests {
     @Test
     fun simple_bloc_triggers_onClose_on_observer_when_closed() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runTest(UnconfinedTestDispatcher()) {
                 val bloc = SimpleBloc(this)
                 bloc.close()
@@ -86,7 +86,7 @@ class SimpleBlocTests {
     @Test
     fun simple_bloc_should_map_single_event_to_correct_state() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runTest(UnconfinedTestDispatcher()) {
                 val bloc = SimpleBloc(this)
                 bloc.add("event")
@@ -109,7 +109,7 @@ class SimpleBlocTests {
     @Test
     fun simple_bloc_should_map_multiple_events_to_correct_states() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runTest(UnconfinedTestDispatcher()) {
                 val bloc = SimpleBloc(this)
                 with(bloc) {
@@ -136,7 +136,7 @@ class SimpleBlocTests {
     @Test
     fun simple_bloc_is_a_broadcast_stream() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runTest(UnconfinedTestDispatcher()) {
                 val bloc = SimpleBloc(this)
                 val sub1data = mutableListOf<String>()
@@ -213,7 +213,7 @@ class SimpleBlocTests {
     @Test
     fun ComplexBloc_should_map_single_event_to_correct_state() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(observer) {
+        BlocOverrides.runWithOverrides(observer) {
             runTest(UnconfinedTestDispatcher())
             {
                 val expectedStates = listOf(ComplexStateB())
@@ -251,7 +251,7 @@ class SimpleBlocTests {
     @Test
     fun ComplexBloc_should_map_multiple_events_to_correct_state() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(observer) {
+        BlocOverrides.runWithOverrides(observer) {
             runTest(UnconfinedTestDispatcher())
             {
                 val expectedStates = listOf(
@@ -381,7 +381,7 @@ class SimpleBlocTests {
     @Test
     fun CounterBloc_single_increment_event_update_state_to_1() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(observer) {
+        BlocOverrides.runWithOverrides(observer) {
             runTest(UnconfinedTestDispatcher())
             {
                 val expectedStates = listOf(1)
@@ -420,7 +420,7 @@ class SimpleBlocTests {
     @Test
     fun CounterBloc_multiple_increment_updates_state_to_3() {
         val observer = spyk(MockBlocObserver<Any>())
-        BlocOverrides.runZoned(observer) {
+        BlocOverrides.runWithOverrides(observer) {
             runTest(UnconfinedTestDispatcher())
             {
                 val expectedStates = listOf(1, 2, 3)

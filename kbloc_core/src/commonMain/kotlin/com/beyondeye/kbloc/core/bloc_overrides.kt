@@ -54,28 +54,28 @@ public abstract class BlocOverrides {
     public open val eventTransformer:EventTransformer<Any> get() = _defaultEventTransformer
     
     public companion object {
-        private const val _token = "_token" //=Object()
         //TODO use instead CompositionLocal? see https://developer.android.com/jetpack/compose/compositionlocal
-        private val zoneOverrides = mutableMapOf<String,BlocOverrides?>()
+        private var curOverrides:BlocOverrides? = null
         /** Returns the current [BlocOverrides] instance.
          * 
          *  This will return `null` if the current [Zone] does not contain
          *  any [BlocOverrides].
          * 
          *  See also:
-         *  * [BlocOverrides.runZoned] to provide [BlocOverrides] in a fresh [Zone].
+         *  * [BlocOverrides.runWithOverrides] to provide [BlocOverrides] in a fresh [Zone].
         */
         public val current:BlocOverrides? get()  {
             //original code:  static BlocOverrides? get current => Zone.current[_token] as BlocOverrides?;
-            return  zoneOverrides[_token] as BlocOverrides?
+            return  curOverrides
         }
         /**
          * Runs [body] using the provided overrides.
          * NOTE: in Dart there is a concept of zone: see https://api.dart.dev/stable/2.17.6/dart-async/Zone-class.html
          *     in kotlin we have mantained the name of the method, although there is no such concept in kotlin
          *     we simply run [body] ovveriding [blocObserver] and [eventTransformer]
+         *     *DARIO* original method name was runZoned
          */
-        public fun <R>runZoned(
+        public fun <R>runWithOverrides(
             blocObserver: BlocObserver<Any>?=null,
             eventTransformer:EventTransformer<Any>?=null,
             body:()->R,
@@ -83,10 +83,10 @@ public abstract class BlocOverrides {
             val overrides = _BlocOverridesScope(blocObserver, eventTransformer)
             //original code: return _asyncRunZoned(body, zoneValues: {_token: overrides});
             //TODO in the
-            val prev = zoneOverrides[_token]
-            zoneOverrides[_token]=overrides
+            val prev = curOverrides
+            curOverrides=overrides
             val res= body()
-            zoneOverrides[_token]=prev
+            curOverrides=prev
             return res
         }
     }

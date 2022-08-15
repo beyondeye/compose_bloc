@@ -24,7 +24,7 @@ class CubitTests {
     @Test
     fun constructor_triggers_onCreate_on_observer() {
         val observer = spyk<MockBlocObserver<Any>>()
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             val cubit = CounterCubit()
             //see https://mockk.io/#verification-atleast-atmost-or-exactly-times
             verify(exactly = 1) { observer.onCreate(cubit as BlocBase<Any>) }
@@ -42,7 +42,7 @@ class CubitTests {
         val observer = spyk<MockBlocObserver<Any>>()
         val expectedError = Exception("fatal exception")
         val errors = mutableListOf<Throwable>()
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             val cubit = CounterCubit(onErrorCallback = { e -> errors.add(e) })
             cubit.addError(expectedError)
 
@@ -55,7 +55,7 @@ class CubitTests {
     @Test
     fun onChange_is_not_called_for_the_initial_state() {
         val observer = spyk<MockBlocObserver<Any>>()
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runBlocking {
                 val changes = mutableListOf<Change<Any>>()
                 val cubit = CounterCubit(onChangeCallback = { changes.add(it as Change<Any>) })
@@ -69,7 +69,7 @@ class CubitTests {
     @Test
     fun onChange_is_called_with_correct_change_for_a_single_state_change() {
         val observer = spyk<MockBlocObserver<Any>>()
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runBlocking {
                 val changes = mutableListOf<Change<Any>>()
                 val cubit = CounterCubit(onChangeCallback = { changes.add(it as Change<Any>) })
@@ -83,7 +83,7 @@ class CubitTests {
     @Test
     fun onChange_is_called_with_correct_changes_for_multiple_state_changes() {
         val observer = spyk<MockBlocObserver<Any>>()
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runBlocking {
                 val changes = mutableListOf<Change<Int>>()
                 val cubit = CounterCubit(onChangeCallback = { changes.add(it) })
@@ -282,7 +282,7 @@ class CubitTests {
     @Test
     fun triggers_onClose_on_observer() {
         val observer = spyk<MockBlocObserver<Any>>()
-        BlocOverrides.runZoned(blocObserver = observer) {
+        BlocOverrides.runWithOverrides(blocObserver = observer) {
             runBlocking {
                 val cubit = CounterCubit()
                 cubit.close()

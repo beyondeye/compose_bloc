@@ -179,7 +179,7 @@ class BlocEventTransformerTest {
     @Test
     fun processes_events_sequentially_when_bloc_transformer_is_overridden() {
 
-        BlocOverrides.runZoned(
+        BlocOverrides.runWithOverrides(
             eventTransformer = EventTransformer_sequential()) //{ events, mapper -> events.asyncExpand<Any, Any>(mapper) }
         {
             runBlocking {

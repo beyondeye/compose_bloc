@@ -75,7 +75,7 @@ fun <T> singleInputMemoizer(func: (Array<out Any>) -> T)=object: Memoizer<T> {
 }
 
 
-interface SelectorInput<S, I> {
+public interface SelectorInput<S, I> {
     operator fun invoke(state: S): I
     val equalityCheck: EqualityCheckFn
 }
@@ -92,7 +92,7 @@ class InputField<S, I>(val fn: S.() -> I,override val equalityCheck: EqualityChe
 /**
  * note: [Selector] inherit from [SelectorInput] because of support for composite selectors
  */
-interface Selector<S, O> : SelectorInput<S, O> {
+public interface Selector<S, O> : SelectorInput<S, O> {
     val recomputations: Long
 }
 
@@ -108,7 +108,7 @@ fun <S,O> S.whenChangeOf(selector: AbstractSelector<S, O>, blockfn: (O) -> Unit)
 /**
  * abstract base class for all selectors
  */
-abstract class AbstractSelector<S, O> : Selector<S, O> {
+public abstract class AbstractSelector<S, O> : Selector<S, O> {
     @JvmField protected var recomputationsLastChanged = 0L
     @JvmField protected var _recomputations = 0L
     override val recomputations: Long get() = _recomputations
@@ -393,7 +393,7 @@ class SelectorForP1<S:Any, I0 : Any>(@JvmField val si0: SelectorInput<S, I0>) {
  * wrapper class for Selector factory methods , that basically is used only to capture
  * type information for the state parameter
  */
-class SelectorBuilder<S:Any> {
+public class SelectorBuilder<S:Any> {
     fun<I0 : Any> withField(fn: S.() -> I0) = SelectorForP1<S, I0>(InputField(fn, byRefEqualityCheck))
     fun<I0 : Any> withFieldByValue(fn: S.() -> I0) = SelectorForP1<S, I0>(InputField(fn, byValEqualityCheck))
     fun<I0 : Any> withSelector(si: SelectorInput<S, I0>) = SelectorForP1<S, I0>(si)

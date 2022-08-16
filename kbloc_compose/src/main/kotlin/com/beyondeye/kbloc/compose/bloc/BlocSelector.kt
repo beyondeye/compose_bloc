@@ -15,12 +15,13 @@ import kotlinx.coroutines.flow.mapNotNull
 
 /**
  *
- * [BlocSelector] is analogous to [BlocBuilder] but allows developers to
- * filter updates by selecting a new value based on the bloc state.
- * Unnecessary recompositions of [content] are prevented if the selected value does not change.
+ * [BlocSelector] is analogous to [BlocBuilder] but allows to select parts of the full Bloc state,
+ * or in general some value derived from one or more fields of the full Bloc state. This is
+ * the value that will be passed to the [content] composable, and recomposition will be triggered
+ * not by change of the full bloc state but instead of this derived value.
  *
  * An optional [blocTag] parameter can be specified in order to identify a specific
- * bloc instance in case there is more than one instance of a bloc of same type
+ * bloc instance in the case where there is more than one instance of a bloc of the same type
  * registered for the current composable subtree (see [BlocProvider])
  * [blocTag] parameter is not present in the original flutter_bloc implementation
  *
@@ -28,7 +29,6 @@ import kotlinx.coroutines.flow.mapNotNull
  * to accurately determine whether [content] should be called again.
  * TODO understand why and check if BlocSelector work as expected
  *
- * {@endtemplate}
  */
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState : Any> BlocSelector(

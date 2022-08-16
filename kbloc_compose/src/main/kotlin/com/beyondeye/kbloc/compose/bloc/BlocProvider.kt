@@ -17,21 +17,26 @@ import kotlinx.coroutines.CoroutineScope
 /**
  *  [BlocProvider] is a composable which provides a [Bloc] to its child composable [content] and
  *  all the associated composable tree.
- *  The bloc can be retrieved it by calls to [rememberProvidedBlocOf]
+ *  The bloc can be retrieved  by calls to [rememberProvidedBlocOf]
  *  It is used as a dependency injection (DI) configuration so that a single instance
  *  of a [Bloc] can be provided to multiple child composables within a subtree.
- *  BlocProvider is defined as an extension method of [Screen] because the lifecycle of the [Bloc]
+ *  BlocProvider is defined as an extension method of [Screen] because the lifecycle of the provided [Bloc]
  *  is bound to the the lifecycle of that [Screen] (similar to [ScreenModel]).
  *  i.e. when the [Screen] is disposed so will be all blocs defined with [BlocProvider]  in that screen
  *  (the [Bloc.close] method will be called and associated coroutine scope [Bloc.cscope] will be canceled)
  *
- * An optional [blocTag] parameter can be specified in order to identify a specific
- * bloc instance in case there is more than one instance of a bloc of the same type
- * to be registered to the current composable subtree
- * [blocTag] parameter is not present in the original flutter_bloc implementation
- * *
- *  NOTE: in the original flutter_bloc implementation there is an option to create the provided
- *        bloc lazily. There is current no such option in this implementation
+ *  An optional [blocTag] parameter can be specified in order to identify a specific
+ *  bloc instance in case there is more than one instance of a bloc of the same type
+ *  to be registered to the current composable subtree
+ *  [blocTag] parameter is not present in the original flutter_bloc implementation
+ *
+ *  The [create] factory method is used to create the Bloc instance (or retrieving it with
+ *  some Dependency Injection library). The cscope parameter passed to [create] is a CoroutineScope
+ *  bound to the current screen and will be cancelled when the Screen is disposed. It is meant to be
+ *  passed to the Bloc constructor, that always requires such parameter
+ *
+ *   NOTE: in the original flutter_bloc implementation there is an option to create the provided
+ *         bloc lazily. There is currently no such option in this implementation
  */
 @Composable
 inline fun <reified BlocA: BlocBase<*>> Screen.BlocProvider(
@@ -75,11 +80,12 @@ inline fun <reified BlocA: BlocBase<*>> BlocProvider(
  * An optional [blocTag] parameter can be specified in order to identify a specific
  * bloc instance in case there is more than one instance of a bloc of same type
  * registered for the current composable subtree
+ *
  * [blocTag] parameter is not present in the original flutter_bloc implementation *
  *
- * NOTE: in flutter_bloc the the original method was BlocProvider.of<Type>. we have renamed to reflect
- * the usage of remember that is specific to Compose.
- * NOTE: in flutter_bloc, when the required [Bloc] is not found an exception is thrown.
+ * NOTE: in flutter_bloc the  original method was called BlocProvider.of<Type>.
+ * we have renamed ot to reflect the usage of remember that is specific to Compose.
+ * NOTE: in flutter_bloc, when the requested [Bloc] is not found an exception is thrown.
  *       In this implementation instead we return null
  */
 @Composable

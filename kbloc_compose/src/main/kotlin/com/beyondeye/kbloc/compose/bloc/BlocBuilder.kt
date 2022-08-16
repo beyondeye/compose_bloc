@@ -35,24 +35,24 @@ internal fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: Bl
  * current composable subtree (see [BlocProvider]) and start listening to the associated stream of
  * bloc state updates, passing it to the [content] composable method.
  * Each new value emitted in the bloc stream will trigger recomposition.
-*
-* Please refer to [BlocListener] if you instead want to "do" anything in response to
-* `state` changes such as navigation, showing a dialog, etc...
-*
+ *
+ *  Please refer to [BlocListener] if you instead want to "do" anything in response to
+ * `state` changes such as navigation, showing a dialog, etc...
+ *
  * An optional [blocTag] parameter can be specified in order to identify a specific
  * bloc instance in case there is more than one instance of a bloc of same type
  * registered for the current composable subtree (see [BlocProvider])
  * [blocTag] parameter is not present in the original flutter_bloc implementation
  *
-* An optional [buildWhen] can be implemented for more granular control over
-* what specific kind of state change should trigger recomposition
-* [buildWhen] will be invoked on each [Bloc] `state` change.
-* [buildWhen] takes the previous `state` and current `state` and must
-* return a [Boolean] which determines whether or not the [content] composable function will
-* be triggered with the new state
-* The previous `state` will be initialized to the `state` of the [Bloc] when
-* the [BlocBuilder] is initialized.
-*/
+ * An optional [buildWhen] parameter can be provided for more granular control over
+ * what specific kind of state change should trigger recomposition
+ * [buildWhen] will be invoked on each [Bloc] `state` change.
+ * [buildWhen] takes the previous `state` and current `state` and must
+ * return a [Boolean] which determines whether or not the [content] composable function will
+ * be triggered with the new state
+ * For the first call to [buildWhen], the previous `state` will be initialized to the `state` of the [Bloc] when
+ * the [BlocBuilder] was initialized.
+ */
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
     blocTag:String?=null,
@@ -69,6 +69,7 @@ public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilde
  * same as previous method but with explicitely specified bloc instance [externallyProvidedBlock]
  * not retrieved implicitely from current registered blocs in the current composable subtree
  * see [BlocProvider]
+ * Use this method if for example you have retrieved the Bloc already with [rememberProvidedBlocOf]
  */
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(

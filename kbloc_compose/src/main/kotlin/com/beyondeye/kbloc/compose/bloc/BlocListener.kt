@@ -19,6 +19,7 @@ typealias BlocListenerCondition<S> = @DisallowComposableCalls (previousState: S?
 
 /**
  * todo [listenWhenFilter] and [buildWhenFilter] are exaclty the same: merge them
+ * @param listenWhen: see [BlocListenerCondition]
  */
 @PublishedApi
 internal fun <BlocAState> listenWhenFilter(

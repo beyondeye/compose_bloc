@@ -39,25 +39,25 @@ internal fun <BlocAState> listenWhenFilter(
  * [BlocListener] handles retrieving a bloc of the specified type from the registered blocs in the
  * current composable subtree (see [BlocProvider]) and start listening to the associated stream of
  * bloc state updates. Invoke [listener] callback in response to `state` changes in the [Bloc].
- * Note that [listener] is not a Composable (potentially suspend) method,
- * and it is invoked with [LaunchedEffect]
+ * Note that [listener] is not a Composable. It is  a (potentially) suspendable method,
+ * that is invoked with [LaunchedEffect]
  *
  * The [listener] is guaranteed to only be called once for each `state` change
  * unlike the `content` method in [BlocBuilder], that can be triggered because of recomposition
  * of the current composable tree
  *
  * An optional [blocTag] parameter can be specified in order to identify a specific
- * bloc instance in case there is more than one instance of a bloc of same type
+ * bloc instance in the case where there is more than one instance of a bloc of the same type
  * registered for the current composable subtree (see [BlocProvider])
- * [blocTag] parameter is not present in the original flutter_bloc implementation *
+ * The [blocTag] parameter is not present in the original flutter_bloc implementation *
  *
- * An optional [listenWhen] can be implemented for more granular control
+ * An optional [listenWhen] parameter can be provided for more granular control
  * over when [listener] is called.
  * [listenWhen] takes the previous `state` and current `state` and must
  * return a [Boolean] which determines whether or not the [listener] function
  * will be invoked.
- * The previous `state` will be initialized to the `state` of the [Bloc]
- * when the [BlocListener] is initialized.
+ * For the first call to [listenWhen] the previous `state` will be initialized to the `state` of the [Bloc]
+ * when the [BlocListener] was initialized.
  * NOTE: in original DART code BlocListener is a Widget that declare a child.
  * In Compose there is no need to do such a thing. By removing the child argument
  * Also there is actually no need for the MultiBlocListener class that is present in flutter_bloc code
@@ -78,6 +78,7 @@ public inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocL
  * same as previous method but with explicitely specified bloc instance [externallyProvidedBlock]
  * not retrieved implicitely from current registered blocs in the current composable subtree
  * see [BlocProvider]
+ * Use this method if for example you have retrieved the Bloc already with [rememberProvidedBlocOf]
  */
 @Composable
 public inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocListener(

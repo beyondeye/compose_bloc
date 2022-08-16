@@ -5,7 +5,6 @@ import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.BlocBase
 
 /**
- * {@template bloc_consumer}
  * [BlocConsumer] exposes a [content] and [listener] in order react to new
  * states.
  * [BlocConsumer] is equivalent to a combined [BlocBuilder] and [BlocListener]

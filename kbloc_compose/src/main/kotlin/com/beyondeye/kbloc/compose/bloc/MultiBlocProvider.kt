@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 
 
 /**
- * define multiple bloc providers to be available to some composable subtree
+ * define multiple bloc providers to make multiple Blocs available to some composable subtree
  * The syntax for defining the list is as follows:
  * MultiBlocProvider.BlocProvider { scope -> BlocA() }.BlocProvider { scope -> BlocB() }.forContent { content() }
  * where content() is a composable function() for which we want the blocs made available

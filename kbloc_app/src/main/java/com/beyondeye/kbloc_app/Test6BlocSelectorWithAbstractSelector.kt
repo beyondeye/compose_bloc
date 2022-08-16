@@ -8,7 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.beyondeye.kbloc.compose.bloc.*
-import com.beyondeye.kbloc.compose.bloc.reselect.SelectorBuilder
+import com.beyondeye.kbloc.compose.bloc.reselect.SelectorFor
 import com.beyondeye.kbloc.compose.screen.Screen
 
 
@@ -61,30 +61,30 @@ class Test6BlocSelectorWithAbstractSelector : Screen {
                         bloc.add(MultiSubEvent(2, 1))
                     }
                 }
-                val selb = SelectorBuilder<ABCCounterState>()
+                val sel = SelectorFor<ABCCounterState>()
                 BlocSelector(
                     bloc,
-                    selb.withField { a }.withField { b }.withField { c }
+                    sel.withField { a }.withField { b }.withField { c }
                         .compute { a, b, c -> a + b + c }) {
                     Text("total count=$it")
 
                 }
                 //2nd and third template argument types are inferred automatically
-                BlocSelector<ABCCounterBloc, _, _>(selector = selb.withSingleField { a })
+                BlocSelector<ABCCounterBloc, _, _>(selector = sel.withSingleField { a })
                 { counterValue ->
                     CounterControls("a", counterValue, onDecr_a, onIncr_a)
 
                 }
                 Divider(modifier = Modifier.height(2.dp))
                 //if we explicitely specify the bloc parameter we don't need to write the template args at all!
-                BlocSelector(bloc, selb.withSingleField { b })
+                BlocSelector(bloc, sel.withSingleField { b })
                 { counterValue ->
                     CounterControls("b", counterValue, onDecr_b, onIncr_b)
 
                 }
                 Divider(modifier = Modifier.height(2.dp))
                 //if we explicitely specify the bloc parameter we don't need to write the template args at all!
-                BlocSelector(bloc, selb.withSingleField { c })
+                BlocSelector(bloc, sel.withSingleField { c })
                 { counterValue ->
                     CounterControls("c", counterValue, onDecr_c, onIncr_c)
                 }

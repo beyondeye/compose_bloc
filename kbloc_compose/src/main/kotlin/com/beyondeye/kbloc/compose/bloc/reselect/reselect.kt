@@ -199,7 +199,7 @@ public abstract class AbstractSelector<S, O> : Selector<S, O> {
 
 /**
  * this class is a base class for result of compute function. it derives from [AbstractSelector]
- * because a [ComputeResult] can be used as input when building a selector, using [SelectorBuilder.withSelector]
+ * because a [ComputeResult] can be used as input when building a selector, using [SelectorFor.withSelector]
  */
 abstract class ComputeResult<S:Any,O>: AbstractSelector<S, O>() {
     fun triggerOnComputeOnlyIfChangedByRef()=triggerOnComputeOnlyIfChanged(byRefEqualityCheck)
@@ -393,7 +393,7 @@ class SelectorForP1<S:Any, I0 : Any>(@JvmField val si0: SelectorInput<S, I0>) {
  * wrapper class for Selector factory methods , that basically is used only to capture
  * type information for the state parameter
  */
-public class SelectorBuilder<S:Any> {
+public class SelectorFor<S:Any> {
     fun<I0 : Any> withField(fn: S.() -> I0) = SelectorForP1<S, I0>(InputField(fn, byRefEqualityCheck))
     fun<I0 : Any> withFieldByValue(fn: S.() -> I0) = SelectorForP1<S, I0>(InputField(fn, byValEqualityCheck))
     fun<I0 : Any> withSelector(si: SelectorInput<S, I0>) = SelectorForP1<S, I0>(si)

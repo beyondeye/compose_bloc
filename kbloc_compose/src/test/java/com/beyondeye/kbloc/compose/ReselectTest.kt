@@ -1,6 +1,6 @@
 package com.beyondeye.kbloc.compose
 
-import com.beyondeye.kbloc.compose.bloc.reselect.SelectorBuilder
+import com.beyondeye.kbloc.compose.bloc.reselect.SelectorFor
 import com.beyondeye.kbloc.compose.bloc.reselect.whenChangeOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -18,7 +18,7 @@ class ReselectTest {
 
     @Test
     fun basicSelectorTest() {
-        val selector = SelectorBuilder<StateA>().withSingleField { a }
+        val selector = SelectorFor<StateA>().withSingleField { a }
         val state = StateA(0)
         assertThat(selector(state)).isEqualTo(0)
         assertThat(selector(state)).isEqualTo(0)
@@ -28,7 +28,7 @@ class ReselectTest {
     }
     @Test
     fun signalChangedTest() {
-        val selector = SelectorBuilder<StateA>().withSingleField { a }
+        val selector = SelectorFor<StateA>().withSingleField { a }
         val state = StateA(0)
         assertThat(selector(state)).isEqualTo(0)
         assertThat(selector(state)).isEqualTo(0)
@@ -41,7 +41,7 @@ class ReselectTest {
 
     @Test
     fun basicSelectorWithMultipleKeysTest() {
-        val selector = SelectorBuilder<StateAB>()
+        val selector = SelectorFor<StateAB>()
                 .withField { a }
                 .withField { b }
                 .compute { a: Int, b: Int -> a + b }
@@ -57,11 +57,11 @@ class ReselectTest {
     data class StateABCFloat(val a:Float,val b:Float,val c:Float)
     @Test
     fun basicSelectorWithMultipleKeysByValueTest() {
-        val selector = SelectorBuilder<StateABCFloat>()
+        val selector = SelectorFor<StateABCFloat>()
                 .withField { a }
                 .withField { b }
                 .compute { aa: Float, bb: Float -> aa + bb }
-        val selectorByValue = SelectorBuilder<StateABCFloat>()
+        val selectorByValue = SelectorFor<StateABCFloat>()
                 .withFieldByValue { a }
                 .withFieldByValue { b }
                 .compute { aa: Float, bb: Float -> aa + bb }
@@ -84,7 +84,7 @@ class ReselectTest {
 
     @Test
     fun memoizedCompositeArgumentsTest() {
-        val selector = SelectorBuilder<StateSubStateA>()
+        val selector = SelectorFor<StateSubStateA>()
                 .withField { sub }
                 .compute { sub: StateA -> sub }
         val state1 = StateSubStateA(StateA(1))
@@ -99,10 +99,10 @@ class ReselectTest {
 
     @Test
     fun chainedSelectorTest() {
-        val selector1 = SelectorBuilder<StateSubStateA>()
+        val selector1 = SelectorFor<StateSubStateA>()
                 .withField { sub }
                 .compute { sub: StateA -> sub }
-        val selector2 = SelectorBuilder<StateSubStateA>()
+        val selector2 = SelectorFor<StateSubStateA>()
                 .withSelector(selector1)
                 .compute { sub: StateA -> sub.a }
         val state1 = StateSubStateA(StateA(1))
@@ -117,7 +117,7 @@ class ReselectTest {
 
     @Test
     fun recomputationsCountTest() {
-        val selector = SelectorBuilder<StateA>()
+        val selector = SelectorFor<StateA>()
                 .withField { a }
                 .compute { a: Int -> a }
 
@@ -137,9 +137,9 @@ class ReselectTest {
     }
     @Test
     fun primitiveFieldTest() {
-        val selA = SelectorBuilder<StateABFloat>()
+        val selA = SelectorFor<StateABFloat>()
                 .withSingleField {  a }
-        val selAByValue = SelectorBuilder<StateABFloat>()
+        val selAByValue = SelectorFor<StateABFloat>()
                 .withSingleFieldByValue {  a }
 
         val state1 = StateABFloat(a = 1.0f,b=11.0f)
@@ -167,7 +167,7 @@ class ReselectTest {
     }
     @Test
     fun isChangedTest() {
-        val selector = SelectorBuilder<StateA>()
+        val selector = SelectorFor<StateA>()
                 .withField { a }
                 .compute { a: Int -> a }
         val state1 = StateA(a = 1)
@@ -185,7 +185,7 @@ class ReselectTest {
 
     @Test
     fun args3Test() {
-        val selector = SelectorBuilder<State3>()
+        val selector = SelectorFor<State3>()
                 .withField { p1 }
                 .withField { p2 }
                 .withField { p3 }
@@ -198,7 +198,7 @@ class ReselectTest {
 
     @Test
     fun args4Test() {
-        val selector = SelectorBuilder<State4>()
+        val selector = SelectorFor<State4>()
                 .withField { p1 }
                 .withField { p2 }
                 .withField { p3 }
@@ -212,7 +212,7 @@ class ReselectTest {
 
     @Test
     fun args5Test() {
-        val selector = SelectorBuilder<State5>()
+        val selector = SelectorFor<State5>()
                 .withField { p1 }
                 .withField { p2 }
                 .withField { p3 }
@@ -226,7 +226,7 @@ class ReselectTest {
 
     @Test
     fun singleFieldSelectorTest() {
-        val sel4state = SelectorBuilder<State3>()
+        val sel4state = SelectorFor<State3>()
         val selp1 = sel4state.withSingleField { p1 }
         val selp2 = sel4state.withSingleField { p2 }
         val selp3 = sel4state.withSingleField { p3 }
@@ -254,7 +254,7 @@ class ReselectTest {
     */
     @Test
     fun onChangeTest() {
-        val sel_a = SelectorBuilder<StateA>().withSingleField { a }
+        val sel_a = SelectorFor<StateA>().withSingleField { a }
         val state = StateA(a = 0)
         assertThat(sel_a(state)).isEqualTo(0)
         val changedState = state.copy(a = 1)
@@ -272,7 +272,7 @@ class ReselectTest {
     }
     @Test
     fun onChangeConditionalTest() {
-        val sel_a = SelectorBuilder<StateA>().withSingleField { a }
+        val sel_a = SelectorFor<StateA>().withSingleField { a }
         val state = StateA(a = 0)
         assertThat(sel_a(state)).isEqualTo(0)
         val changedState = state.copy(a = 1)
@@ -291,10 +291,10 @@ class ReselectTest {
     }
     @Test
     fun onChangedWithMemoizedComputeTest() {
-        val sel_sum = SelectorBuilder<State3>()
+        val sel_sum = SelectorFor<State3>()
                 .withField { p1 }
                 .withField { p2 }.compute { p1, p2 ->p1+p2  }
-        val sel_sum_memoized = SelectorBuilder<State3>()
+        val sel_sum_memoized = SelectorFor<State3>()
                 .withField { p1 }
                 .withField { p2 }.compute { p1, p2 ->p1+p2  }
                 .triggerOnComputeOnlyIfChangedByVal()
@@ -306,13 +306,13 @@ class ReselectTest {
 
 
         val changedState= State3(2.0,1.0,3.0) //switched order of p1,p2 but same sum
-        var sel_sum_changed_count: Int = 0
+        var sel_sum_changed_count = 0
         sel_sum.onChangeIn(changedState) {value:Double -> sel_sum_changed_count+=1 }
         sel_sum.onChangeIn(changedState) {value:Double ->
             //this selector is run, because inputs are changed (changedState)
             sel_sum_changed_count+=1
         }
-        var sel_sum_memoized_changed_count: Int = 0
+        var sel_sum_memoized_changed_count = 0
         sel_sum_memoized.onChangeIn(changedState) {value:Double -> sel_sum_memoized_changed_count+=1 }
         sel_sum_memoized.onChangeIn(changedState) {value:Double ->
             //this selector is not run, because although inputs are changed (changedState) compute result is not changed
@@ -325,7 +325,7 @@ class ReselectTest {
 
     @Test
     fun whenChangedTest() {
-        val sel_a = SelectorBuilder<StateA>().withSingleField { a }
+        val sel_a = SelectorFor<StateA>().withSingleField { a }
         val state = StateA(a = 0)
         assertThat(sel_a(state)).isEqualTo(0)
         val changedState = state.copy(a = 1)

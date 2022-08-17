@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bottomSheet
+package cafe.adriel.voyager.navigator.bottomSheet
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -21,11 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.beyondeye.kbloc.compose.bottomSheet.internals.BottomSheetNavigatorBackHandler
-import com.beyondeye.kbloc.compose.navigator.CurrentScreen
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.compose.stack.Stack
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.stack.Stack
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.bottomSheet.internal.BottomSheetNavigatorBackHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

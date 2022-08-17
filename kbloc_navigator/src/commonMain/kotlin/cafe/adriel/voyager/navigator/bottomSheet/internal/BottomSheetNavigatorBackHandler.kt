@@ -1,9 +1,9 @@
-package com.beyondeye.kbloc.compose.bottomSheet.internals
+package cafe.adriel.voyager.navigator.bottomSheet.internal
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
-import com.beyondeye.kbloc.compose.bottomSheet.BottomSheetNavigator
+import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 
 @Composable
 internal /*actual*/ fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) =

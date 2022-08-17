@@ -9,7 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.beyondeye.kbloc.compose.navigator.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 
 @ExperimentalAnimationApi
 @Composable

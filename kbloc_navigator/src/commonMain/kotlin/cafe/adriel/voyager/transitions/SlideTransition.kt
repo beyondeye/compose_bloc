@@ -13,7 +13,7 @@ import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
-import com.beyondeye.kbloc.compose.navigator.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.core.stack.StackEvent
 
 @ExperimentalAnimationApi

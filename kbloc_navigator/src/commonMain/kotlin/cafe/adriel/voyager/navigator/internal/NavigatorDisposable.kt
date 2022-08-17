@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.navigator.internals
+package cafe.adriel.voyager.navigator.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect

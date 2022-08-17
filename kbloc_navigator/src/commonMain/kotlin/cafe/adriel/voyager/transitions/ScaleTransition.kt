@@ -9,7 +9,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.beyondeye.kbloc.compose.navigator.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.core.stack.StackEvent
 
 private val EnterScales = 1.1f to 0.95f

@@ -42,21 +42,21 @@ android {
   //
 dependencies {
     api(project(":kbloc_core"))
-    implementation("androidx.core:core-ktx:1.8.0")
-    implementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
-    implementation("androidx.compose.runtime:runtime-saveable:${rootProject.extra["compose_version"]}")
-    implementation("androidx.compose.material:material:1.2.1")
+    implementation("androidx.core:core-ktx:${Versions.androidx_corektx_version}")
+    implementation("androidx.compose.runtime:runtime:${Versions.compose_version}")
+    implementation("androidx.compose.runtime:runtime-saveable:${Versions.compose_version}")
+    implementation("androidx.compose.material:material:${Versions.compose_material_version}")
 
     //implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     //implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
     //    implementation("androidx.activity:activity-compose:1.3.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.androidx_lifecycle_version}")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.androidx_lifecycle_version}")
 
-    compileOnly("androidx.activity:activity-compose:${rootProject.extra["compose_activity"]}")
+    compileOnly("androidx.activity:activity-compose:${Versions.compose_activity_version}")
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation ("org.assertj:assertj-core:1.7.1")
+    testImplementation("junit:junit:${Versions.junit_version}")
+    testImplementation ("org.assertj:assertj-core:${Versions.assertj_version}")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     //androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")

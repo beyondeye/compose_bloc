@@ -4,6 +4,10 @@ object Versions {
     //see https://github.com/jimgoog/ComposeAppUsingPrereleaseComposeCompiler#project-configuration
     val compose_version="1.2.0"
 
+    // androidx.compose.material:material
+    val compose_material_version="1.2.1"
+
+    //androidx.activity:activity-compose
     val compose_activity_version="1.4.0"
 
     //see https://github.com/JetBrains/compose-jb/releases/latest for latest stable release
@@ -16,7 +20,34 @@ object Versions {
     //*IMPORTANT*: when updating this, update it also in buildSrc/build.gradle.kts
     val android_gradle_plugin_version="7.2.2"
 
+    //https://github.com/Kotlin/kotlinx.coroutines/releases
+    //org.jetbrains.kotlinx:kotlinx-coroutines-core
+    //org.jetbrains.kotlinx:kotlinx-coroutines-test
+    val coroutines_version="1.6.4"
+
+    //https://github.com/Kotlin/kotlinx-datetime
+    //org.jetbrains.kotlinx:kotlinx-datetime
+    val kotlinx_datetime_version="0.4.0"
+
+    //org.jetbrains.kotlinx:kotlinx-collections-immutable
+    val kotlinx_collections_immutable_version="0.3.5"
+
     val vanniktech_maven_publish_version="0.18.0"
+
+    // androidx.lifecycle:lifecycle-viewmodel-compose
+    // androidx.lifecycle:lifecycle-runtime-ktx
+    val androidx_lifecycle_version="2.5.1"
+
+    //androidx.core:core-ktx
+    val androidx_corektx_version="1.8.0"
+
+
+    //--------------------------------------
+    // *TEST* LIBRARIES
+    //io.mockk:mockk
+    val mockk_version="1.12.4"
+    val junit_version="4.13.2"
+    val assertj_version="1.7.1"
 }
 
 object Libs {

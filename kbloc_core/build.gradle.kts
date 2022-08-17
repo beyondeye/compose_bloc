@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
-
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -25,27 +23,25 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                //https://github.com/Kotlin/kotlinx.coroutines/releases
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-                //https://github.com/Kotlin/kotlinx-datetime
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                api("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinx_datetime_version}")
+                api("org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.kotlinx_collections_immutable_version}")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 //https://github.com/mockk/mockk/releases
-                implementation ("io.mockk:mockk-common:1.12.4")
+                implementation ("io.mockk:mockk-common:${Versions.mockk_version}")
                 //see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-test/index.html
                 //sse https://developer.android.com/kotlin/coroutines/test#testdispatchers
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines_version}")
             }
         }
         val androidMain by getting
         val androidTest by getting {
             dependencies {
-                implementation("io.mockk:mockk:1.12.4")
+                implementation("io.mockk:mockk:${Versions.mockk_version}")
             }
         }
         val iosX64Main by getting

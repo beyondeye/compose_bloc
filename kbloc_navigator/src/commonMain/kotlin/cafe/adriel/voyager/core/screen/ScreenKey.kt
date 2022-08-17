@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.screen
+package cafe.adriel.voyager.core.screen
 
 import com.beyondeye.kbloc.compose.concurrent.AtomicInt32
 

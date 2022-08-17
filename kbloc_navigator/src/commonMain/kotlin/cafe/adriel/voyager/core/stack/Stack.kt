@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.stack
+package cafe.adriel.voyager.core.stack
 
 public inline fun <reified I : Item, Item> Stack<Item>.popUntil(): Boolean =
     popUntil { item -> item is I }

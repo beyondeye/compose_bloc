@@ -10,7 +10,7 @@ import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.stack.StackEvent
+import cafe.adriel.voyager.core.stack.StackEvent
 
 private val EnterScales = 1.1f to 0.95f
 private val ExitScales = EnterScales.second to EnterScales.first

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.compose.stack.StackEvent
+import cafe.adriel.voyager.core.stack.StackEvent
 
 @OptIn(ExperimentalAnimationApi::class)
 public typealias ScreenTransitionContent = @Composable AnimatedVisibilityScope.(Screen) -> Unit

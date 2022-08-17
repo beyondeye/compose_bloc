@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.stack
+package cafe.adriel.voyager.core.stack
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf

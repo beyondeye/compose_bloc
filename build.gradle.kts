@@ -1,9 +1,9 @@
 buildscript {
-    //see https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-    //see https://github.com/jimgoog/ComposeAppUsingPrereleaseComposeCompiler#project-configuration
-    val compose_version by extra("1.2.0")
-    val compose_compiler_version by extra("1.3.0-rc02")
-    val compose_activity by extra("1.5.1")
+    val compose_version by extra(Versions.compose_version)
+    val compose_compiler_version by extra(Versions.compose_compiler_version)
+    val compose_activity by extra(Versions.compose_activity_version)
+    val jbcompose_version by extra(Versions.jbcompose_version)
+    val kotlin_version by extra(Versions.kotlin_version)
     repositories {
         gradlePluginPortal()
         google()
@@ -14,11 +14,12 @@ buildscript {
         //kotlin version compatible with compose compiler version 1.3.0-rc02
         // see https://developer.android.com/jetpack/androidx/releases/compose-kotlin
         // see https://android-developers.googleblog.com/search/label/Compose
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
-        classpath("com.android.tools.build:gradle:7.2.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+        classpath("com.android.tools.build:gradle:${Versions.android_gradle_plugin_version}")
         //https://github.com/vanniktech/gradle-maven-publish-plugin
         // see also  https://proandroiddev.com/publishing-a-maven-artifact-3-3-step-by-step-instructions-to-mavencentral-publishing-bd661081645d
-        classpath("com.vanniktech:gradle-maven-publish-plugin:0.18.0")
+        classpath("com.vanniktech:gradle-maven-publish-plugin:${Versions.vanniktech_maven_publish_version}")
+        classpath("org.jetbrains.compose:compose-gradle-plugin:${Versions.jbcompose_version}")
     }
 }
 

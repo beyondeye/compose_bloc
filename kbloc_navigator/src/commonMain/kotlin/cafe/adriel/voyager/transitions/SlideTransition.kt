@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.transitions
+package cafe.adriel.voyager.transitions
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FiniteAnimationSpec

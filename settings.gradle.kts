@@ -2,7 +2,7 @@ pluginManagement {
     repositories {
         google()
         gradlePluginPortal()
-        mavenCentral()
+        mavenCentral()        //see https://mvnrepository.com/repos/space-public-compose-dev
         maven(url ="https://androidx.dev/storage/compose-compiler/repository/")
     }
 }
@@ -10,4 +10,5 @@ pluginManagement {
 rootProject.name = "compose_bloc"
 include(":kbloc_core")
 include(":kbloc_compose")
+include(":kbloc_navigator")
 include(":kbloc_app")

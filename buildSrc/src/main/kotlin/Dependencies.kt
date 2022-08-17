@@ -10,13 +10,18 @@ object Versions {
     //androidx.activity:activity-compose
     val compose_activity_version="1.4.0"
 
+
     //see https://github.com/JetBrains/compose-jb/releases/latest for latest stable release
     //see https://github.com/JetBrains/compose-jb/releases for all releases
-    val jbcompose_version="1.2.0-alpha01-dev755" //latest stable 1.1.1
-    val compose_compiler_version="1.3.0-rc02"
+    val jbcompose_version="1.2.0-alpha01-dev755" //latest stable 1.1.1   1.2.0-alpha01-dev755
+    //compose compiler version can be set independently from compose version for using
+    //kotlin to compose compatibility table:
+    //compose 1.3.0	-> kotlin 1.7.10
+    //compose 1.2.0	-> kotlin 1.7.0
+    val compose_compiler_version="1.2.0"
 
     //*IMPORTANT*: when updating this, update it also in buildSrc/build.gradle.kts
-    val kotlin_version="1.7.10"
+    val kotlin_version="1.7.0"
     //*IMPORTANT*: when updating this, update it also in buildSrc/build.gradle.kts
     val android_gradle_plugin_version="7.2.2"
 

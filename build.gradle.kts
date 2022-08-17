@@ -8,6 +8,8 @@ buildscript {
         gradlePluginPortal()
         google()
         mavenCentral()
+        // see https://mvnrepository.com/artifact/org.jetbrains.compose.material
+        maven(url="https://maven.pkg.jetbrains.space/public/p/compose/dev/")
         maven(url ="https://androidx.dev/storage/compose-compiler/repository/")
     }
     dependencies {
@@ -27,6 +29,8 @@ subprojects {
     repositories {
         google()
         mavenCentral()
+        // see https://mvnrepository.com/artifact/org.jetbrains.compose.material
+        maven(url="https://maven.pkg.jetbrains.space/public/p/compose/dev/")
         maven(url ="https://androidx.dev/storage/compose-compiler/repository/")
     }
 //    plugins.withId("com.vanniktech.maven.publish") {

@@ -45,6 +45,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.8.0")
     implementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.runtime:runtime-saveable:${rootProject.extra["compose_version"]}")
+    implementation("androidx.compose.material:material:1.2.1")
 
     //implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     //implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")

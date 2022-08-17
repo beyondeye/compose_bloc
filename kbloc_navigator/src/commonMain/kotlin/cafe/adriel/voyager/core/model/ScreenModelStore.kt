@@ -1,9 +1,8 @@
-package com.beyondeye.kbloc.compose.model
+package cafe.adriel.voyager.core.model
 
 import androidx.compose.runtime.DisallowComposableCalls
+import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.concurrent.ThreadSafeMap
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.screen.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 
 private typealias ScreenModelKey = String

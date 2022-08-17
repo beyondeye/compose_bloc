@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.model
+package cafe.adriel.voyager.core.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
@@ -31,7 +31,7 @@ public fun ScreenModel.coroutineScope(): CoroutineScope {
     }
 }
 
-public fun ScreenModelStore.coroutineScopeOrNull(model:ScreenModel): CoroutineScope? {
+public fun ScreenModelStore.coroutineScopeOrNull(model: ScreenModel): CoroutineScope? {
     return getDependencyOrNull<CoroutineScope>(model,screenModelCoroutineScopeTag)
 }
 

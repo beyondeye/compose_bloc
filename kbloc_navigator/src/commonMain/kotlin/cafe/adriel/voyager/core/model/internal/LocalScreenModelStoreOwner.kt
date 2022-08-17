@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.model.internals
+package cafe.adriel.voyager.core.model.internal
 
 /*
  * Copyright 2021 The Android Open Source Project
@@ -20,13 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.compositionLocalOf
-import com.beyondeye.kbloc.compose.model.ScreenModelStore
+import cafe.adriel.voyager.core.model.ScreenModelStore
 
 /**
  * use this for for compose desktop
  * TODO put in inside top root composable (Window {} ?) for compose desktop
  */
-val globalScreenModelStoreOwner=object :ScreenModelStoreOwner {
+val globalScreenModelStoreOwner=object : ScreenModelStoreOwner {
     private val _store= ScreenModelStore()
     override val screenModelStore: ScreenModelStore
         get() = _store

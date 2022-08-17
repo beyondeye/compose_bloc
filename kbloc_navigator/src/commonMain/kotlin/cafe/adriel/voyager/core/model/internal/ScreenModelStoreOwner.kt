@@ -1,6 +1,7 @@
-package com.beyondeye.kbloc.compose.model.internals
+package cafe.adriel.voyager.core.model.internal
 
-import com.beyondeye.kbloc.compose.model.ScreenModelStore
+import cafe.adriel.voyager.core.model.ScreenModelStore
+
 
 /**
  * *DARIO*

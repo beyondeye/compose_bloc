@@ -3,15 +3,13 @@ package cafe.adriel.voyager.navigator
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.internal.NavigatorBackHandler
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
 import com.beyondeye.kbloc.compose.concurrent.ThreadSafeList
 import com.beyondeye.kbloc.compose.model.ScreenModelStore
-import com.beyondeye.kbloc.compose.navigator.internals.*
 import cafe.adriel.voyager.navigator.internal.LocalNavigatorStateHolder
 import cafe.adriel.voyager.navigator.internal.rememberNavigator
-import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.compose.stack.SnapshotStateStack
 
 
 public typealias NavigatorContent = @Composable (navigator: Navigator) -> Unit

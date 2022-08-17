@@ -1,8 +1,8 @@
-package com.beyondeye.kbloc.compose.tabNavigator
+package cafe.adriel.voyager.navigator.tab
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.screen.Screen
 
 @Composable
 public fun CurrentTab() {

@@ -1,12 +1,12 @@
-package com.beyondeye.kbloc.compose.tabNavigator
+package cafe.adriel.voyager.navigator.tab
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.navigator.NavigatorDisposeBehavior
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
 
 public typealias TabNavigatorContent = @Composable (tabNavigator: TabNavigator) -> Unit
 

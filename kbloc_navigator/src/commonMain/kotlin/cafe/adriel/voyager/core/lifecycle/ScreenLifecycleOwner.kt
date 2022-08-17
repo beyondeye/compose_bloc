@@ -1,7 +1,7 @@
-package com.beyondeye.kbloc.compose.lifecycle
+package cafe.adriel.voyager.core.lifecycle
 
 import androidx.compose.runtime.Composable
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.screen.Screen
 
 public interface ScreenLifecycleOwner {
 

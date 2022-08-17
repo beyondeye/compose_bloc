@@ -1,8 +1,8 @@
-package com.beyondeye.kbloc.compose.lifecycle
+package cafe.adriel.voyager.core.lifecycle
 
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import com.beyondeye.kbloc.compose.concurrent.ThreadSafeMap
-import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.compose.screen.ScreenKey
 
 public object ScreenLifecycleStore {
 

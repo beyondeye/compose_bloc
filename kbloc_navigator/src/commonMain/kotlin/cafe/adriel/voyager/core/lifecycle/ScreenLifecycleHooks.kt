@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.lifecycle
+package cafe.adriel.voyager.core.lifecycle
 
 import androidx.compose.runtime.ProvidedValue
 

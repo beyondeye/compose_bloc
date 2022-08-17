@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.registry
+package cafe.adriel.voyager.core.registry
 
 private typealias ScreenModule = ScreenRegistry.() -> Unit
 

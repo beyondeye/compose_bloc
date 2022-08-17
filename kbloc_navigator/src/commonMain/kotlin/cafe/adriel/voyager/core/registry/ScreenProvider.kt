@@ -1,8 +1,8 @@
-package com.beyondeye.kbloc.compose.registry
+package cafe.adriel.voyager.core.registry
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.screen.Screen
 
 /**
  * see https://voyager.adriel.cafe/navigation/multi-module-navigation

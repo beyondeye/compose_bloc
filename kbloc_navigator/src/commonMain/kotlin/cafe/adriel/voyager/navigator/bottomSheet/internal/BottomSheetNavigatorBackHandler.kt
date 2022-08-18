@@ -8,21 +8,6 @@ import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 @Composable
 internal expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)
 
-/*
-@Composable
-internal expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)
-@Composable
-internal actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) =
-    BackHandler(enabled, onBack)
-
-  // for desktop
-  @Composable internal actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) = Unit
- */
-/*
-    //for android
-
- */
-
 @ExperimentalMaterialApi
 @Composable
 internal fun BottomSheetNavigatorBackHandler(

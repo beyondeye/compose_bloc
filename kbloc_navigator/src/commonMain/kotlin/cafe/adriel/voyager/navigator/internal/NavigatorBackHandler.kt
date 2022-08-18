@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.OnBackPressed
 
+@Composable
+internal expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)
 
 @Composable
 internal fun NavigatorBackHandler(
@@ -22,9 +24,4 @@ internal fun NavigatorBackHandler(
             }
         )
     }
-}
-
-@Composable
-internal fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
-    androidx.activity.compose.BackHandler(enabled,onBack)
 }

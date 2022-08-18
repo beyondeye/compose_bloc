@@ -4,7 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
-class StateError(msg: String) : Exception(msg)
+public class StateError(msg: String) : Exception(msg)
 
 /**
  * An object that provides access to a stream of states over time.

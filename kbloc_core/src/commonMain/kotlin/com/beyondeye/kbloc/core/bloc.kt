@@ -354,7 +354,7 @@ public abstract class Bloc<Event : Any, State : Any>
 
     public companion object {
         @PublishedApi
-        internal fun getEventMultipleRegistrationErrorMessage(eventType: KClass<out Any>) =
+        internal fun getEventMultipleRegistrationErrorMessage(eventType: KClass<out Any>):String =
             "on<$eventType> was called multiple times. There should only be a single event handler per event type."
         internal  fun  getHandlerMissingErrorMessage(eventType: KClass<out Any>): String {
             val msg = """add($eventType) was called without a registered event handler.

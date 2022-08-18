@@ -1,7 +1,6 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.transform
 * the current `state` and is responsible for returning a [Boolean] which
 * determines whether or not to trigger a rebuild of [BlocBuilder] with the current `state`.
  */
-typealias BlocBuilderCondition<S> = @DisallowComposableCalls (previous:S?,current:S)->Boolean
+public typealias BlocBuilderCondition<S> = @DisallowComposableCalls (previous:S?,current:S)->Boolean
 
 /**
  *  create a new flow that filter the [srcFlow] and emit only states that satisfy the [buildWhen]

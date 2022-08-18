@@ -1,7 +1,6 @@
 package com.beyondeye.kbloc.compose.bloc
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.transform
  * with the current `state`.
  * todo [BlocBuilderCondition] and [BlocListenerCondition] are exactly the same: merge them
  */
-typealias BlocListenerCondition<S> = @DisallowComposableCalls (previousState: S?, currentState: S) -> Boolean
+public typealias BlocListenerCondition<S> = @DisallowComposableCalls (previousState: S?, currentState: S) -> Boolean
 
 
 /**

@@ -6,8 +6,7 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 
 @Composable
-internal /*actual*/ fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) =
-    androidx.activity.compose.BackHandler(enabled, onBack)
+internal expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)
 
 /*
 @Composable

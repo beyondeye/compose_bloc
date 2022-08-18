@@ -1,21 +1,17 @@
-package com.beyondeye.kbloc.compose.android.screen
+package cafe.adriel.voyager.navigator
 
 import androidx.compose.runtime.Composable
-import com.beyondeye.kbloc.compose.navigator.*
-import com.beyondeye.kbloc.compose.screen.Screen
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import cafe.adriel.voyager.core.model.ScreenModelStore
+import cafe.adriel.voyager.core.model.internal.LocalScreenModelStoreOwner
+import cafe.adriel.voyager.core.model.internal.ScreenModelStoreOwner
+import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStoreOwner
 import com.beyondeye.kbloc.compose.bloc.internals.LocalBlocStoreOwner
-import com.beyondeye.kbloc.compose.model.internals.LocalScreenModelStoreOwner
-import com.beyondeye.kbloc.compose.model.ScreenModelStore
-import com.beyondeye.kbloc.compose.model.coroutineScope
-import com.beyondeye.kbloc.compose.model.coroutineScopeOrNull
-import com.beyondeye.kbloc.compose.model.internals.ScreenModelStoreOwner
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 
 internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel() {
@@ -79,9 +75,9 @@ internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
  */
 @Composable
 public fun ComponentActivity.RootNavigator(screen: Screen,
-                                  disposeBehavior: NavigatorDisposeBehavior = NavigatorDisposeBehavior(),
-                                  onBackPressed: OnBackPressed = { true },
-                                  content: NavigatorContent = { CurrentScreen() }
+                                           disposeBehavior: NavigatorDisposeBehavior = NavigatorDisposeBehavior(),
+                                           onBackPressed: OnBackPressed = { true },
+                                           content: NavigatorContent = { CurrentScreen() }
 ) {
         RootNavigator(
             screens = listOf(screen),
@@ -104,7 +100,8 @@ public fun ComponentActivity.RootNavigator(
     onBackPressed: OnBackPressed = { true },
     content: NavigatorContent = { CurrentScreen() }
 ) {
-    val activityScreenModelStoreOwner = ViewModelProvider(this).get(ActivityScreenModelStoreViewModel::class.java)
+    val activityScreenModelStoreOwner = ViewModelProvider(this).get(
+        ActivityScreenModelStoreViewModel::class.java)
     val activityBlocStoreOwner = ViewModelProvider(this).get(ActivityBlocStoreViewModel::class.java)
     //TODO store directly ScreenModelStore and not ScreenModelStoreOwner
     //TODO store directly BlocStore and not BlocStoreOwner

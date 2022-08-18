@@ -18,8 +18,12 @@ private fun BaseExtension.setupAndroid() {
         minSdk = 21
         targetSdk = 32
 
+//*DARIO* this where in original Setup.kt I have commented them. Is it right?
         versionCode = 1
         versionName = "1.0"
+        //*DARIO* TODO: do I need this line? try it if tests do not work
+//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//        consumerProguardFiles("consumer-rules.pro")
     }
 }
 
@@ -46,7 +50,7 @@ fun Project.setupModuleForAndroidxCompose(
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
         }
-
+        //TODO *DARIO* do I need this configuration: if tests stop working try to remove it?
         testOptions {
             unitTests.all {
                 it.useJUnitPlatform()

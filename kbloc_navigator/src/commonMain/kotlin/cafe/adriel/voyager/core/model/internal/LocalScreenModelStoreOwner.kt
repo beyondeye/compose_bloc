@@ -26,7 +26,7 @@ import cafe.adriel.voyager.core.model.ScreenModelStore
  * use this for for compose desktop
  * TODO put in inside top root composable (Window {} ?) for compose desktop
  */
-val globalScreenModelStoreOwner=object : ScreenModelStoreOwner {
+public val globalScreenModelStoreOwner:ScreenModelStoreOwner= object : ScreenModelStoreOwner {
     private val _store= ScreenModelStore()
     override val screenModelStore: ScreenModelStore
         get() = _store

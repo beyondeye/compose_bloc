@@ -10,12 +10,11 @@ package com.beyondeye.kbloc.compose.internal
  * going to be destroyed.
  *
  */
-@PublishedApi
-internal interface BlocStoreOwner {
+public interface BlocStoreOwner {
     /**
      * Returns owned [BlocStore]
      *
      * @return a `ScreenModelStore`
      */
-    val blocStore: BlocStore
+    public val blocStore: BlocStore
 }

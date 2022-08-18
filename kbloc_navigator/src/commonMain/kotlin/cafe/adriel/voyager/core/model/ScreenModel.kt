@@ -3,9 +3,8 @@ package cafe.adriel.voyager.core.model
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
-import com.beyondeye.kbloc.compose.model.internals.LocalScreenModelStoreOwner
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.model.internal.LocalScreenModelStoreOwner
+import cafe.adriel.voyager.core.screen.Screen
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

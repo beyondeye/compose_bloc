@@ -2,8 +2,8 @@ package cafe.adriel.voyager.core.model
 
 import androidx.compose.runtime.DisallowComposableCalls
 import cafe.adriel.voyager.core.screen.Screen
-import com.beyondeye.kbloc.compose.concurrent.ThreadSafeMap
 import kotlinx.coroutines.flow.MutableStateFlow
+import cafe.adriel.voyager.core.concurrent.ThreadSafeMap
 
 private typealias ScreenModelKey = String
 

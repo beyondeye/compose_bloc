@@ -27,8 +27,7 @@ public object LocalBlocStoreOwner {
      * Returns current composition local value for the owner or `null` if one has not
      * been provided
      */
-    @PublishedApi
-    internal val current: BlocStoreOwner
+    public val current: BlocStoreOwner
         @Composable
         get() = LocalBlocStoreOwner.current
             ?: throw Exception("It seem you are missing definition of a root navigator!")
@@ -38,7 +37,7 @@ public object LocalBlocStoreOwner {
      * Associates a [LocalBlocStoreOwner] key to a value in a call to
      * [CompositionLocalProvider].
      */
-    internal infix fun provides(blocStoreOwner: BlocStoreOwner):
+    public infix fun provides(blocStoreOwner: BlocStoreOwner):
             ProvidedValue<BlocStoreOwner?> {
         return LocalBlocStoreOwner.provides(blocStoreOwner)
     }

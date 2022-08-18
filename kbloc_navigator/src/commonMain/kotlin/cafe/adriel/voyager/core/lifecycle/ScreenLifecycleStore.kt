@@ -2,8 +2,7 @@ package cafe.adriel.voyager.core.lifecycle
 
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
-import com.beyondeye.kbloc.compose.concurrent.ThreadSafeMap
-
+import cafe.adriel.voyager.core.concurrent.ThreadSafeMap
 public object ScreenLifecycleStore {
 
     private val owners = ThreadSafeMap<ScreenKey, ScreenLifecycleOwner>()

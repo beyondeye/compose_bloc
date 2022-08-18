@@ -1,8 +1,8 @@
 package cafe.adriel.voyager.navigator.internal
 
 import androidx.compose.runtime.Composable
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.navigator.OnBackPressed
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.OnBackPressed
 
 
 @Composable

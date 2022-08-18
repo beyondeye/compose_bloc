@@ -7,13 +7,13 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
-import com.beyondeye.kbloc.compose.bloc.internals.LocalBlocStoreOwner
-import com.beyondeye.kbloc.compose.model.ScreenModelStore
-import com.beyondeye.kbloc.compose.model.internals.LocalScreenModelStoreOwner
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.navigator.NavigatorDisposeBehavior
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.model.ScreenModelStore
+import cafe.adriel.voyager.core.model.internal.LocalScreenModelStoreOwner
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
+import com.beyondeye.kbloc.compose.internal.BlocStore
+import com.beyondeye.kbloc.compose.internal.LocalBlocStoreOwner
 
 internal val LocalNavigatorStateHolder: ProvidableCompositionLocal<SaveableStateHolder> =
     staticCompositionLocalOf { error("LocalNavigatorStateHolder not initialized") }

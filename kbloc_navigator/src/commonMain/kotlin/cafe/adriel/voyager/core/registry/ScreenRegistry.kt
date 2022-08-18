@@ -1,8 +1,8 @@
 package cafe.adriel.voyager.core.registry
 
 import cafe.adriel.voyager.core.screen.Screen
-import com.beyondeye.kbloc.compose.concurrent.ThreadSafeMap
 import kotlin.reflect.KClass
+import cafe.adriel.voyager.core.concurrent.ThreadSafeMap
 
 private typealias ProviderKey = KClass<out ScreenProvider>
 

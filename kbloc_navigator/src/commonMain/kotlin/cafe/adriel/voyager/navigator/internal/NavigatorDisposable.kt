@@ -2,8 +2,7 @@ package cafe.adriel.voyager.navigator.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.stack.StackEvent
+import cafe.adriel.voyager.core.stack.StackEvent
 
 private val disposableEvents: Set<StackEvent> =
     setOf(StackEvent.Pop, StackEvent.Replace)

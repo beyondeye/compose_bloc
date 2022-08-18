@@ -13,11 +13,11 @@ import cafe.adriel.voyager.core.model.ScreenModelStore
  * going to be destroyed.
  *
  */
-interface ScreenModelStoreOwner {
+public interface ScreenModelStoreOwner {
     /**
      * Returns owned [ScreenModelStore]
      *
      * @return a `ScreenModelStore`
      */
-    val screenModelStore: ScreenModelStore
+    public val screenModelStore: ScreenModelStore
 }

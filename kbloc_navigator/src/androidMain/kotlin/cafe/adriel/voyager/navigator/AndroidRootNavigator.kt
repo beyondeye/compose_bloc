@@ -10,10 +10,11 @@ import cafe.adriel.voyager.core.model.ScreenModelStore
 import cafe.adriel.voyager.core.model.internal.LocalScreenModelStoreOwner
 import cafe.adriel.voyager.core.model.internal.ScreenModelStoreOwner
 import cafe.adriel.voyager.core.screen.Screen
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStoreOwner
-import com.beyondeye.kbloc.compose.bloc.internals.LocalBlocStoreOwner
 import kotlinx.coroutines.runBlocking
+import com.beyondeye.kbloc.compose.internal.BlocStoreOwner
+import com.beyondeye.kbloc.compose.internal.LocalBlocStoreOwner
+import com.beyondeye.kbloc.compose.internal.BlocStore
+
 
 internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel() {
     override val screenModelStore: ScreenModelStore
@@ -42,7 +43,6 @@ internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewMode
         super.onCleared()
     }
 }
-
 internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
     override val blocStore: BlocStore
         get() = store

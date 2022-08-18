@@ -5,9 +5,10 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.internal.NavigatorBackHandler
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
-import com.beyondeye.kbloc.compose.concurrent.ThreadSafeList
-import com.beyondeye.kbloc.compose.model.ScreenModelStore
+import com.beyondeye.kbloc.compose.internal.BlocStore
+import cafe.adriel.voyager.core.concurrent.ThreadSafeList
+import cafe.adriel.voyager.core.model.ScreenModelStore
+import cafe.adriel.voyager.core.stack.SnapshotStateStack
 import cafe.adriel.voyager.navigator.internal.LocalNavigatorStateHolder
 import cafe.adriel.voyager.navigator.internal.rememberNavigator
 

@@ -21,18 +21,15 @@ private typealias BlocKey = String
 
 
 //-----------------------------------------------------------
-@PublishedApi
-internal class BlocStore {
-    @PublishedApi
+public class BlocStore {
     /**
      *  multiplatform persistent map: see https://github.com/Kotlin/kotlinx.collections.immutable
      *  it is also used under the hood in androix.compose.runtime library for implementation of
      *  CompositionLocalMap used for storing [CompositionLocal] data
      */
-    internal var blocs: PersistentMap<BlocKey, BlocBase<*>> = persistentHashMapOf()
+    public  var blocs: PersistentMap<BlocKey, BlocBase<*>> = persistentHashMapOf()
 
-    @PublishedApi
-    internal var blocs_dependencies: PersistentMap<DependencyKey, Dependency> =
+    public var blocs_dependencies: PersistentMap<DependencyKey, Dependency> =
         persistentHashMapOf()
 
     @PublishedApi
@@ -231,7 +228,7 @@ internal class BlocStore {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * key for a [BlocBase] of a specific type T for a specific [screen], with an additional
          * optional user defined [blocTag] appended in the end, in case there are more than one [BlocBase]

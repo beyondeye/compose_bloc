@@ -12,6 +12,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":kbloc_core"))
+                api(project(":kbloc_compose"))
 //                api(projects.voyagerNavigator)
                 compileOnly(compose.runtime)
                 compileOnly(compose.material)
@@ -34,7 +35,6 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                api(project(":kbloc_compose"))
                 implementation("androidx.activity:activity-compose:${Versions.compose_activity_version}")
             }
         }

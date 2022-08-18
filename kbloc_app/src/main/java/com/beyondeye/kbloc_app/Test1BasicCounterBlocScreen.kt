@@ -7,11 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.beyondeye.kbloc.compose.bloc.BlocBuilder
-import com.beyondeye.kbloc.compose.bloc.BlocProvider
-import com.beyondeye.kbloc.compose.bloc.rememberProvidedBlocOf
-import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.core.Bloc
+import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.compose.BlocBuilder
+import com.beyondeye.kbloc.compose.BlocProvider
+import com.beyondeye.kbloc.compose.rememberProvidedBlocOf
 import com.beyondeye.kbloc.core.LOGTAG
 import kotlinx.coroutines.CoroutineScope
 

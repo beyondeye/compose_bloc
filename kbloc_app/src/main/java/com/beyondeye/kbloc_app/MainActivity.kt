@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.beyondeye.kbloc.compose.android.screen.RootNavigator
-import com.beyondeye.kbloc.compose.navigator.LocalNavigator
-import com.beyondeye.kbloc.compose.navigator.currentOrThrow
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.RootNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.beyondeye.kbloc_app.ui.theme.Compose_blocTheme
 
 class MainActivity : ComponentActivity() {

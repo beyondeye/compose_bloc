@@ -6,8 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.beyondeye.kbloc.compose.bloc.*
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.compose.BlocProvider
+import com.beyondeye.kbloc.compose.BlocSelector
+import com.beyondeye.kbloc.compose.rememberProvidedBlocOf
 
 
 class Test5BlocSelector: Screen {

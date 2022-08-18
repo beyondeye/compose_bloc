@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.android.screen
+package cafe.adriel.voyager.androidx
 
 import android.app.Activity
 import android.content.Context
@@ -12,10 +12,10 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleHooks
-import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleOwner
-import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleStore
-import com.beyondeye.kbloc.compose.screen.Screen
+import cafe.adriel.voyager.core.lifecycle.ScreenLifecycleHooks
+import cafe.adriel.voyager.core.lifecycle.ScreenLifecycleOwner
+import cafe.adriel.voyager.core.lifecycle.ScreenLifecycleStore
+import cafe.adriel.voyager.core.screen.Screen
 import java.util.concurrent.atomic.AtomicReference
 
 public class AndroidScreenLifecycleOwner private constructor() :

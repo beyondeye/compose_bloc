@@ -1,11 +1,11 @@
-package com.beyondeye.kbloc.compose.android.screen
+package cafe.adriel.voyager.androidx
 
-import com.beyondeye.kbloc.compose.lifecycle.DefaultScreenLifecycleOwner
-import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleOwner
-import com.beyondeye.kbloc.compose.lifecycle.ScreenLifecycleProvider
-import com.beyondeye.kbloc.compose.screen.Screen
-import com.beyondeye.kbloc.compose.screen.ScreenKey
-import com.beyondeye.kbloc.compose.screen.uniqueScreenKey
+import cafe.adriel.voyager.core.lifecycle.DefaultScreenLifecycleOwner
+import cafe.adriel.voyager.core.lifecycle.ScreenLifecycleOwner
+import cafe.adriel.voyager.core.lifecycle.ScreenLifecycleProvider
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 
 public abstract class AndroidScreen : Screen, ScreenLifecycleProvider {
 

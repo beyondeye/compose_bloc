@@ -3,6 +3,7 @@ plugins {
 //    kotlin("native.cocoapods")
     id("com.android.library")
     id("com.vanniktech.maven.publish")
+    id("org.jetbrains.compose")
 }
 
 setupModuleForComposeMultiplatform()
@@ -27,6 +28,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinx_datetime_version}")
                 api("org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.kotlinx_collections_immutable_version}")
+                compileOnly(compose.runtime)
             }
         }
         val commonTest by getting {

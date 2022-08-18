@@ -14,7 +14,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(projects.kbloc_core) //                 api(projects.kbloc_core)
+                api(project(":kbloc_core"))//                 api(projects.kbloc_core)
 //                implementation("androidx.compose.runtime:runtime:${Versions.compose_version}")
                 compileOnly(compose.runtime)
 //                implementation("androidx.compose.material:material:${Versions.compose_material_version}")

@@ -13,21 +13,21 @@ package com.beyondeye.kbloc.compose.reselect
  * field in the reduks state. Then, instead of listening to change in the reduks state with
  * [AbstractSelector.onChangeIn], use instead [AbstractSelector.onChangeAtStep]
  */
-public class StepInSequence(val nsteps:Int=1000, val curstep:Int=-1) {
+public class StepInSequence(public val nsteps:Int=1000, public val curstep:Int=-1) {
     /**
      * use this method in State reducer, to restart the [StepInSequence]
      */
-    fun restarted(startStep:Int=0) = StepInSequence(nsteps,startStep)
+    public fun restarted(startStep:Int=0):StepInSequence = StepInSequence(nsteps,startStep)
     /**
      * use this method in State reducer, to set the  [StepInSequence] as completed
      */
-    fun completed()= StepInSequence(nsteps,nsteps)
+    public fun completed():StepInSequence= StepInSequence(nsteps,nsteps)
     /**
      * use this method in State reducer, to advance to next step in the [StepInSequence]
      */
-    fun withNextStep() = StepInSequence(nsteps,(curstep+1).coerceAtMost(nsteps))
-    fun withStep(newstep:Int)= StepInSequence(nsteps,newstep.coerceAtMost(nsteps))
-    fun isStarted() = curstep>=0
-    fun isCompleted()= curstep==nsteps
-    fun isRunning()= curstep>=0 && curstep<nsteps
+    public fun withNextStep():StepInSequence = StepInSequence(nsteps,(curstep+1).coerceAtMost(nsteps))
+    public fun withStep(newstep:Int):StepInSequence = StepInSequence(nsteps,newstep.coerceAtMost(nsteps))
+    public fun isStarted():Boolean = curstep>=0
+    public fun isCompleted():Boolean = curstep==nsteps
+    public fun isRunning():Boolean = curstep>=0 && curstep<nsteps
 }

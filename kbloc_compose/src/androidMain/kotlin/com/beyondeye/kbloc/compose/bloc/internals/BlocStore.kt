@@ -1,12 +1,11 @@
 package com.beyondeye.kbloc.compose.bloc.internals
 
 import androidx.compose.runtime.*
+import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.model.Dependency
 import com.beyondeye.kbloc.compose.model.DependencyKey
 import com.beyondeye.kbloc.compose.model.DependencyOnDispose
-import com.beyondeye.kbloc.compose.model.ScreenModelStore
-import com.beyondeye.kbloc.compose.navigator.Navigator
-import com.beyondeye.kbloc.compose.screen.Screen
+//import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate

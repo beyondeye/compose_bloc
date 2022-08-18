@@ -2,6 +2,7 @@ package com.beyondeye.kbloc.compose.bloc.internals
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -20,7 +21,8 @@ import kotlinx.collections.immutable.toPersistentHashMap
  * The bindings are associated to a specific node in the Composable tree (usually a [Screen])and its subtree
  *
  */
-class BlocBindings(val bindingMaps: PersistentMap<String, String> = persistentHashMapOf()) {
+@PublishedApi
+internal class BlocBindings(val bindingMaps: PersistentMap<String, String> = persistentHashMapOf()) {
     /**
      * since the map is immutable, implement equal by only comparing reference to [bindingMaps]
      * this is not actually correct. but I need this equals() implementation to use [BlocBindings]
@@ -47,8 +49,9 @@ private fun blocBindingsSaver(): Saver<BlocBindings, Map<String,String>> =
         restore = { map -> BlocBindings((map).toPersistentHashMap())}
     )
 
+@PublishedApi
 @Composable
-fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBloc(
+internal fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBloc(
     b: B,
     tag:String?,
     blocKey: String,
@@ -66,8 +69,9 @@ fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBloc(
 /**
  * [blist] is list of pairs of bloc and blocKey
  */
+@PublishedApi
 @Composable
-fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBlocs(
+internal fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBlocs(
     blist: List<Triple<B, String,String>>,
     curBlocBindings: BlocBindings
 ): BlocBindings {
@@ -85,7 +89,7 @@ fun <B:BlocBase<*>>rememberSaveableBlocBindingsWithAddedBlocs(
 
 
 @PublishedApi
-internal val LocalBlocBindings = staticCompositionLocalOf { BlocBindings() }
+internal val LocalBlocBindings: ProvidableCompositionLocal<BlocBindings> = staticCompositionLocalOf { BlocBindings() }
 
 @Composable
 public inline fun BindBloc(

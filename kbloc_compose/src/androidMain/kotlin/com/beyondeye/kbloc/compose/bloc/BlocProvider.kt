@@ -3,13 +3,12 @@ package com.beyondeye.kbloc.compose.bloc
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
+import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.bloc.internals.*
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.Companion.buildBlocBindingKey
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStore.Companion.getBlocKeyForUnboundBloc
 import com.beyondeye.kbloc.compose.bloc.internals.LocalBlocBindings
 import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
-import com.beyondeye.kbloc.compose.model.ScreenModel
-import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +38,7 @@ import kotlinx.coroutines.CoroutineScope
  *         bloc lazily. There is currently no such option in this implementation
  */
 @Composable
-inline fun <reified BlocA: BlocBase<*>> Screen.BlocProvider(
+public inline fun <reified BlocA: BlocBase<*>> Screen.BlocProvider(
     blocTag: String? = null,
     crossinline create: @DisallowComposableCalls (cscope: CoroutineScope) -> BlocA,
     crossinline content:@Composable ()->Unit)
@@ -61,7 +60,7 @@ inline fun <reified BlocA: BlocBase<*>> Screen.BlocProvider(
  * NOTE: in flutter_bloc this method was called BlocProvider.value
  */
 @Composable
-inline fun <reified BlocA: BlocBase<*>> BlocProvider(
+public inline fun <reified BlocA: BlocBase<*>> BlocProvider(
     blocTag: String? = null,
     externallyProvidedBlock:BlocA,
     crossinline content:@Composable ()->Unit)
@@ -89,7 +88,7 @@ inline fun <reified BlocA: BlocBase<*>> BlocProvider(
  *       In this implementation instead we return null
  */
 @Composable
-inline fun <reified BlocA: BlocBase<*>>
+public inline fun <reified BlocA: BlocBase<*>>
         rememberProvidedBlocOf(blocTag:String?=null):BlocA?
 {
     val curBindings=LocalBlocBindings.current

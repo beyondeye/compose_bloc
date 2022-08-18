@@ -3,10 +3,10 @@ package com.beyondeye.kbloc.compose.bloc
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
+import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.bloc.internals.BindBlocs
 import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
 import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
-import com.beyondeye.kbloc.compose.screen.Screen
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
 
@@ -26,7 +26,7 @@ public fun Screen.MultiBlocProvider():_BlocProviderList {
 /**
  * [blist] is a list of triples (Bloc:BlocBase<*>,bloc_tag:String,bloc_key:String)
  */
-class _BlocProviderList(val screen: Screen, val blist:MutableList<Triple<BlocBase<*>,String,String>> = mutableListOf()) {
+public class _BlocProviderList(public val screen: Screen, public val blist:MutableList<Triple<BlocBase<*>,String,String>> = mutableListOf()) {
     @Composable
     public inline fun <reified BlocA: BlocBase<*>> BlocProvider(
         blocTag: String? = null,

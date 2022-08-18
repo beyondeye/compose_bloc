@@ -40,6 +40,17 @@ subprojects {
 //    }
 }
 
+//configure compose compiler version to be used for all projects: code snippet from here
+// https://github.com/JetBrains/compose-jb/issues/2108#issuecomment-1157978869
+allprojects {
+    configurations.all {
+        resolutionStrategy.dependencySubstitution {
+            substitute(module("org.jetbrains.compose.compiler:compiler")).apply {
+                using(module("androidx.compose.compiler:compiler:${Versions.compose_compiler_version}"))
+            }
+        }
+    }
+}
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }

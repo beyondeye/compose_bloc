@@ -1,5 +1,6 @@
 package cafe.adriel.voyager.navigator
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,6 +27,7 @@ internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewMode
      * see implementation of [ScreenModelStore.remove]
      */
     override fun onCleared() {
+        //Log.e(LOGTAG,"ActivityBlocStoreViewModel:onCleared()")
         // first dispose all dependencies
         for (entry in store.dependencies) {
             val (instance,onDispose)= entry.value
@@ -34,6 +36,7 @@ internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewMode
         // then dispose all screenModels
         for(entry in store.screenModels) {
             val model=entry.value
+            //Log.e(LOGTAG,"Disposing screenmodel $model")
             model.onDispose()
         }
         super.onCleared()
@@ -53,6 +56,7 @@ internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
      * see implementation of [BlocStore.remove]
      */
     override fun onCleared() {
+        //Log.e(LOGTAG,"ActivityBlocStoreViewModel:onCleared()")
         //first clear depedendencies
         for (entry in store.blocs_dependencies) {
             val (instance,onDispose) = entry.value
@@ -61,6 +65,7 @@ internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
         //then clear blocs
         for (entry in store.blocs.entries) {
             val b=entry.value
+            //Log.e(LOGTAG,"Disposing bloc $b")
             runBlocking {
                 b.dispose()
             }

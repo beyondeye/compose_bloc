@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc.reselect
+package com.beyondeye.kbloc.compose.reselect
 
 /**
  * In reduks we "react" to changes of the reduks state and perform actions.
@@ -13,7 +13,7 @@ package com.beyondeye.kbloc.compose.bloc.reselect
  * field in the reduks state. Then, instead of listening to change in the reduks state with
  * [AbstractSelector.onChangeIn], use instead [AbstractSelector.onChangeAtStep]
  */
-class StepInSequence(val nsteps:Int=1000, val curstep:Int=-1) {
+public class StepInSequence(val nsteps:Int=1000, val curstep:Int=-1) {
     /**
      * use this method in State reducer, to restart the [StepInSequence]
      */

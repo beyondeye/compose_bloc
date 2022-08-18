@@ -1,10 +1,7 @@
-package com.beyondeye.kbloc.compose.bloc.internals
+package com.beyondeye.kbloc.compose.internal
 
 import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.screen.Screen
-import com.beyondeye.kbloc.compose.model.Dependency
-import com.beyondeye.kbloc.compose.model.DependencyKey
-import com.beyondeye.kbloc.compose.model.DependencyOnDispose
 //import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.collections.immutable.PersistentMap
@@ -13,11 +10,19 @@ import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+internal typealias DependencyKey = String
+private typealias DependencyInstance = Any
+
+internal typealias DependencyOnDispose = (Any) -> Unit
+
+internal typealias Dependency = Pair<DependencyInstance, DependencyOnDispose>
 
 private typealias BlocKey = String
 
+
 //-----------------------------------------------------------
-class BlocStore {
+@PublishedApi
+internal class BlocStore {
     @PublishedApi
     /**
      *  multiplatform persistent map: see https://github.com/Kotlin/kotlinx.collections.immutable
@@ -31,10 +36,10 @@ class BlocStore {
         persistentHashMapOf()
 
     @PublishedApi
-    internal val blocs_mutex = Mutex()
+    internal val blocs_mutex:Mutex = Mutex()
 
     @PublishedApi
-    internal val blocs_dependencies_mutex = Mutex()
+    internal val blocs_dependencies_mutex:Mutex = Mutex()
 
     /**
      * since we use [PersistentMap] we don't need to duplicate [blocs] and [blocs_dependencies] fields
@@ -252,7 +257,7 @@ class BlocStore {
          * in the composable local content
          */
         @PublishedApi
-        internal inline fun <reified B : BlocBase<*>> buildBlocBindingKey(bloc_tag: String?) =
+        internal inline fun <reified B : BlocBase<*>> buildBlocBindingKey(bloc_tag: String?):BlocKey =
             B::class.qualifiedName!! + (bloc_tag ?: "")
         internal fun <B : BlocBase<*>> buildBlocBindingKey(bloc:B,bloc_tag: String?) =
             bloc::class.qualifiedName!! + (bloc_tag ?: "")

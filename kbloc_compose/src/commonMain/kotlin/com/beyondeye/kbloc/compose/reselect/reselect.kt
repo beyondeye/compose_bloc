@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc.reselect
+package com.beyondeye.kbloc.compose.reselect
 
 private typealias  EqualityCheckFn = (a:Any,b:Any)->Boolean
 /**

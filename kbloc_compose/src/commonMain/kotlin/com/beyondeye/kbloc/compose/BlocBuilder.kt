@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
 import com.beyondeye.kbloc.core.Bloc
@@ -55,7 +55,7 @@ internal fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: Bl
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
     blocTag:String?=null,
-    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    noinline buildWhen: BlocBuilderCondition<BlocAState>?=null,
     content:@Composable (BlocAState)->Unit)
 {
     rememberProvidedBlocOf<BlocA>(blocTag)?.let { b->
@@ -73,7 +73,7 @@ public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilde
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
     externallyProvidedBlock:BlocA,
-    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    noinline buildWhen: BlocBuilderCondition<BlocAState>?=null,
     content:@Composable (BlocAState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }

@@ -1,6 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc.internals
-
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
+package com.beyondeye.kbloc.compose.internal
 
 /**
  * *DARIO*
@@ -12,7 +10,8 @@ import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
  * going to be destroyed.
  *
  */
-interface BlocStoreOwner {
+@PublishedApi
+internal interface BlocStoreOwner {
     /**
      * Returns owned [BlocStore]
      *

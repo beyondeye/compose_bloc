@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose
 
 /**
  * we don't need flutter_bloc RepositoryProvider and MultiRepositoryProvider because in voyager we have

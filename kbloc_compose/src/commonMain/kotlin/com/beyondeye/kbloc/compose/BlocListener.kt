@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
 import com.beyondeye.kbloc.core.Bloc

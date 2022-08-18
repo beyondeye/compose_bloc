@@ -1,12 +1,12 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
 import cafe.adriel.voyager.core.screen.Screen
-import com.beyondeye.kbloc.compose.bloc.internals.BindBlocs
-import com.beyondeye.kbloc.compose.bloc.internals.BlocStore
-import com.beyondeye.kbloc.compose.bloc.internals.rememberBloc
+import com.beyondeye.kbloc.compose.internal.BindBlocs
+import com.beyondeye.kbloc.compose.internal.BlocStore
+import com.beyondeye.kbloc.compose.internal.rememberBloc
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.CoroutineScope
 

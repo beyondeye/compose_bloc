@@ -1,7 +1,7 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
-import com.beyondeye.kbloc.compose.bloc.reselect.AbstractSelector
+import com.beyondeye.kbloc.compose.reselect.AbstractSelector
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -47,7 +47,7 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelec
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState : Any> BlocSelector(
     blocTag:String?=null,
-    selector:AbstractSelector<BlocAState,BlockSelectedState>,
+    selector: AbstractSelector<BlocAState, BlockSelectedState>,
     content:@Composable (BlockSelectedState)->Unit)
 {
     rememberProvidedBlocOf<BlocA>(blocTag)?.let { b->
@@ -74,7 +74,7 @@ public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any,BlockSelect
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any,BlockSelectedState:Any> BlocSelector(
     externallyProvidedBlock:BlocA,
-    selector:AbstractSelector<BlocAState,BlockSelectedState>,
+    selector: AbstractSelector<BlocAState, BlockSelectedState>,
     content:@Composable (BlockSelectedState)->Unit)
 {
     val b =  remember { externallyProvidedBlock }

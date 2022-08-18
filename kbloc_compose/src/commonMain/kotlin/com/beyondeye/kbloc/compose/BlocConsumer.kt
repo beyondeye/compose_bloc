@@ -1,4 +1,4 @@
-package com.beyondeye.kbloc.compose.bloc
+package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
 import com.beyondeye.kbloc.core.Bloc
@@ -14,12 +14,12 @@ import com.beyondeye.kbloc.core.BlocBase
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsumer(
     blocTag:String?=null,
-    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    noinline buildWhen: BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     crossinline content:@Composable (BlocAState)->Unit)
 {
-    rememberProvidedBlocOf<BlocA>(blocTag) ?.let { b->
+    rememberProvidedBlocOf<BlocA>(blocTag)?.let { b->
         BlocConsumerCore(b, listenWhen, listener, buildWhen, content)
     }
 }
@@ -27,7 +27,7 @@ public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsu
 @Composable
 public inline fun <reified BlocA: BlocBase<BlocAState>,BlocAState:Any> BlocConsumer(
     externallyProvidedBlock:BlocA,
-    noinline buildWhen:BlocBuilderCondition<BlocAState>?=null,
+    noinline buildWhen: BlocBuilderCondition<BlocAState>?=null,
     noinline listenWhen: BlocListenerCondition<BlocAState>?=null,
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
     crossinline content:@Composable (BlocAState)->Unit)

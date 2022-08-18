@@ -1,5 +1,5 @@
 buildscript {
-    val compose_version by extra(Versions.compose_version)
+    val compose_core_libs_version by extra(Versions.compose_core_libs_version)
     val compose_compiler_version by extra(Versions.compose_compiler_version)
     val compose_activity by extra(Versions.compose_activity_version)
     val jbcompose_version by extra(Versions.jbcompose_version)

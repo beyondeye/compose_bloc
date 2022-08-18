@@ -2,7 +2,7 @@
 object Versions {
     //see https://developer.android.com/jetpack/androidx/releases/compose-kotlin
     //see https://github.com/jimgoog/ComposeAppUsingPrereleaseComposeCompiler#project-configuration
-    val compose_version="1.1.1" //used in voyager:1.1.0
+    val compose_core_libs_version="1.1.1" //used in voyager:1.1.0
 
     // androidx.compose.material:material
     val compose_material_version="1.2.1"

@@ -3,9 +3,9 @@ package cafe.adriel.voyager.core.screen
 import androidx.compose.runtime.Composable
 import java.io.Serializable
 
-public interface Screen: Serializable {
+public expect interface Screen: Serializable {
 
-    public val key: ScreenKey get() =commonKeyGeneration()
+    public open val key: ScreenKey
     @Composable
     public fun Content()
 }

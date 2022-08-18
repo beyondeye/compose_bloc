@@ -1,6 +1,6 @@
 package cafe.adriel.voyager.core.screen
 
-import com.beyondeye.kbloc.compose.concurrent.AtomicInt32
+import cafe.adriel.voyager.core.concurrent.AtomicInt32
 
 public typealias ScreenKey = String
 

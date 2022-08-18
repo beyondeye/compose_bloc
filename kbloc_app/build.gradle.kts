@@ -52,6 +52,7 @@ dependencies {
 
 //    implementation(project(":kbloc_core"))
     implementation(project(":kbloc_compose"))
+    implementation(project(":kbloc_navigator"))
     implementation("androidx.core:core-ktx:${Versions.androidx_corektx_version}")
     implementation("androidx.compose.runtime:runtime:${Versions.compose_version}")
     implementation("androidx.compose.runtime:runtime-saveable:${Versions.compose_version}")

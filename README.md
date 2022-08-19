@@ -14,14 +14,14 @@ Add the desired dependencies to your module `build.gradle`.
 ```groovy
     // Bloc core library 
     // (no need to include if you include the kbloc-compose depedency)
-    implementation "io.githubcafe.beyondeye:kbloc-core:$version"
+    implementation "io.github.beyondeye:kbloc-core:$version"
 
     // Android Compose and Bloc integration library
     // (no need to include if you include the kbloc-navigator depedency)
-    implementation "io.githubcafe.beyondeye:kbloc-compose:$version"
+    implementation "io.github.beyondeye:kbloc-compose:$version"
     
     // Navigator library (fork of adrielcafe/voyager)
-    implementation "io.githubcafe.beyondeye:kbloc-navigator:$version"
+    implementation "io.github.beyondeye:kbloc-navigator:$version"
 ```
 For available  versions look at  [compose_bloc releases](https://github.com/beyondeye/compose_bloc/releases)
 All libraries are multiplatform libraries that support both Android and Desktop compose.

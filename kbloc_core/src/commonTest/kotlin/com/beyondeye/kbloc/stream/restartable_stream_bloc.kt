@@ -95,7 +95,8 @@ public fun Job.catchError(test:((Throwable)->Boolean)?=null,onError:(Throwable)-
     return this
 }
 
-class  RestartableStreamBloc(cscope:CoroutineScope,val inputEventsStream: Flow<Int>) :Bloc<RestartableStreamEvent,Int>(cscope,0,false) {
+class  RestartableStreamBloc(cscope:CoroutineScope,val inputEventsStream: Flow<Int>) :Bloc<RestartableStreamEvent,Int>(cscope,0,
+    false,false) {
     init {
         //    message = "Flow analogues of 'switchMap' are 'transformLatest', 'flatMapLatest' and 'mapLatest'",
         on<ForEach>(transformer = { events, mapper -> events.flatMapLatest(mapper) })

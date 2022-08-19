@@ -11,7 +11,7 @@ class SubtractionEvent(val value:Int):CounterEvent
 data class CounterState(val counter:Int=0)
 
 class CounterBloc(cscope: CoroutineScope, startCounter:Int=0): Bloc<CounterEvent, CounterState>(cscope,
-    CounterState(startCounter),false
+    CounterState(startCounter),false,true
 ) {
     init {
         on<IncrementEvent> { event, emit ->

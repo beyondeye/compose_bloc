@@ -72,7 +72,20 @@ public abstract class Bloc<Event : Any, State : Any>
     /**
      * in the original dart code this is always false
      */
-    useReferenceEqualityForStateChanges: Boolean
+    useReferenceEqualityForStateChanges: Boolean,
+    /**
+     * flag that set change parallel/sequential behavior of event processing for a bloc
+     * in the original flutter_bloc events are processed in parallel by  default. This means
+     * it is possible to have race condition when multiple events are processed in parallel.
+     * So if multiple event handler will try to update the bloc state in parallel, not necessarily we will
+     * see the effect of all state changes from all event handler. This very problematic for complex bloc state
+     * (i.e. bloc state with more than one field that can change independently)
+     * With bloc with such complex bloc state. you should really use sequential event processing, unless
+     * you really know what you are doing.
+     * Note that if [BlocOverrides.current.eventTransformer] is defined that it will take precedence
+     * on what you specify with the flag [useSequentialEventProcessing]
+     */
+    useSequentialEventProcessing:Boolean,
 ) : BlocBase<State>(initialState, cscope, useReferenceEqualityForStateChanges), BlocEventSink<Event> {
 
     private var eventFlowJob:Job?=null
@@ -86,7 +99,7 @@ public abstract class Bloc<Event : Any, State : Any>
     private val _emitters:MutableList<_Emitter<State>> = mutableListOf()
     @PublishedApi
     internal val _eventTransformer:EventTransformer<Any> =
-    BlocOverrides.current?.eventTransformer ?: _defaultEventTransformer
+    BlocOverrides.current?.eventTransformer ?: if(useSequentialEventProcessing) EventTransformer_sequential() else EventTransformer_concurrent()
 
     init {
         _startEventHandlerJob()

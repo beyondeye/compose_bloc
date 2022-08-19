@@ -13,6 +13,7 @@ class ABCCounterBloc(
     Bloc<MultiCounterEvent,
             ABCCounterState>(
         cscope, ABCCounterState(a= startCounters[0], b=startCounters[1],c=startCounters[2]),
+        true,
         true
     ) {
     init {

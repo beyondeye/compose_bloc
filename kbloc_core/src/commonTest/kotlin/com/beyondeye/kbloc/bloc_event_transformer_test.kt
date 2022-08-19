@@ -52,7 +52,7 @@ suspend fun tick() {
 class CounterBloc(
     cscope: CoroutineScope,
     incrementTransformer: EventTransformer<Increment>?=null
-) : Bloc<CounterEvent, Int>(cscope, 0,false) {
+) : Bloc<CounterEvent, Int>(cscope, 0,false,false) {
     val onCalls= mutableListOf<CounterEvent>()
     val onEmitCalls= mutableListOf<CounterEvent>()
     init {

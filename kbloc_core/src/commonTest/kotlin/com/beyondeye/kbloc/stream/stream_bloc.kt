@@ -13,7 +13,8 @@ class Subscribe : StreamEvent
 
 class OnData(val data:Int) :StreamEvent
 
-class StreamBloc(cscope:CoroutineScope, val inputEventsStream: Flow<Int>) :Bloc<StreamEvent,Int>(cscope,0,false) {
+class StreamBloc(cscope:CoroutineScope, val inputEventsStream: Flow<Int>) :Bloc<StreamEvent,Int>(cscope,0,
+    false,false) {
     private var _subscription: Job? = null
     init {
         //in the original code here there is on<StreamEvent> but it does not work that way, and it actually look like a bug

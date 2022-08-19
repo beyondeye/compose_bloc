@@ -141,6 +141,7 @@ late final _defaultEventTransformer = (Stream events, EventMapper mapper) {
 *
 */
 // TODO change the default event transformer to flattenConcat from flattenMerge
+// NOTE that this exactly the same as EventTransformer_concurrent
 internal val _defaultEventTransformer: EventTransformer<Any> = { events: Flow<Any>, mapper: EventMapper<Any> ->
     events
         .map(mapper).flattenMerge()

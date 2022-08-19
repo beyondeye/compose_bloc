@@ -15,7 +15,7 @@ class MultiCounterBloc(
     Bloc<MultiCounterEvent,
             MultiCounterState>(
         cscope, MultiCounterState(counter = startCounters),
-        true
+        true,true
     ) {
     init {
         on<MultiAddEvent> { event, emit ->

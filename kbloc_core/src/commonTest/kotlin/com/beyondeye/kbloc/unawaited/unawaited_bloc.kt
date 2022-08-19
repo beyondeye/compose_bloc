@@ -9,7 +9,8 @@ class UnawaitedEvent
 class UnawaitedState
 
 class UnawaitedBloc(cscope:CoroutineScope) :
-    Bloc<UnawaitedEvent,UnawaitedState>(cscope, UnawaitedState(),false) {
+    Bloc<UnawaitedEvent,UnawaitedState>(cscope, UnawaitedState(),
+        false,false) {
     constructor(cscope: CoroutineScope,future:Deferred<Unit>):this(cscope) {
         on<UnawaitedEvent>{ event, emit ->
             //TODO the original code is

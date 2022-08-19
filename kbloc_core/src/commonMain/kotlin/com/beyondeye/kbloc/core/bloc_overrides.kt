@@ -89,6 +89,18 @@ public abstract class BlocOverrides {
             curOverrides=prev
             return res
         }
+
+        /**
+         * set the current and global ovverides for [BlocObserver] and [EventTransformer]
+         * NOTE: This method is equivalent to setting the global BlocObserver and EventTransformer in flutter bloc
+         */
+        public fun setGlobalOverrides(
+            blocObserver: BlocObserver<Any>?=null,
+            eventTransformer:EventTransformer<Any>?=null,
+            )
+        {
+            curOverrides = _BlocOverridesScope(blocObserver,eventTransformer)
+        }
     }
 }
 private class _BlocOverridesScope(

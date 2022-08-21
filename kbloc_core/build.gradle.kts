@@ -26,7 +26,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinx_datetime_version}")
                 api("org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.kotlinx_collections_immutable_version}")
                 compileOnly(compose.runtime)
             }
@@ -39,6 +38,7 @@ kotlin {
                 //see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-test/index.html
                 //sse https://developer.android.com/kotlin/coroutines/test#testdispatchers
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinx_datetime_version}")
             }
         }
         val androidMain by getting

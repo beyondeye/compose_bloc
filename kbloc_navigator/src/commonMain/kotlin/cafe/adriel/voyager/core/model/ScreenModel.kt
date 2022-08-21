@@ -5,10 +5,13 @@ import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
 import cafe.adriel.voyager.core.model.internal.LocalScreenModelStoreOwner
 import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.compose.lifecycle.mp_collectAsStateWithLifecycle
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.compose.runtime.State
+import kotlin.coroutines.CoroutineContext
 
 /**
  * coroutineScope is defined as dependency of a [ScreenModel], so that when a ScreenModel is disposed
@@ -70,4 +73,16 @@ public abstract class StateScreenModel<S>(initialState: S) : ScreenModel {
 
     protected val mutableState: MutableStateFlow<S> = MutableStateFlow(initialState)
     public val state: StateFlow<S> = mutableState.asStateFlow()
+
+    /**
+     * new method in kbloc, not present in original voyager: obtain a Compose state from [state] [StateFlow]
+     * that automatically pause collection when activity is paused
+     * note that this is still multiplatform code:
+     * [mp_collectAsStateWithLifecycle] has platform-specific implementations.
+     * As CoroutineContext for the collection use the ScreenModel [coroutineScope]
+     */
+    @Composable
+    public fun collectAsStateWithLifecycle(
+        context: CoroutineContext = coroutineScope().coroutineContext+Dispatchers.Default):State<S> =
+        mutableState.mp_collectAsStateWithLifecycle(mutableState.value,context)
 }

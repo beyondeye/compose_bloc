@@ -12,8 +12,6 @@ import com.beyondeye.kbloc.compose.BlocBuilder
 import com.beyondeye.kbloc.compose.BlocProvider
 import com.beyondeye.kbloc.compose.rememberProvidedBlocOf
 import com.beyondeye.kbloc.core.LOGTAG
-import kotlinx.coroutines.CoroutineScope
-
 
 
 class Test1BasicCounterBlocScreen: Screen {

@@ -5,7 +5,8 @@ private class VersionCombos(
     val compose_activity: String,
     val jbcompose: String,
     val compose_compiler: String,
-    val kodein:String
+    val kodein:String,
+    val koin:String
 )
 
 object Versions {
@@ -19,7 +20,8 @@ object Versions {
         compose_activity = "1.4.0",
         jbcompose = "1.1.1",
         compose_compiler = "1.1.1",
-        kodein = "7.11.0"
+        kodein = "7.11.0",
+        koin = "3.2.0"
     )
 
     private val vc_1_2 = VersionCombos(
@@ -30,7 +32,8 @@ object Versions {
         compose_activity = "1.4.0",
         jbcompose = "1.2.0-alpha01-dev755",
         compose_compiler = "1.2.0-dev-k1.7.0-53370d83bb1",
-        kodein="7.13.1" //for Compose Multiplatform 1.2.0-alpha01-dev745 with Kotlin 1.7 compatibility
+        kodein="7.13.1", //for Compose Multiplatform 1.2.0-alpha01-dev745 with Kotlin 1.7 compatibility
+        koin = "3.2.0" //actually this dependency is wrong it is for compose 1.1.1
     )
     //selected version combo
     private val combo= vc_1_2
@@ -88,6 +91,8 @@ object Versions {
     //https://github.com/kosi-libs/Kodein/releases#:~:text=Compare-,7.13.1,-Compose%20Multiplatform%201.2.0
     val kodein=combo.kodein
 
+    //see https://github.com/InsertKoinIO/koin-compose
+    val koin=combo.koin
     //--------------------------------------
     // *TEST* LIBRARIES
     //io.mockk:mockk

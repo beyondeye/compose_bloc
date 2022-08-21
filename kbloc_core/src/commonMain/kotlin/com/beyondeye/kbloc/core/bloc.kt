@@ -70,9 +70,9 @@ public abstract class Bloc<Event : Any, State : Any>
      */
     cscope: CoroutineScope, initialState: State,
     /**
-     * in the original dart code this is always false
+     * in the original bloc dart code this is always false
      */
-    useReferenceEqualityForStateChanges: Boolean,
+    useReferenceEqualityForStateChanges: Boolean=true,
     /**
      * flag that set change parallel/sequential behavior of event processing for a bloc
      * in the original flutter_bloc events are processed in parallel by  default. This means
@@ -85,7 +85,7 @@ public abstract class Bloc<Event : Any, State : Any>
      * Note that if [BlocOverrides.current.eventTransformer] is defined that it will take precedence
      * on what you specify with the flag [useSequentialEventProcessing]
      */
-    useSequentialEventProcessing:Boolean,
+    useSequentialEventProcessing:Boolean=true,
 ) : BlocBase<State>(initialState, cscope, useReferenceEqualityForStateChanges), BlocEventSink<Event> {
 
     private var eventFlowJob:Job?=null

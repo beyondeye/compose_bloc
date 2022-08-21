@@ -48,6 +48,8 @@ kotlin {
                 compileOnly("androidx.activity:activity-compose:${Versions.compose_activity_version}")
                 api("androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.androidx_lifecycle_version}")
                 implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.androidx_lifecycle_version}")
+                // https://developer.android.com/jetpack/androidx/releases/lifecycle#version_26_2
+                //implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha01")
             }
         }
     }

@@ -10,21 +10,13 @@ repositories {
     mavenCentral()
 }
 ```
-Add the desired dependencies to your module `build.gradle`.
+Add the main library dependency to your module `build.gradle`.
 ```groovy
-    // Bloc core library 
-    // (no need to include if you include the kbloc-compose depedency)
-    implementation "io.github.beyondeye:kbloc-core:$version"
-
-    // Android Compose and Bloc integration library
-    // (no need to include if you include the kbloc-navigator depedency)
-    implementation "io.github.beyondeye:kbloc-compose:$version"
-    
-    // Navigator library (fork of adrielcafe/voyager)
+    // Bloc+Navigator core library 
     implementation "io.github.beyondeye:kbloc-navigator:$version"
 ```
 For available  versions look at  [compose_bloc releases](https://github.com/beyondeye/compose_bloc/releases)
-All libraries are multiplatform libraries that support both Android and Desktop compose.
+the library is a multiplatform library that support both Android and Desktop compose.
 
 # Documentation
 
@@ -69,20 +61,57 @@ but is currently unmantained, with several outstanding issues and bugs, that we 
 
 # Differences from original voyager library
 The original package for the code from the original library has been preserved, so switching
-to `kbloc-navigator` in the dependencies should work seamlessy. But there are some difference:
-- All the following libraries has been merged into a single one (`kbloc-navigator`)
-  - `voyager-navigator`
-  - `voyager-bottom-sheet-navigator`
-  - `voyager-tab-navigator`
-  - `voyager-transitions`
-  - `voyager-androidx`
-  - `voyager-livedata`
-- Dependency injection integration libraries `voyager-koin`, `voyager-kodein`, `voyager-hilt`
-  has not published yet as part of compose_bloc. Open an issue if you want them published also.
-  It is quite strightforward to do it. The same goes for rxjava integration library 'voyager-rxjava'
-- `voyager-androidx` now work differently: all lifecycle handling hooks has been removed
-  (`AndroidScreenLifecycleOwner' is not used anymore). This is because it caused many issues:
+to `kbloc` in the dependencies should work seamlessy:
+```groovy
+dependencies {
+    // Navigator: (multiplatform library)
+    //implementation "cafe.adriel.voyager:voyager-navigator:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-navigator:$currentVersion"
+    
+    // BottomSheetNavigator  (multiplatform library)
+    //implementation "cafe.adriel.voyager:voyager-bottom-sheet-navigator:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-bottom-sheet-navigator:$currentVersion"
+    
+    // TabNavigator  (multiplatform library)
+    //implementation "cafe.adriel.voyager:voyager-tab-navigator:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-tab-navigator:$currentVersion"
+    
+    // Transitions  (multiplatform library)
+    //implementation "cafe.adriel.voyager:voyager-transitions:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-transitions:$currentVersion"
+    
+    // Android ViewModel integration (android library)
+    //implementation "cafe.adriel.voyager:voyager-androidx:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-androidx:$currentVersion"
+    
+    // Koin integration (android library)
+    //implementation "cafe.adriel.voyager:voyager-koin:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-koin:$currentVersion"
+    
+    // Kodein integration ( (multiplatform library)
+    //implementation "cafe.adriel.voyager:voyager-kodein:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-kodein:$currentVersion"
+    
+    // Hilt integration (android library)
+    //implementation "cafe.adriel.voyager:voyager-hilt:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-hilt:$currentVersion"
+    
+    // RxJava integration (JVM library)
+    //implementation "cafe.adriel.voyager:voyager-rxjava:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-rxjava:$currentVersion"
+    
+    // LiveData integration (android library)
+    //implementation "cafe.adriel.voyager:voyager-livedata:$currentVersion"
+    implementation "io.gihub.beyondeye:kbloc-livedata:$currentVersion"
+}
+
+```
+- ``voyager-androidx`` now work differently: all lifecycle handling hooks from the original code have been removed
+  (``AndroidScreenLifecycleOwner`` is not used anymore). This is because it caused many issues:
   see for example [issue 62](https://github.com/adrielcafe/voyager/issues/62).
+  But this does not mean that android lifecycle events are ignored. When an activity is destroyed 
+  then all associated `ScreenModels` and `Blocs` are automatically disposed and the associated flows cancelled
+- Also flows associated to blocs of an ``Activity`` are automatically paused when the ``Activity`` is paused
 - Now Screen lifecycle is handled in the following way: A `Screen` (and associated screen model and blocs)
   is disposed in the following cases
   - When the `Screen` is popped from the navigator stack
@@ -108,8 +137,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 ```
-- If you want to listen to Android Lifecycle events then you should use the [Android specific Api](https://developer.android.com/jetpack/compose/side-effects#disposableeffect).
-  True multiplatform support for all lifecycle events can be added in the future. Please open an issue and vote for it, if you really need this feature 
+- If Activity and Screen lifecycle as it is currently  handled is not good enough for you please open [a new issue](https://github.com/beyondeye/compose_bloc/issues/new/choose), and we will happy to improve it.
 # Will this library merged back with voyager
 Currently the original voyager library does not seems to be mantained any more. I will be quite happy to
 join forces with the original author(s), if they will decide that they are interested.

@@ -11,4 +11,4 @@ public interface ScreenLifecycleOwner {
     public fun onDispose(screen: Screen) {}
 }
 
-internal object DefaultScreenLifecycleOwner : ScreenLifecycleOwner
+public object DefaultScreenLifecycleOwner : ScreenLifecycleOwner

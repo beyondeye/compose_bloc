@@ -93,6 +93,12 @@ object Versions {
 
     //see https://github.com/InsertKoinIO/koin-compose
     val koin=combo.koin
+
+    //https://github.com/google/dagger/releases
+    val hilt= "2.43.2"
+
+    //androidx.lifecycle:lifecycle-viewmodel-savedstate
+    val lifecycle_savedState=""
     //--------------------------------------
     // *TEST* LIBRARIES
     //io.mockk:mockk

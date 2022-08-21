@@ -1,6 +1,7 @@
 package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.lifecycle.mp_collectAsStateWithLifecycle
 import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.flow.Flow
@@ -96,6 +97,7 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     val filtered_start_state=if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
 
 
-    val state: BlocAState? by stream.collectAsState(filtered_start_state, collect_scope.coroutineContext)
+    //collection automatically paused when activity paused
+    val state: BlocAState? by stream.mp_collectAsStateWithLifecycle(filtered_start_state, collect_scope.coroutineContext)
     if(state!=null) content(state!!) //state can be null if initial state does not satisfy buildWhen condition
 }

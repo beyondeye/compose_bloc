@@ -1,6 +1,7 @@
 package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.lifecycle.mp_collectAsStateWithLifecycle
 import com.beyondeye.kbloc.core.Bloc
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.flow.Flow
@@ -102,7 +103,9 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     }
     val start_state=b.state
     val filtered_start_state=if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
-    val state: BlocAState? by stream.collectAsState(filtered_start_state, collect_scope.coroutineContext)
+
+    //collection automatically paused when activity paused
+    val state: BlocAState? by stream.mp_collectAsStateWithLifecycle(filtered_start_state, collect_scope.coroutineContext)
     //TODO according to the documentation of LaunchedEffect, what I am doing here, if I understand
     // the docs correclty, that is o (re-)launch ongoing tasks in response to callback
     // * events by way of storing callback data in [MutableState] passed to [key]

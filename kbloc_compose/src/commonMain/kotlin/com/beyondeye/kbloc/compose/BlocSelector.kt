@@ -1,6 +1,7 @@
 package com.beyondeye.kbloc.compose
 
 import androidx.compose.runtime.*
+import com.beyondeye.kbloc.compose.lifecycle.mp_collectAsStateWithLifecycle
 import com.beyondeye.kbloc.compose.reselect.AbstractSelector
 import com.beyondeye.kbloc.core.BlocBase
 import kotlinx.coroutines.flow.map
@@ -95,7 +96,9 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, Blo
     val collect_scope = rememberCoroutineScope()
     val stream = b.stream.map { selectoFn(it) }
     val initialState=selectoFn(b.state)
-    val state: BlockSelectedState by stream.collectAsState(
+
+    //collection automatically paused when activity paused
+    val state: BlockSelectedState by stream.mp_collectAsStateWithLifecycle(
         initialState,
         collect_scope.coroutineContext
     )
@@ -117,7 +120,8 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, Blo
     val sel = remember { selector }
     val stream = b.stream.mapNotNull { sel.getIfChangedIn(it) }
     val initialState=sel(b.state)
-    val state: BlockSelectedState by stream.collectAsState(
+    //collection automatically paused when activity paused
+    val state: BlockSelectedState by stream.mp_collectAsStateWithLifecycle(
         initialState,
         collect_scope.coroutineContext
     )

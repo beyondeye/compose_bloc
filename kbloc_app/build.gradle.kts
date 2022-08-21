@@ -53,6 +53,7 @@ dependencies {
 //    implementation(project(":kbloc_core"))
 //    implementation(project(":kbloc_compose"))
     implementation(project(":kbloc_navigator"))
+//    implementation("io.github.beyondeye:kbloc-navigator-android:0.9.1")
     implementation("androidx.core:core-ktx:${Versions.androidx_corektx_version}")
     implementation("androidx.compose.runtime:runtime:${Versions.compose_core_libs_version}")
     implementation("androidx.compose.runtime:runtime-saveable:${Versions.compose_core_libs_version}")

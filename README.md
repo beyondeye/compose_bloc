@@ -7,7 +7,7 @@ A port for Compose of [flutter bloc](https://github.com/felangel/bloc) for bette
 integrated with a navigation library
 (a fork of [voyager](https://github.com/adrielcafe/voyager) library)
 
-# setup
+# Setup
 Add Maven Central to your repositories if needed
 ```groovy
 repositories {

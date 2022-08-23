@@ -248,7 +248,7 @@ dependencies {
     //implementation "cafe.adriel.voyager:voyager-androidx:$currentVersion"
     implementation "io.gihub.beyondeye:kbloc-androidx:$currentVersion"
     
-    // Koin integration (android library)
+    // Koin integration (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-koin:$currentVersion"
     implementation "io.gihub.beyondeye:kbloc-koin:$currentVersion"
     

@@ -107,9 +107,16 @@ object Versions {
     val assertj_version = "1.7.1"
 }
 
-object Libs {
-//    val support_annotations = "com.android.support:support-annotations:${Versions.support_lib}"
+object Deps {
+    //    val support_annotations = "com.android.support:support-annotations:${Versions.support_lib}"
 //    val support_appcompat_v7 = "com.android.support:appcompat-v7:${Versions.support_lib}"
+    object Koin {
+        val core = "io.insert-koin:koin-core:${Versions.koin}"
+        val test = "io.insert-koin:koin-test:${Versions.koin}"
+        val testJUnit4 = "io.insert-koin:koin-test-junit4:${Versions.koin}"
+        val android = "io.insert-koin:koin-android:${Versions.koin}"
+        val compose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
+    }
 }
 
 object Plugins {

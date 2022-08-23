@@ -1,4 +1,5 @@
 ![Kotlin version](https://img.shields.io/static/v1?label=Kotlin&message=1.7.10&color=Orange&style=for-the-badge)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.beyondeye/kbloc-navigator?style=for-the-badge)](https://search.maven.org/artifact/com.arkivanov.mvikotlin/mvikotlin)
 ![Release](https://img.shields.io/github/v/release/beyondeye/compose_bloc?style=for-the-badge)
 ![Issues](https://img.shields.io/github/issues/beyondeye/compose_bloc?style=for-the-badge)
 ![License Apache 2.0](https://img.shields.io/github/license/beyondeye/compose_bloc?style=for-the-badge)

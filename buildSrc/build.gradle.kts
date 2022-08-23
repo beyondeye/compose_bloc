@@ -1,5 +1,5 @@
 //*IMPORTANT*: when updating this, update it also in Dependencies.kt
-val kotlin_version="1.7.0"
+val kotlin_version="1.7.10"
 //*IMPORTANT*: when updating this, update it also in Dependencies.kt
 val android_gradle_plugin_version="7.2.2"
 

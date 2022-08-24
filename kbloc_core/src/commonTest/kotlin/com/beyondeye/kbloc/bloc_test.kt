@@ -17,7 +17,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
@@ -1061,15 +1060,15 @@ class SimpleBlocTests {
     // check that should throw blocError that is expected, will not be ever thrown
     //when bloc.add(UnawaitedForEach()) line is run
     @Test
-    fun RestartableStreamEvent_unawaited_forEach_throws_Assertion_error() {
-        runBlocking {
+    fun RestartableStreamEvent_unawaited_forEach_throws_Assertion_error() =
+        runTest {
             var blocError: Throwable? = null
             try {
                 val controller = MutableSharedFlow<Int>()
                 val bloc = RestartableStreamBloc(this, controller)
 
                 //--the following code was not in original test code
-                val states= mutableListOf<Int>()
+                val states = mutableListOf<Int>()
                 val sub1 = async {
                     bloc.stream.collect {
                         states.add(it)
@@ -1095,7 +1094,7 @@ class SimpleBlocTests {
             }
 
         }
-    }
+
     @Test
     fun RestartableStreamBloc_unawaited_forEach_throws_AssertionError() {
         runBlocking {

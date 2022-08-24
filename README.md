@@ -144,8 +144,6 @@ class CounterScreen: Screen {
                 // the closest enclosing blocProvider and subscribes to its states
                 // updates, as a Composable mutableState  that when changes trigger
                 // recomposition
-                // note that the 2nd template argument type  (bloc state type) 
-                // is inferred automatically
                 BlocBuilder(b) { counterState->
                     //this is the actual ui composable
                     CounterControls(

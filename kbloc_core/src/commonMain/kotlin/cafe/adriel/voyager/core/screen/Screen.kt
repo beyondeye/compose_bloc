@@ -1,11 +1,10 @@
 package cafe.adriel.voyager.core.screen
 
 import androidx.compose.runtime.Composable
-import java.io.Serializable
 
 public typealias ScreenKey = String
 
-public expect interface Screen: Serializable {
+public expect interface Screen {
 
     public open val key: ScreenKey
     @Composable

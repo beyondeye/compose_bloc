@@ -53,6 +53,8 @@ allprojects {
         }
     }
 }
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
-}
+//needed to comment out this, because the gradle was complaining that
+// the clean task was registered already somewhere else
+//tasks.register("clean", Delete::class) {
+//    delete(rootProject.buildDir)
+//}

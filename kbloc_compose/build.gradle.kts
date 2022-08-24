@@ -52,5 +52,10 @@ kotlin {
                 //implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha01")
             }
         }
+
+        val jsMain by getting {
+        }
+        val jsTest by getting {
+        }
     }
 }

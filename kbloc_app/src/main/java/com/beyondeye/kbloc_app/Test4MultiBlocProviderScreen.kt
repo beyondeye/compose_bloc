@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.BlocBuilder
-import com.beyondeye.kbloc.compose.BlocProvider
 import com.beyondeye.kbloc.compose.MultiBlocProvider
 import com.beyondeye.kbloc.compose.rememberProvidedBlocOf
 

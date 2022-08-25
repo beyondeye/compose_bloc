@@ -24,7 +24,11 @@ kotlin {
 //                compileOnly(compose.material)
             }
         }
-
+        val desktopMain by getting {
+            dependencies {
+                compileOnly(compose.ui)
+            }
+        }
         val jvmTest by getting {
             dependencies {
   //              implementation(libs.junit.api)

@@ -1,3 +1,3 @@
 package com.beyondeye.kbloc.utils
 
-actual fun epochMillis(): Long = System.currentTimeMillis()
+public actual fun epochMillis(): Long = System.currentTimeMillis()

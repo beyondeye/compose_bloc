@@ -13,6 +13,7 @@ kotlin {
             dependencies {
                 api(project(":kbloc_navigator"))
                 compileOnly(compose.runtime)
+                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
                 implementation("org.kodein.di:kodein-di-framework-compose:${Versions.kodein}")
             }
         }

@@ -27,10 +27,10 @@ object Versions {
     private val vc_1_2 = VersionCombos(
         //*IMPORTANT*: when updating this, update it also in buildSrc/build.gradle.kts
         kotlin_version = "1.7.10",
-        compose_core_libs = "1.2.0",
+        compose_core_libs = "1.2.1",
         compose_material = "1.2.1",
         compose_activity = "1.4.0",
-        jbcompose = "1.2.0-alpha01-dev764",
+        jbcompose = "1.2.0-alpha01-dev770",
         compose_compiler = "1.3.0",
         kodein="7.13.1", //for Compose Multiplatform 1.2.0-alpha01-dev745 with Kotlin 1.7 compatibility
         koin = "3.2.0" //actually this dependency is wrong it is for compose 1.1.1

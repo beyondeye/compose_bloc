@@ -96,6 +96,6 @@ public inline fun <reified BlocA: BlocBase<*>>
     val store = LocalBlocStoreOwner.current.blocStore
     return remember(curBindings) { //recalculate if curBindings change
         val bkey=curBindings.bindingMaps[buildBlocBindingKey<BlocA>(blocTag)]
-        store.blocs.get(bkey) as BlocA?
+        store.blocs.value.get(bkey) as BlocA?
     }
 }

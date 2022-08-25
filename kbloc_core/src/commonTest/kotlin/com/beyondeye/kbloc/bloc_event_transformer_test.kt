@@ -83,11 +83,11 @@ class BlocEventTransformerTest {
         }
         delay(5) //todo: this was not in original code: otherwise the first action is ignored
         with(bloc) {
-            add(Increment())
+            add_sync(Increment())
             delay(10) //todo: not present in original code: otherwise events are processede concurrently on same initial state (0)
-            add(Increment())
+            add_sync(Increment())
             delay(10) //todo: not present in original code: otherwise events are processede concurrently on same initial state (0)
-            add(Increment())
+            add_sync(Increment())
             delay(10) //todo: not present in original code: otherwise events are processede concurrently on same initial state (0)
         }
         delay(5) //it was tick() in original code
@@ -117,9 +117,9 @@ class BlocEventTransformerTest {
             }
             delay(5) //todo: this was not in original code: otherwise the first action is ignored
             with(bloc) {
-                add(Increment())
-                add(Increment())
-                add(Increment())
+                add_sync(Increment())
+                add_sync(Increment())
+                add_sync(Increment())
             }
             delay(5) //it was tick() in original code
             assertContentEquals(listOf(Increment(), Increment(), Increment()), bloc.onCalls)
@@ -149,9 +149,9 @@ class BlocEventTransformerTest {
                 }
             }
             with(bloc) {
-                add(Increment())
-                add(Increment())
-                add(Increment())
+                add_sync(Increment())
+                add_sync(Increment())
+                add_sync(Increment())
             }
             //---------
             delay(10) //todo it was tick() in original code
@@ -193,9 +193,9 @@ class BlocEventTransformerTest {
             }
         }
         with(bloc) {
-            add(Increment())
-            add(Increment())
-            add(Increment())
+            add_sync(Increment())
+            add_sync(Increment())
+            add_sync(Increment())
         }
         //---------
         delay(10) //todo it was tick() in original code

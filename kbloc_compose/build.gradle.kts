@@ -8,6 +8,8 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 
+apply(plugin = "kotlinx-atomicfu")
+
 setupModuleForComposeMultiplatform()
 
 kotlin {
@@ -15,12 +17,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":kbloc_core"))//                 api(projects.kbloc_core)
-//                implementation("androidx.compose.runtime:runtime:${Versions.compose_core_libs_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
                 compileOnly(compose.runtime)
-//                implementation("androidx.compose.material:material:${Versions.compose_material_version}")
-                compileOnly(compose.material)
-//                implementation("androidx.compose.runtime:runtime-saveable:${Versions.compose_core_libs_version}")
-                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:$jbcompose_version")
+                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
+                implementation(Deps.AtomicFu.common)
             }
         }
 

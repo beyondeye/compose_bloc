@@ -1,5 +1,7 @@
 package com.beyondeye.kbloc.compose.reselect
 
+import kotlin.jvm.JvmField
+
 private typealias  EqualityCheckFn = (a:Any,b:Any)->Boolean
 /**
  * A rewrite for kotlin of https://github.com/reactjs/reselect library for redux (https://github.com/reactjs/redux)

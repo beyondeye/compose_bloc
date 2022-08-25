@@ -105,6 +105,10 @@ object Versions {
     val mockk_version = "1.12.4"
     val junit_version = "4.13.2"
     val assertj_version = "1.7.1"
+
+    //https://github.com/Kotlin/kotlinx.atomicfu/releases
+    //important: kotlin_version must match version of kotlin used to build atomicfu
+    val atomicfu="0.18.2"
 }
 
 object Deps {
@@ -116,6 +120,9 @@ object Deps {
         val testJUnit4 = "io.insert-koin:koin-test-junit4:${Versions.koin}"
         val android = "io.insert-koin:koin-android:${Versions.koin}"
         val compose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
+    }
+    object  AtomicFu {
+        val common = "org.jetbrains.kotlinx:atomicfu:${Versions.atomicfu}"
     }
 }
 

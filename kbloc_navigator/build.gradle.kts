@@ -1,9 +1,12 @@
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("org.jetbrains.compose")
     id("com.vanniktech.maven.publish")
 }
+
+apply(plugin = "kotlinx-atomicfu")
 
 setupModuleForComposeMultiplatform()
 
@@ -13,9 +16,12 @@ kotlin {
             dependencies {
                 api(project(":kbloc_core"))
                 api(project(":kbloc_compose"))
-//                api(projects.voyagerNavigator)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
+                implementation(Deps.AtomicFu.common)
                 compileOnly(compose.runtime)
-                compileOnly(compose.material)
+                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
+
+//                compileOnly(compose.material)
             }
         }
 

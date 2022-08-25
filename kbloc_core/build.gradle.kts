@@ -5,6 +5,7 @@ plugins {
     id("com.vanniktech.maven.publish")
     id("org.jetbrains.compose")
 }
+apply(plugin = "kotlinx-atomicfu")
 
 setupModuleForComposeMultiplatform()
 
@@ -28,6 +29,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
                 api("org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.kotlinx_collections_immutable_version}")
                 compileOnly(compose.runtime)
+                implementation(Deps.AtomicFu.common)
             }
         }
         val commonTest by getting {

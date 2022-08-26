@@ -2,6 +2,7 @@ package cafe.adriel.voyager.core.model
 
 import androidx.compose.runtime.DisallowComposableCalls
 import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.ext.getFullName
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
@@ -63,7 +64,7 @@ public class ScreenModelStore {
      */
     @PublishedApi
     internal inline fun <reified T : ScreenModel> getKey(screen: Screen, tag: String?): ScreenModelKey =
-        "${screen.key}:${T::class.simpleName}:${tag ?: "default"}"
+        "${screen.key}:${T::class.getFullName()}:${tag ?: ""}"
 
     @PublishedApi
     internal fun getDependencyKey(screenModel: ScreenModel, name: String): DependencyKey =

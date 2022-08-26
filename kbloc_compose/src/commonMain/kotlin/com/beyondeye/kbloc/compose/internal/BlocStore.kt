@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.screen.Screen
 //import com.beyondeye.kbloc.compose.navigator.Navigator
 import com.beyondeye.kbloc.core.BlocBase
+import com.beyondeye.kbloc.ext.getFullName
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
@@ -228,7 +229,7 @@ public class BlocStore {
             screen: Screen,
             blocTag: String?
         ): BlocKey =
-            "${screen.key}:${T::class.simpleName}:${blocTag ?: "default"}"
+            "${screen.key}:${T::class.getFullName()}:${blocTag ?: ""}"
 
         /**
          * define key for a bloc of a specific type T NOT BOUND to a specific screen, with an additional
@@ -237,7 +238,7 @@ public class BlocStore {
          */
         @PublishedApi
         internal inline fun <reified T : BlocBase<*>> getBlocKeyForUnboundBloc(tag: String?): BlocKey =
-            "__unbound:${T::class.simpleName}:${tag ?: "default"}"
+            "__unbound:${T::class.getFullName()}:${tag ?: ""}"
 
         /**
          * key used internally to store a binding for a certain Bloc type and a certain [bloc_tag]
@@ -245,10 +246,10 @@ public class BlocStore {
          */
         @PublishedApi
         internal inline fun <reified B : BlocBase<*>> buildBlocBindingKey(bloc_tag: String?): BlocKey =
-            B::class.simpleName!! + (bloc_tag ?: "")
+            B::class.getFullName() + (bloc_tag ?: "")
 
         internal fun <B : BlocBase<*>> buildBlocBindingKey(bloc: B, bloc_tag: String?) =
-            bloc::class.simpleName!! + (bloc_tag ?: "")
+            bloc::class.getFullName() + (bloc_tag ?: "")
 
         /**
          * same as method above but instead of passing a bloc instance, pass the directly the

@@ -1,6 +1,7 @@
 package cafe.adriel.voyager.core.registry
 
 import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.ext.getFullName
 import kotlinx.atomicfu.AtomicRef
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
@@ -32,7 +33,7 @@ public object ScreenRegistry {
 
     public fun get(provider: ScreenProvider): Screen {
         val factory = factories.value[provider::class]
-            ?: error("ScreenProvider not registered: ${provider::class.simpleName}")
+            ?: error("ScreenProvider not registered: ${provider::class.getFullName()}")
         return factory(provider)
     }
 }

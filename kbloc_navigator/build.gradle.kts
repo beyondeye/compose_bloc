@@ -50,6 +50,9 @@ kotlin {
         }
 
         val jsMain by getting {
+            dependencies {
+                implementation(compose.web.core)
+            }
         }
         val jsTest by getting {
         }

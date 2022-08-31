@@ -1,14 +1,14 @@
-package com.beyondeye.kbloc_app
+package screens
 
 import com.beyondeye.kbloc.core.Bloc
 import kotlinx.coroutines.CoroutineScope
 
 //TODO refactor this class that is used both in samples/android and samples/web
 interface CounterEvent
-object IncrementEvent:CounterEvent
-object DecrementEvent:CounterEvent
-class AdditionEvent(val value:Int):CounterEvent
-class SubtractionEvent(val value:Int):CounterEvent
+object IncrementEvent: CounterEvent
+object DecrementEvent: CounterEvent
+class AdditionEvent(val value:Int): CounterEvent
+class SubtractionEvent(val value:Int): CounterEvent
 data class CounterState(val counter:Int=0)
 
 //TODO refactor this class that is used both in samples/android and samples/web

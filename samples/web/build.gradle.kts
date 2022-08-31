@@ -21,6 +21,8 @@ kotlin {
             dependencies {
                 implementation(compose.web.core)
                 implementation(compose.runtime)
+                implementation("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
+                implementation(project(":kbloc_navigator"))
             }
         }
     }

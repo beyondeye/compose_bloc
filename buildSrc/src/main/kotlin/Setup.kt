@@ -66,17 +66,20 @@ fun Project.setupModuleForAndroidxCompose(
 //NOTE: that actually the setup done here has nothing to do to configuration of compose itself but
 // actually in configuration of which platform are supported and defining the source code structure
 fun Project.setupModuleForComposeMultiplatform(
-    withKotlinExplicitMode: Boolean = true
-) {
+    withKotlinExplicitMode: Boolean = true,
+    withJS:Boolean=true,
+    ) {
     extensions.configure<KotlinMultiplatformExtension> {
         android {
             publishAllLibraryVariants()
         }
         jvm("desktop")
 
-        js(IR) {
-            useCommonJs()
-            browser()
+        if (withJS) {
+            js(IR) {
+                useCommonJs()
+                browser()
+            }
         }
         sourceSets {
             /* Source sets structure

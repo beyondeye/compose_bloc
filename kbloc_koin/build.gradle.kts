@@ -28,6 +28,7 @@ kotlin {
                 api(project(":kbloc_navigator"))
                 implementation(Deps.Koin.core)
                 compileOnly(compose.runtime)
+                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
             }
         }
         val commonTest by getting {
@@ -63,6 +64,11 @@ kotlin {
 //                implementation(libs.junit.api)
 //                runtimeOnly(libs.junit.engine)
             }
+        }
+
+        val jsMain by getting {
+        }
+        val jsTest by getting {
         }
     }
 }

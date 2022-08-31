@@ -6,15 +6,17 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import org.koin.core.Koin
-import org.koin.core.context.GlobalContext
+import org.koin.core.context.KoinContext
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 
-//method extracted from koin.compose module
+@PublishedApi
+expect internal fun getAppKoinContext(): KoinContext
+
 @PublishedApi
 @Composable
 internal fun getKoin(): Koin = remember {
-    GlobalContext.get()
+    getAppKoinContext().get()
 }
 
 @Composable

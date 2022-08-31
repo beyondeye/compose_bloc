@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.beyondeye.kbloc
 
 import com.beyondeye.kbloc.core.Bloc
@@ -5,6 +7,7 @@ import com.beyondeye.kbloc.core.Emitter
 import com.beyondeye.kbloc.core.StateError
 import io.mockk.MockKAnnotations
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -100,7 +103,7 @@ class BlocOnTest {
             onTestEventBA= {_, _ -> onBACallCount++},
                 cscope = this
             )
-            bloc.add(TestEventA())
+            bloc.add_sync(TestEventA())
             delay(0)
 
             assertEquals(1,onEventCallCount)
@@ -109,7 +112,7 @@ class BlocOnTest {
             assertEquals(0,onAACallCount)
             assertEquals(0,onBACallCount)
 
-            bloc.add(TestEventAA())
+            bloc.add_sync(TestEventAA())
 
             delay(0)
 
@@ -119,7 +122,7 @@ class BlocOnTest {
             assertEquals(1,onAACallCount)
             assertEquals(0,onBACallCount)
 
-            bloc.add(TestEventB())
+            bloc.add_sync(TestEventB())
 
             delay(0)
 
@@ -129,7 +132,7 @@ class BlocOnTest {
             assertEquals(1,onAACallCount)
             assertEquals(0,onBACallCount)
 
-            bloc.add(TestEventBA())
+            bloc.add_sync(TestEventBA())
 
             delay(0)
 

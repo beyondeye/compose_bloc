@@ -13,6 +13,7 @@ kotlin {
             dependencies {
                 api(project(":kbloc_navigator"))
                 compileOnly(compose.runtime)
+                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
                 implementation("org.kodein.di:kodein-di-framework-compose:${Versions.kodein}")
             }
         }
@@ -22,6 +23,11 @@ kotlin {
   //              implementation(libs.junit.api)
    //             runtimeOnly(libs.junit.engine)
             }
+        }
+
+        val jsMain by getting {
+        }
+        val jsTest by getting {
         }
     }
 }

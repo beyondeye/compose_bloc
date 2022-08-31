@@ -17,7 +17,7 @@ class RegularViewModel  : ViewModel() {
 }
 
 //when screen is rotated, screen is NOT recreated but screenmodel is recreated
-class Test0Screen : AndroidScreen(),Screen {
+class Test0Screen : AndroidScreen() {
 
     @Composable
     override fun Content() {

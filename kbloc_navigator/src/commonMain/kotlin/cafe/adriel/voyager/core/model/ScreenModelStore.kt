@@ -2,8 +2,13 @@ package cafe.adriel.voyager.core.model
 
 import androidx.compose.runtime.DisallowComposableCalls
 import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.ext.getFullName
+import kotlinx.atomicfu.AtomicRef
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.coroutines.flow.MutableStateFlow
-import cafe.adriel.voyager.core.concurrent.ThreadSafeMap
 
 private typealias ScreenModelKey = String
 
@@ -25,9 +30,11 @@ public class ScreenModelStore {
      * beginning of [Screen.Content] method implementation.
      * When a [Screen] is popped from the [Navigator] stack the method [ScreenModel.onDispose] is
      * called and it is removed from this map
+     * atomicref data should not be public according to atomicfu docs
      */
     @PublishedApi
-    internal val screenModels: MutableMap<ScreenModelKey, ScreenModel> = ThreadSafeMap()
+    internal val screenModels: AtomicRef<PersistentMap<ScreenModelKey, ScreenModel>> =
+        atomic(persistentHashMapOf())
 
     /**
      * a list of [Dependency] of some [ScreenModel] instance. for example a [coroutineScope]
@@ -37,9 +44,11 @@ public class ScreenModelStore {
      * Note that a [Dependency] although it is always defined relative to some specific [ScreenModel]
      * instance, this relation is not used, but is instead used the relation to the [ScreenModel] parent
      * [Screen], in the [remove] method that is called by the [Navigator] when a screen is popped from the stack
+     * atomicref data should not be public according to atomicfu docs
      */
     @PublishedApi
-    internal val dependencies: MutableMap<DependencyKey, Dependency> = ThreadSafeMap()
+    internal val dependencies: AtomicRef<PersistentMap<DependencyKey, Dependency>> =
+        atomic(persistentHashMapOf())
 
     /**
      * TODO why this is a MutableStateFlow? it is currently used only in [getDependencyKey]
@@ -55,11 +64,11 @@ public class ScreenModelStore {
      */
     @PublishedApi
     internal inline fun <reified T : ScreenModel> getKey(screen: Screen, tag: String?): ScreenModelKey =
-        "${screen.key}:${T::class.qualifiedName}:${tag ?: "default"}"
+        "${screen.key}:${T::class.getFullName()}:${tag ?: ""}"
 
     @PublishedApi
     internal fun getDependencyKey(screenModel: ScreenModel, name: String): DependencyKey =
-        screenModels
+        screenModels.value
             .firstNotNullOfOrNull {
                 if (it.value == screenModel) it.key
                 else null
@@ -76,7 +85,11 @@ public class ScreenModelStore {
     ): T {
         val key = getKey<T>(screen, tag)
         lastScreenModelKey.value = key
-        return screenModels.getOrPut(key, factory) as T
+        var s= screenModels.value.get(key)
+        if(s!=null) return s as T
+        s =factory()
+        screenModels.update { it.put(key,s) }
+        return s
     }
 
     /**
@@ -91,17 +104,18 @@ public class ScreenModelStore {
         noinline factory: @DisallowComposableCalls (DependencyKey) -> T
     ): T {
         val key = getDependencyKey(screenModel, name)
-
-        return dependencies
-            .getOrPut(key) { (factory(key) to onDispose) as Dependency }
-            .first as T
+        var dep = dependencies.value.get(key)
+        if(dep!=null) return dep.first as T
+        dep = (factory(key) to onDispose) as Dependency
+        dependencies.update { it.put(key,dep) }
+        return dep.first as T
     }
     public fun <T : Any> getDependencyOrNull(
         screenModel: ScreenModel,
         name: String,
     ): T? {
         val key = getDependencyKey(screenModel, name)
-        return dependencies.get(key) as T?
+        return dependencies.value.get(key) as T?
     }
 
     /**
@@ -109,14 +123,16 @@ public class ScreenModelStore {
      * stack
      */
     public fun remove(screen: Screen) {
-        screenModels.onEach(screen) { key ->
-            screenModels[key]?.onDispose()
-            screenModels -= key
+        val curScreenModels=screenModels.value
+        curScreenModels.onEach(screen) { key ->
+            curScreenModels[key]?.onDispose()
+            screenModels.update { it.remove(key) }
         }
 
-        dependencies.onEach(screen) { key ->
-            dependencies[key]?.let { (instance, onDispose) -> onDispose(instance) }
-            dependencies -= key
+        val curDependencies=dependencies.value
+        curDependencies.onEach(screen) { key ->
+            curDependencies[key]?.let { (instance, onDispose) -> onDispose(instance) }
+            dependencies.update { it.remove(key) }
         }
     }
 

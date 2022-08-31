@@ -6,11 +6,14 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.internal.NavigatorBackHandler
 import com.beyondeye.kbloc.compose.internal.BlocStore
-import cafe.adriel.voyager.core.concurrent.ThreadSafeList
 import cafe.adriel.voyager.core.model.ScreenModelStore
 import cafe.adriel.voyager.core.stack.SnapshotStateStack
 import cafe.adriel.voyager.navigator.internal.LocalNavigatorStateHolder
 import cafe.adriel.voyager.navigator.internal.rememberNavigator
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
+import kotlinx.collections.immutable.minus
+import kotlinx.collections.immutable.persistentListOf
 
 
 public typealias NavigatorContent = @Composable (navigator: Navigator) -> Unit
@@ -120,7 +123,9 @@ public class Navigator internal constructor(
         lastItemOrNull ?: error("Navigator has no screen")
     }
 
-    private val stateKeys = ThreadSafeList<String>()
+    // a reference to a persistent list whose reference is atomically modified, instead of a ThreadSafeList
+    //atomicref data should not be public according to atomicfu docs
+    private val stateKeys = atomic(persistentListOf<String>())
 
     @Deprecated(
         message = "Use 'lastItem' instead. Will be removed in 1.0.0.",
@@ -137,7 +142,7 @@ public class Navigator internal constructor(
         content: @Composable () -> Unit
     ) {
         val stateKey = "${screen.key}:$key"
-        stateKeys += stateKey
+        stateKeys.update { it.add(stateKey) }
         stateHolder.SaveableStateProvider(stateKey, content)
     }
 
@@ -177,12 +182,12 @@ public class Navigator internal constructor(
         blocStore.remove(screen)
         //*DARIO* we have currently disabled all lifecycle handling linked to specific screens not activity
         //ScreenLifecycleStore.remove(screen)
-        stateKeys
+        stateKeys.value
             .asSequence()
             .filter { it.startsWith(screen.key) }
             .forEach { key ->
                 stateHolder.removeState(key)
-                stateKeys -= key
+                stateKeys.update { it.minus(key) }
             }
     }
 }

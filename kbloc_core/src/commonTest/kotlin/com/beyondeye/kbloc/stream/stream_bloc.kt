@@ -23,7 +23,7 @@ class StreamBloc(cscope:CoroutineScope, val inputEventsStream: Flow<Int>) :Bloc<
             _subscription = cscope.async {
                 inputEventsStream.collect { value ->
                     delay(100)
-                    add(OnData(value)) //new event
+                    add_sync(OnData(value)) //new event
                 }
             }
         }

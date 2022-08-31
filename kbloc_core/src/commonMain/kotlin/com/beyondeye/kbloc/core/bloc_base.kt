@@ -111,7 +111,8 @@ public abstract class BlocBase<State : Any>// ignore: invalid_use_of_protected_m
      * see https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/index.html
      */
     private val _stateController: MutableDeferredStateFlow<State>
-    public override val state: State get() = runBlocking { _stateController.valueDeferred.await() }
+    //
+    public override val state: State get() = _stateController.value
     public override val stream: StateFlow<State> get() = _stateController
 
     private var _isClosed: Boolean = false
@@ -139,7 +140,7 @@ public abstract class BlocBase<State : Any>// ignore: invalid_use_of_protected_m
      *          multiple parallel state updates
      */
     override fun emit(state: State) {
-        runBlocking {
+        cscope.async {
             try {
                 if (isClosed) {
                     throw StateError("Cannot emit new states after calling close")
@@ -156,7 +157,7 @@ public abstract class BlocBase<State : Any>// ignore: invalid_use_of_protected_m
                 //TODO: currently the behavior of the stream of states is different from dart implementation: in dart the initial state
                 //   is optional, in kotlin an initial state is required: I suspect that this difference also means that the logic here that
                 //   make use of the _emitted flag is no more needed: need to decide on this
-                if (notchanged && _emitted) return@runBlocking
+                if (notchanged && _emitted) return@async
                 onChange(Change(curState, updatedState))
                 _emitted = true
             } catch (error: Throwable) {

@@ -74,6 +74,10 @@ fun Project.setupModuleForComposeMultiplatform(
         }
         jvm("desktop")
 
+        js(IR) {
+            useCommonJs()
+            browser()
+        }
         sourceSets {
             /* Source sets structure
             common
@@ -89,6 +93,9 @@ fun Project.setupModuleForComposeMultiplatform(
             val jvmTest by creating {
                 dependsOn(commonTest)
             }
+
+//            val jsMain by getting
+//            val jsTest by getting
 
 
             val desktopMain by getting {

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.beyondeye.kbloc
 
 import com.beyondeye.kbloc.async.AsyncBloc
@@ -13,11 +15,11 @@ import com.beyondeye.kbloc.stream.*
 import io.mockk.MockKAnnotations
 import io.mockk.spyk
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
@@ -89,7 +91,7 @@ class SimpleBlocTests {
         BlocOverrides.runWithOverrides(blocObserver = observer) {
             runTest(UnconfinedTestDispatcher()) {
                 val bloc = SimpleBloc(this)
-                bloc.add("event")
+                bloc.add_sync("event")
                 bloc.close()
 
                 verify(exactly = 1) {
@@ -113,9 +115,9 @@ class SimpleBlocTests {
             runTest(UnconfinedTestDispatcher()) {
                 val bloc = SimpleBloc(this)
                 with(bloc) {
-                    add("event1")
-                    add("event2")
-                    add("event3")
+                    add_sync("event1")
+                    add_sync("event2")
+                    add_sync("event3")
                     close()
                 }
 
@@ -154,7 +156,7 @@ class SimpleBlocTests {
                 }
 
                 with(bloc) {
-                    add("event")
+                    add_sync("event")
                     close()
                 }
                 sub1.cancel()
@@ -224,7 +226,7 @@ class SimpleBlocTests {
                         actualStates.add(it)
                     }
                 }
-                complexBloc.add(ComplexEventB())
+                complexBloc.add_sync(ComplexEventB())
                 //TODO why I need such a lenghty interval to receive the initial complexBloc state of complexBloc, from the stream subscription?
                 delay(50)
                 assertContentEquals(expectedStates, actualStates)
@@ -268,20 +270,20 @@ class SimpleBlocTests {
                         actualStates.add(it)
                     }
                 }
-                complexBloc.add(ComplexEventA())
+                complexBloc.add_sync(ComplexEventA())
                 delay(20)
-                complexBloc.add(ComplexEventB())
+                complexBloc.add_sync(ComplexEventB())
                 delay(20)
-                complexBloc.add(ComplexEventC())
+                complexBloc.add_sync(ComplexEventC())
                 delay(20)
-                complexBloc.add(ComplexEventD())
+                complexBloc.add_sync(ComplexEventD())
                 delay(200)
                 with(complexBloc) {
-                    add(ComplexEventC())
-                    add(ComplexEventA())
+                    add_sync(ComplexEventC())
+                    add_sync(ComplexEventA())
                 }
                 delay(120)
-                complexBloc.add(ComplexEventC())
+                complexBloc.add_sync(ComplexEventC())
                 //TODO why I need such a lenghty interval to receive the added state from the stream subscription?
                 delay(30)
                 assertContentEquals(expectedStates, actualStates)
@@ -313,7 +315,7 @@ class SimpleBlocTests {
             }
         }
 
-        complexBloc.add(ComplexEventB())
+        complexBloc.add_sync(ComplexEventB())
         //TODO why I need such a lenghty interval to receive the added state from the stream subscription?
         delay(50)
         assertContentEquals(expectedStates, actualStates1)
@@ -351,7 +353,7 @@ class SimpleBlocTests {
                 }
             }
 
-            complexBloc.add(ComplexEventB())
+            complexBloc.add_sync(ComplexEventB())
             //TODO why I need such a lenghty interval to receive the added state from the stream subscription?
             delay(50)
             assertContentEquals(expectedStates, actualStates1)
@@ -395,7 +397,7 @@ class SimpleBlocTests {
                     onTransitionCallback = { transition ->
                         transitions.add(transition.toString())
                     })
-                counterBloc.add(CounterEvent.increment)
+                counterBloc.add_sync(CounterEvent.increment)
                 counterBloc.close()
 
                 assertContentEquals(expectedTransitions, transitions)
@@ -437,9 +439,9 @@ class SimpleBlocTests {
                     onTransitionCallback = { transition ->
                         transitions.add(transition.toString())
                     })
-                counterBloc.add(CounterEvent.increment)
-                counterBloc.add(CounterEvent.increment)
-                counterBloc.add(CounterEvent.increment)
+                counterBloc.add_sync(CounterEvent.increment)
+                counterBloc.add_sync(CounterEvent.increment)
+                counterBloc.add_sync(CounterEvent.increment)
                 counterBloc.close()
 
                 assertContentEquals(expectedTransitions, transitions)
@@ -505,7 +507,7 @@ class SimpleBlocTests {
             }
         }
 
-        counterBloc.add(CounterEvent.increment)
+        counterBloc.add_sync(CounterEvent.increment)
         delay(0)
         assertContentEquals(expectedStates, actualStates1)
         assertContentEquals(expectedStates, actualStates2)
@@ -541,7 +543,7 @@ class SimpleBlocTests {
                 }
             }
 
-            counterBloc.add(CounterEvent.increment)
+            counterBloc.add_sync(CounterEvent.increment)
             delay(0)
             assertContentEquals(expectedStates, actualStates1)
             assertContentEquals(expectedStates, actualStates2)
@@ -572,8 +574,8 @@ class SimpleBlocTests {
             }
         }
 
-        counterBloc.add(CounterEvent.decrement)
-        counterBloc.add(CounterEvent.increment)
+        counterBloc.add_sync(CounterEvent.decrement)
+        counterBloc.add_sync(CounterEvent.increment)
         delay(0)
         assertContentEquals(expectedStates, actualStates)
         assertContentEquals(expectedTransitions, actualTransitions)
@@ -597,7 +599,7 @@ class SimpleBlocTests {
         assertContentEquals(listOf(), events)
         assertContentEquals(listOf(), transitions)
 
-        counterBloc.add_async(CounterEvent.increment)
+        counterBloc.add(CounterEvent.increment)
         assertEquals(counterBloc.state, 0)
         assertContentEquals(events, listOf(CounterEvent.increment))
         assertContentEquals(listOf(), transitions)
@@ -912,10 +914,10 @@ class SimpleBlocTests {
 
         val bloc = MergeBloc(this, onTransitionCallback = { transitions.add(it) })
         with(bloc) {
-            add(CounterEvent.increment)
-            add(CounterEvent.increment)
-            add(CounterEvent.decrement)
-            add(CounterEvent.decrement)
+            add_sync(CounterEvent.increment)
+            add_sync(CounterEvent.increment)
+            add_sync(CounterEvent.decrement)
+            add_sync(CounterEvent.decrement)
             close()
         }
         assertContentEquals(expectedStates, states)
@@ -933,7 +935,7 @@ class SimpleBlocTests {
                 actualStates.add(it)
             }
         }
-        seededBloc.add("event")
+        seededBloc.add_sync("event")
         seededBloc.close()
         sub1.cancel()
         assertContentEquals(expectedStates, actualStates)
@@ -949,7 +951,7 @@ class SimpleBlocTests {
                 actualStates.add(it)
             }
         }
-        seededBloc.add("event")
+        seededBloc.add_sync("event")
         seededBloc.close()
         sub1.cancel()
         assertContentEquals(expectedStates, actualStates)
@@ -966,7 +968,7 @@ class SimpleBlocTests {
                     actualStates.add(it)
                 }
             }
-            seededBloc.add("event")
+            seededBloc.add_sync("event")
             seededBloc.close()
             sub1.cancel()
             assertContentEquals(expectedStates, actualStates)
@@ -985,9 +987,9 @@ class SimpleBlocTests {
                 }
             }
             with(seededBloc) {
-                add("eventA")
-                add("eventB")
-                add("eventC")
+                add_sync("eventA")
+                add_sync("eventB")
+                add_sync("eventC")
                 close()
 
             }
@@ -1008,9 +1010,9 @@ class SimpleBlocTests {
                 }
             }
             with(seededBloc) {
-                add("event")
-                add("event")
-                add("event")
+                add_sync("event")
+                add_sync("event")
+                add_sync("event")
                 close()
 
             }
@@ -1031,7 +1033,7 @@ class SimpleBlocTests {
                 states.add(it)
             }
         }
-        bloc.add(Subscribe())
+        bloc.add_sync(Subscribe())
         tick()
 
         with(eventflow) {
@@ -1041,7 +1043,7 @@ class SimpleBlocTests {
         }
         //TODO in the original code here there is delay(0) why we need to wait to wait so much to make this work?
         delay(120)
-        bloc.add(Subscribe())
+        bloc.add_sync(Subscribe())
         tick()
         with(eventflow) {
             emit(3)
@@ -1061,15 +1063,15 @@ class SimpleBlocTests {
     // check that should throw blocError that is expected, will not be ever thrown
     //when bloc.add(UnawaitedForEach()) line is run
     @Test
-    fun RestartableStreamEvent_unawaited_forEach_throws_Assertion_error() {
-        runBlocking {
+    fun RestartableStreamEvent_unawaited_forEach_throws_Assertion_error() =
+        runTest {
             var blocError: Throwable? = null
             try {
                 val controller = MutableSharedFlow<Int>()
                 val bloc = RestartableStreamBloc(this, controller)
 
                 //--the following code was not in original test code
-                val states= mutableListOf<Int>()
+                val states = mutableListOf<Int>()
                 val sub1 = async {
                     bloc.stream.collect {
                         states.add(it)
@@ -1077,7 +1079,7 @@ class SimpleBlocTests {
                 }
                 //--the previous code was not in original test code
 
-                bloc.add(UnawaitedForEach())
+                bloc.add_sync(UnawaitedForEach())
                 tick()
                 controller.emit(0)
                 tick()
@@ -1095,10 +1097,10 @@ class SimpleBlocTests {
             }
 
         }
-    }
+
     @Test
     fun RestartableStreamBloc_unawaited_forEach_throws_AssertionError() {
-        runBlocking {
+        runTest {
             TODO()
         }
     }

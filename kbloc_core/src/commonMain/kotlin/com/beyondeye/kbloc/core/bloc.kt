@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 /**
  * An [ErrorSink] that supports adding events.
  *
- * Multiple events can be reported to the sink via [add].
+ * Multiple events can be reported to the sink via [add_sync].
  */
 public interface BlocEventSink<Event:Any?> :ErrorSink
 {
@@ -21,15 +21,15 @@ public interface BlocEventSink<Event:Any?> :ErrorSink
      *
      * Must not be called on a closed sink.
      * note: unlike the original dart code, events are always added serially in the same sequence as
-     * calls to the [add]
+     * calls to the [add_sync]
      */
-    public fun add(event:Event)
+    public suspend fun add_sync(event:Event)
 
     /**
-     * same as [add] but event is added to event stream without waiting for completion
+     * same as [add_sync] but event is added to event stream without waiting for completion
      * Note: the original dart code actually behave like this method,
      */
-    public suspend fun add_async(event:Event)
+    public fun add(event:Event)
 }
 
 /**
@@ -123,14 +123,12 @@ public abstract class Bloc<Event : Any, State : Any>
     *
     * * A [StateError] will be thrown if the bloc is closed and the
     * [event] will not be processed.
+    * events are sent asynchronously using the bloc coroutinescope
     */
     override fun add(event: Event) {
         if (event==null) return
         check_event_registered(event)
-            //TODO if the stream buffer is not full _eventController.emit will not block
-        //so it is probably correct to use runBlocking here
-        //THE code here is not correct probably: check it again
-        runBlocking {
+        cscope.async {
             try {
                 onEvent(event)
                 _eventController.emit(event)
@@ -142,9 +140,9 @@ public abstract class Bloc<Event : Any, State : Any>
     }
 
     /**
-     * same as [add] but without runBlocking
+     * same as [add_sync] but add event serially (from the point of view of the calling suspend function)
      */
-    override suspend fun add_async(event: Event) {
+    override suspend fun add_sync(event: Event) {
         if (event == null) return
         check_event_registered(event)
         try {
@@ -166,7 +164,7 @@ public abstract class Bloc<Event : Any, State : Any>
     }
 
 
-    /** Called whenever an [event] is [add]ed to the [Bloc].
+    /** Called whenever an [event] is [add_sync]ed to the [Bloc].
     *  A great spot to add logging/analytics at the individual [Bloc] level.
     * 
     *  **Note: `super.onEvent` should always be called first.**
@@ -242,7 +240,7 @@ public abstract class Bloc<Event : Any, State : Any>
 
     /** Closes the `event` stream and the `state` stream.
     *  This method should be called when a [Bloc] is no longer needed.
-    *  Once [close] is called, `events` that are [add]ed will not be
+    *  Once [close] is called, `events` that are [add_sync]ed will not be
     *  processed.
     *  In addition, if [close] is called while `events` are still being
     *  processed, the [Bloc] will finish processing the pending `events`.

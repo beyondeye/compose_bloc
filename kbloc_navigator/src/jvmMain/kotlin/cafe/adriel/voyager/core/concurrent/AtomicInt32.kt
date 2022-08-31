@@ -1,3 +1,13 @@
 package cafe.adriel.voyager.core.concurrent
 
-public actual typealias AtomicInt32 = java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.AtomicInt
+import kotlinx.atomicfu.atomic
+
+//using AtomicInt32 is not really necessary: we use atomic from atomicfu directly
+//public actual class AtomicInt32 actual constructor(initialValue: Int) {
+//    private var _value: AtomicInt = atomic(initialValue)
+//    public actual fun getAndIncrement(): Int {
+//        return _value.getAndIncrement()
+//    }
+//}
+

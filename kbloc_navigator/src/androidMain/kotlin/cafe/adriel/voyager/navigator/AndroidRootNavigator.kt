@@ -29,12 +29,12 @@ internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewMode
     override fun onCleared() {
         //Log.e(LOGTAG,"ActivityBlocStoreViewModel:onCleared()")
         // first dispose all dependencies
-        for (entry in store.dependencies) {
+        for (entry in store.dependencies.value) {
             val (instance,onDispose)= entry.value
             onDispose(instance)
         }
         // then dispose all screenModels
-        for(entry in store.screenModels) {
+        for(entry in store.screenModels.value) {
             val model=entry.value
             //Log.e(LOGTAG,"Disposing screenmodel $model")
             model.onDispose()
@@ -57,12 +57,12 @@ internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
     override fun onCleared() {
         //Log.e(LOGTAG,"ActivityBlocStoreViewModel:onCleared()")
         //first clear depedendencies
-        for (entry in store.blocs_dependencies) {
+        for (entry in store.blocs_dependencies_value) {
             val (instance,onDispose) = entry.value
             onDispose(instance)
         }
         //then clear blocs
-        for (entry in store.blocs.entries) {
+        for (entry in store.blocs_value.entries) {
             val b=entry.value
             //Log.e(LOGTAG,"Disposing bloc $b")
             runBlocking {

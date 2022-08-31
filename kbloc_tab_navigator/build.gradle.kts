@@ -36,5 +36,10 @@ kotlin {
                 implementation("androidx.activity:activity-compose:${Versions.compose_activity_version}")
             }
         }
+
+        val jsMain by getting {
+        }
+        val jsTest by getting {
+        }
     }
 }

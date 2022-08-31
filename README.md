@@ -1,5 +1,5 @@
 ![Kotlin version](https://img.shields.io/static/v1?label=Kotlin&message=1.7.10&color=Orange&style=for-the-badge)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.beyondeye/kbloc-navigator?style=for-the-badge)](https://search.maven.org/artifact/com.arkivanov.mvikotlin/mvikotlin)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.beyondeye/kbloc-navigator?style=for-the-badge)](https://search.maven.org/artifact/io.github.beyondeye/kbloc-navigator)
 ![Release](https://img.shields.io/github/v/release/beyondeye/compose_bloc?style=for-the-badge)
 ![Issues](https://img.shields.io/github/issues/beyondeye/compose_bloc?style=for-the-badge)
 ![License Apache 2.0](https://img.shields.io/github/license/beyondeye/compose_bloc?style=for-the-badge)
@@ -21,7 +21,7 @@ Add the main library dependency to your module `build.gradle`.
     implementation "io.github.beyondeye:kbloc-navigator:$version"
 ```
 For available  versions look at  [compose_bloc releases](https://github.com/beyondeye/compose_bloc/releases)
-the library is a multiplatform library that support both Android and Desktop compose.
+the library is a multiplatform library that support  Android and Desktop and Web compose.
 
 # Documentation
 - [Navigator Overview](https://beyondeye.gitbook.io/compose-bloc/navigator-documentation/navigator-overview)

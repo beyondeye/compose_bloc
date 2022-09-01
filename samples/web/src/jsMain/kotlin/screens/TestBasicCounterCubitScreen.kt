@@ -25,10 +25,13 @@ class TestBasicCounterCubitScreenWeb : Screen {
     @Composable
     private fun TestScreenContent() {
         val navigator = LocalNavigator.currentOrThrow
+        Napier.d("recomposition of TestScreenContent")
         BlocProvider(create = { cscope -> CounterCubit(cscope, 1) }) {
             //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified
             //bloc type as defined by the closest enclosing BlocProvider
+
             val b = rememberProvidedBlocOf<CounterCubit>() ?: return@BlocProvider
+            Napier.d("recomposition of BlocProvider bloc $b")
             val onIncrement = { b.increment() }
             val onDecrement = { b.decrement() }
 
@@ -38,12 +41,16 @@ class TestBasicCounterCubitScreenWeb : Screen {
             BlocBuilder(b) { counterState ->
                 GlobalScope.async {
                     Napier.d("going to read state of ${b.state}")
-//                    Napier.d("state value:${counterState.counter}")
+//                    Napier.d("state value:${counterState}")
                 }
                 //TODO: for some reason reading counterState generate an uncaught runtime exception
                 //with a compose runtime internal error. It do not make any difference if we try to
                 //read counterState in blocBuilder body or in a global coroutine as in the line above
                 // but using instead b.state.counter directly seems to be working
+                // what is strange that reading it (the exact same variable) inside BlocBuilder method
+                // code works fine.
+                // Also: this is happening in Javascript but not on Android (not that on Javascript
+                //  we are using Jetbrain compose fork while on Android the official Jetpack Compose
                 CounterControls_web(
                     description,
                     b.state.counter,//counterState.counter, TODO: I should use counterState.counter here but compose internal error

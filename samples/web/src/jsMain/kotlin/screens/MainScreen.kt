@@ -29,8 +29,15 @@ class MainScreen: Screen {
         Div { }
         Div({ style { backgroundColor(TestBasicCounterBlocScreenWeb.screenColor); padding(25.px) } }) {
             Button(attrs = { onClick { navigator.push(TestBasicCounterBlocScreenWeb()) } }) {
-                Text("Basic Counter Bloc Screen")
+                Text(TestBasicCounterBlocScreenWeb.description)
             }
         }
+        Div { }
+        Div({ style { backgroundColor(TestBasicCounterCubitScreenWeb.screenColor); padding(25.px) } }) {
+            Button(attrs = { onClick { navigator.push(TestBasicCounterCubitScreenWeb()) } }) {
+                Text(TestBasicCounterCubitScreenWeb.description)
+            }
+        }
+
     }
 }

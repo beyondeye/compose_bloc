@@ -11,28 +11,26 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import org.jetbrains.compose.web.css.Color
-import org.jetbrains.compose.web.css.padding
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
 
 
-class TestBasicCounterBlocScreenWeb : Screen {
+class TestBasicCounterCubitScreenWeb : Screen {
     @Composable
     override fun Content() {
-        Test1ScreenContent()
+        TestScreenContent()
     }
 
     @Composable
-    private fun Test1ScreenContent() {
+    private fun TestScreenContent() {
         val navigator = LocalNavigator.currentOrThrow
-        BlocProvider(create = { cscope -> CounterBloc(cscope, 1) }) {
+        BlocProvider(create = { cscope -> CounterCubit(cscope, 1) }) {
             //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified
             //bloc type as defined by the closest enclosing BlocProvider
-            val b = rememberProvidedBlocOf<CounterBloc>() ?: return@BlocProvider
-            val onIncrement = { b.add(IncrementEvent) }
-            val onDecrement = { b.add(DecrementEvent) }
+            val b = rememberProvidedBlocOf<CounterCubit>() ?: return@BlocProvider
+            val onIncrement = { b.increment() }
+            val onDecrement = { b.decrement() }
 
             //BlocBuilder search for the specified bloc type as defined by the closest enclosing
             //blocProvider and subscribes to its states updates, as a Composable state that
@@ -60,8 +58,7 @@ class TestBasicCounterBlocScreenWeb : Screen {
     }
 
     companion object {
-        val screenColor = Color.rebeccapurple
-        val description="Basic Counter Bloc Screen"
+        val screenColor = Color.orangered
+        val description="Basic Counter Cubit Screen"
     }
 }
-

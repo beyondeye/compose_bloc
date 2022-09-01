@@ -78,7 +78,7 @@ object Versions {
     //org.jetbrains.kotlinx:kotlinx-collections-immutable
     val kotlinx_collections_immutable_version = "0.3.5"
 
-    val vanniktech_maven_publish_version = "0.18.0"
+    val vanniktech_maven_publish_version = "0.21.0"
 
     // androidx.lifecycle:lifecycle-viewmodel-compose
     // androidx.lifecycle:lifecycle-runtime-ktx

@@ -61,6 +61,8 @@ internal fun <BlocAState> listenWhenFilter(
  * NOTE: in original DART code BlocListener is a Widget that declare a child.
  * In Compose there is no need to do such a thing. By removing the child argument
  * Also there is actually no need for the MultiBlocListener class that is present in flutter_bloc code
+ * NOTE that if [listenWhen] condition change after initial composition the change
+ * will not be taken into account
  */
 @Composable
 public inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> BlocListener(
@@ -98,11 +100,15 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     crossinline listener: @DisallowComposableCalls suspend (BlocAState) -> Unit,
 ) {
     val collect_scope = rememberCoroutineScope()
-    val stream = if (listenWhen == null) b.stream else {
-        listenWhenFilter(b.stream, listenWhen)
+    val stream = remember {
+        if (listenWhen == null) b.stream else {
+            listenWhenFilter(b.stream, listenWhen)
+        }
     }
-    val start_state=b.state
-    val filtered_start_state=if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
+    val filtered_start_state= remember {
+        val start_state=b.state
+        if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
+    }
 
     //collection automatically paused when activity paused
     val state: BlocAState? by stream.mp_collectAsStateWithLifecycle(filtered_start_state, collect_scope.coroutineContext)

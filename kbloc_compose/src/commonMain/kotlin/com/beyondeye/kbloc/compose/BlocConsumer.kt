@@ -47,12 +47,13 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     crossinline content: @Composable (BlocAState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
-    val listen_stream = if (listenWhen == null) b.stream else {
-        listenWhenFilter(b.stream, listenWhen)
+    val listen_stream = remember {
+        if (listenWhen == null) b.stream else listenWhenFilter(b.stream, listenWhen)
     }
-
-    val start_state=b.state
-    val filtered_start_state_listen=if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
+    val filtered_start_state_listen=remember {
+        val start_state=b.state
+        if(listenWhen==null) start_state else if (listenWhen(null,start_state)) start_state else null
+    }
 
     //collection automatically paused when activity paused
     val listen_state: BlocAState? by listen_stream.mp_collectAsStateWithLifecycle(
@@ -66,11 +67,15 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     LaunchedEffect(listen_state) {
         if(listen_state!=null) listener(listen_state!!) //listen_state can be null if initial state does not satisfy listenWhen condition
     }
-    val build_stream = if (buildWhen == null) b.stream else {
-        buildWhenFilter(b.stream, buildWhen)
+    val build_stream = remember {
+        if (buildWhen == null) b.stream else
+            buildWhenFilter(b.stream, buildWhen)
     }
 
-    val filtered_start_state_build=if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
+    val filtered_start_state_build= remember {
+        val start_state=b.state
+        if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
+    }
 
     //collection automatically paused when activity paused
     val build_state: BlocAState? by build_stream.mp_collectAsStateWithLifecycle(

@@ -94,8 +94,8 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, Blo
     content: @Composable (BlockSelectedState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
-    val stream = b.stream.map { selectoFn(it) }
-    val initialState=selectoFn(b.state)
+    val initialState= remember { selectoFn(b.state) }
+    val stream = remember { b.stream.map { selectoFn(it) } }
 
     //collection automatically paused when activity paused
     val state: BlockSelectedState by stream.mp_collectAsStateWithLifecycle(
@@ -118,8 +118,8 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any, Blo
     //store selector and reuse it on recomposition. no need to use rememberSaveable: when screen is
     // destroyed and rebuilt we probably want to trigger all our selector
     val sel = remember { selector }
-    val stream = b.stream.mapNotNull { sel.getIfChangedIn(it) }
-    val initialState=sel(b.state)
+    val initialState=remember { sel(b.state) }
+    val stream = remember { b.stream.mapNotNull { sel.getIfChangedIn(it) } }
     //collection automatically paused when activity paused
     val state: BlockSelectedState by stream.mp_collectAsStateWithLifecycle(
         initialState,

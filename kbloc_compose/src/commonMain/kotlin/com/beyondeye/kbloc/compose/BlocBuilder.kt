@@ -52,6 +52,8 @@ internal fun <BlocAState>buildWhenFilter(srcFlow:Flow<BlocAState>, buildWhen: Bl
  * be triggered with the new state
  * For the first call to [buildWhen], the previous `state` will be initialized to the `state` of the [Bloc] when
  * the [BlocBuilder] was initialized.
+ * NOTE that if [buildWhen] condition change after initial composition the change
+ * will not be taken into account
  */
 @Composable
 public inline fun <reified BlocA:BlocBase<BlocAState>,BlocAState:Any> BlocBuilder(
@@ -90,12 +92,15 @@ internal inline fun <reified BlocA : BlocBase<BlocAState>, BlocAState : Any> Blo
     content: @Composable (BlocAState) -> Unit
 ) {
     val collect_scope = rememberCoroutineScope()
-    val stream = if (buildWhen == null) b.stream else {
-        buildWhenFilter(b.stream, buildWhen)
+    val stream = remember {
+        if (buildWhen == null) b.stream else {
+            buildWhenFilter(b.stream, buildWhen)
+        }
     }
-    val start_state=b.state
-    val filtered_start_state=if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
-
+    val filtered_start_state = remember {
+        val start_state=b.state
+        if(buildWhen==null) start_state else if (buildWhen(null,start_state)) start_state else null
+    }
 
     //collection automatically paused when activity paused
     val state: BlocAState? by stream.mp_collectAsStateWithLifecycle(filtered_start_state, collect_scope.coroutineContext)

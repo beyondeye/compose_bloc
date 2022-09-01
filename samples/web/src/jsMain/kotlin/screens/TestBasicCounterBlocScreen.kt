@@ -11,8 +11,6 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import org.jetbrains.compose.web.css.Color
-import org.jetbrains.compose.web.css.padding
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
@@ -21,11 +19,11 @@ import org.jetbrains.compose.web.dom.Text
 class TestBasicCounterBlocScreenWeb : Screen {
     @Composable
     override fun Content() {
-        Test1ScreenContent()
+        TestScreenContent()
     }
 
     @Composable
-    private fun Test1ScreenContent() {
+    private fun TestScreenContent() {
         val navigator = LocalNavigator.currentOrThrow
         BlocProvider(create = { cscope -> CounterBloc(cscope, 1) }) {
             //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified

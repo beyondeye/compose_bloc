@@ -13,6 +13,8 @@ import kotlinx.coroutines.runBlocking
 import com.beyondeye.kbloc.compose.internal.BlocStoreOwner
 import com.beyondeye.kbloc.compose.internal.LocalBlocStoreOwner
 import com.beyondeye.kbloc.compose.internal.BlocStore
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 
 
 internal class ActivityScreenModelStoreViewModel: ScreenModelStoreOwner,ViewModel() {
@@ -65,7 +67,7 @@ internal class ActivityBlocStoreViewModel: BlocStoreOwner,ViewModel() {
         for (entry in store.blocs_value.entries) {
             val b=entry.value
             //Log.e(LOGTAG,"Disposing bloc $b")
-            runBlocking {
+            GlobalScope.async {
                 b.dispose()
             }
         }

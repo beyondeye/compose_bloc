@@ -8,7 +8,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.compose.internal.BlocStore
 import com.beyondeye.kbloc.compose.internal.BlocStoreOwner
 import com.beyondeye.kbloc.compose.internal.LocalBlocStoreOwner
+import io.github.aakira.napier.Napier
 import kotlinx.browser.document
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.jetbrains.compose.web.dom.DOMScope
 import org.jetbrains.compose.web.renderComposable
 import org.jetbrains.compose.web.renderComposableInBody
@@ -17,19 +20,13 @@ import org.w3c.dom.HTMLBodyElement
 import org.w3c.dom.get
 
 internal class ElementScreenModelStoreOwner: ScreenModelStoreOwner {
-    override val screenModelStore: ScreenModelStore
-        get() = store
-    private val store: ScreenModelStore = ScreenModelStore()
     /**
-     * This method will be called when this ViewModel is no longer used and will be destroyed.
-     * <p>
-     * It is useful when ViewModel observes some data and you need to clear this subscription to
-     * prevent a leak of this ViewModel.
-     * see implementation of [ScreenModelStore.remove]
+     * This method will be called when this ElementScreenModelStoreOwner is no longer used and
+     * will be destroyed.
+     * see also implementation of [ScreenModelStore.remove]
      */
-    /*
-    override fun onCleared() {
-        //Log.e(LOGTAG,"ActivityBlocStoreViewModel:onCleared()")
+    fun onCleared() {
+        //Napier.d("ElementScreenModelStoreOwner:onCleared()")
         // first dispose all dependencies
         for (entry in store.dependencies.value) {
             val (instance,onDispose)= entry.value
@@ -38,48 +35,43 @@ internal class ElementScreenModelStoreOwner: ScreenModelStoreOwner {
         // then dispose all screenModels
         for(entry in store.screenModels.value) {
             val model=entry.value
-            //Log.e(LOGTAG,"Disposing screenmodel $model")
+            //Napier.d(LOGTAG,"Disposing screenmodel $model")
             model.onDispose()
         }
     }
-     */
+
+    override val screenModelStore: ScreenModelStore
+        get() = store
+    private val store: ScreenModelStore = ScreenModelStore()
 }
-internal class ElementBlocStoreOwner: BlocStoreOwner
-{
+internal class ElementBlocStoreOwner : BlocStoreOwner {
     override val blocStore: BlocStore
         get() = store
-    private val store:BlocStore= BlocStore()
+    private val store: BlocStore = BlocStore()
 
-    //TODO should I do something when the navigation page is disposed? (when tab is closed or with
-    // with navigate "back" from the current web page?
     /**
-     * This method will be called when this ViewModel is no longer used and will be destroyed.
-     * <p>
-     * It is useful when ViewModel observes some data and you need to clear this subscription to
-     * prevent a leak of this ViewModel.
+     * This method will be called when this ElementBlocStoreOwner is no longer used and will be destroyed.
      *
-     * see implementation of [BlocStore.remove]
+     * see also implementation of [BlocStore.remove]
      */
-    /*
-    override fun onCleared() {
-        //Log.e(LOGTAG,"ActivityBlocStoreViewModel:onCleared()")
+    fun onCleared() {
+        //Napier.d("ActivityBlocStoreViewModel:onCleared()")
         //first clear depedendencies
         for (entry in store.blocs_dependencies_value) {
-            val (instance,onDispose) = entry.value
+            val (instance, onDispose) = entry.value
             onDispose(instance)
         }
         //then clear blocs
         for (entry in store.blocs_value.entries) {
-            val b=entry.value
-            //Log.e(LOGTAG,"Disposing bloc $b")
-            runBlocking {
+            val b = entry.value
+            //Napier.d("Disposing bloc $b")
+            GlobalScope.async {
                 b.dispose()
             }
         }
-        super.onCleared()
     }
-     */
 }
+
 
 /**
  * *DARIO*
@@ -121,12 +113,22 @@ private fun <TElement : Element> renderComposableWithNavigatorImpl(
 ): Composition {
     if (screens.size == 0) throw IllegalArgumentException()
     val content_w_navigator: @Composable DOMScope<TElement>.() -> Unit = {
+        val screenModelStore=ElementScreenModelStoreOwner()
+        val blocStore=ElementBlocStoreOwner()
         CompositionLocalProvider(
             LocalDomScope.provides(this),
-            LocalScreenModelStoreOwner.provides(ElementScreenModelStoreOwner()),
-            LocalBlocStoreOwner.provides(ElementBlocStoreOwner()))
+            LocalScreenModelStoreOwner.provides(screenModelStore),
+            LocalBlocStoreOwner.provides(blocStore))
         {
             Navigator(screens, disposeBehavior, onBackPressed)
+            //TODO check onDispose() is actually  triggered and when
+            DisposableEffect(true) {
+                onDispose {
+                    Napier.d("onCleared for screenModelStore  and blocStore")
+                    screenModelStore.onCleared()
+                    blocStore.onCleared()
+                }
+            }
         }
     }
     return renderComposable(root, monotonicFrameClock, content_w_navigator)

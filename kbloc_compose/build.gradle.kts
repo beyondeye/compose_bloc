@@ -21,6 +21,7 @@ kotlin {
                 compileOnly(compose.runtime)
                 compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
                 implementation(Deps.AtomicFu.common)
+                implementation(Deps.Napier.core)
             }
         }
 

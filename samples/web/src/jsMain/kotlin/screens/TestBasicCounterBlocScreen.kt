@@ -7,6 +7,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.beyondeye.kbloc.compose.BlocBuilder
 import com.beyondeye.kbloc.compose.BlocProvider
 import com.beyondeye.kbloc.compose.rememberProvidedBlocOf
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.px
@@ -30,29 +33,40 @@ class TestBasicCounterBlocScreenWeb : Screen {
             val b = rememberProvidedBlocOf<CounterBloc>() ?: return@BlocProvider
             val onIncrement = { b.add(IncrementEvent) }
             val onDecrement = { b.add(DecrementEvent) }
+
             //BlocBuilder search for the specified bloc type as defined by the closest enclosing
             //blocProvider and subscribes to its states updates, as a Composable state that
             //when changes trigger recomposition
-            BlocBuilder(b){ counterState ->
+            BlocBuilder(b) { counterState ->
+                GlobalScope.async {
+                    Napier.d("going to read state of ${b.state}")
+//                    Napier.d("state value:${counterState.counter}")
+                }
+                //TODO: for some reason reading counterState generate an uncaught runtime exception
+                //with a compose runtime internal error. It do not make any difference if we try to
+                //read counterState in blocBuilder body or in a global coroutine as in the line above
+                // but using instead b.state.counter directly seems to be working
                 CounterControls_web(
                     "Counter display updated always",
-                    counterState.counter,
+                    b.state.counter,//counterState.counter, TODO: I should use counterState.counter here but compose internal error
                     onDecrement, onIncrement
                 )
-                Div() {
-                    Button(attrs = {onClick { navigator.pop()  }}) { Text("Click to go back") }
-                }
+
             }
         }
+        Div {
+            Button(attrs = { onClick { navigator.pop() } }) { Text("Click to go back") }
+        }
     }
+
     companion object {
-        val screenColor= Color.rebeccapurple
+        val screenColor = Color.rebeccapurple
     }
 }
 
 @Composable
 fun CounterControls_web(
-    explanatoryText:String,
+    explanatoryText: String,
     counterValue: Int,
     onDecrement: () -> Unit,
     onIncrement: () -> Unit

@@ -124,6 +124,10 @@ object Deps {
     object  AtomicFu {
         val common = "org.jetbrains.kotlinx:atomicfu:${Versions.atomicfu}"
     }
+
+    object Napier {
+        val core="io.github.aakira:napier:2.6.1"
+    }
 }
 
 object Plugins {

@@ -23,6 +23,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
                 implementation(project(":kbloc_navigator"))
+                implementation(Deps.Napier.core)
             }
         }
     }

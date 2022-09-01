@@ -7,7 +7,7 @@ import kotlinx.coroutines.GlobalScope
 class CounterCubit(
     val onChangeCallback:((Change<Int>)->Unit)?=null,
     val onErrorCallback:((Throwable)->Unit)?=null
-) :Cubit<Int>(0,GlobalScope,false) {
+) :Cubit<Int>(GlobalScope, 0, false) {
     fun increment() {
         emit(state+1)
     }

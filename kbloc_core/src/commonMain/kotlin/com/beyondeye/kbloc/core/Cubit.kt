@@ -20,13 +20,15 @@ import kotlinx.coroutines.CoroutineScope
  * }
  * ```
  */
-public abstract class Cubit<State:Any>(initialState:State,
-                                       /**
-                                        * the coroutine scope used for running async state update function (queueStateUpdate)
-                                        * and suspend functions in event handlers
-                                        */
-                                       cscope: CoroutineScope,
-                                       useReferenceEqualityForStateChanges:Boolean) : BlocBase<State>(initialState,cscope,useReferenceEqualityForStateChanges)
+public abstract class Cubit<State:Any>(
+    /**
+     * the coroutine scope used for running async state update function (queueStateUpdate)
+     * and suspend functions in event handlers
+     */
+    cscope: CoroutineScope,
+    initialState: State,
+    useReferenceEqualityForStateChanges: Boolean
+) : BlocBase<State>(initialState,cscope,useReferenceEqualityForStateChanges)
 {
 
 }

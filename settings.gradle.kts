@@ -20,6 +20,7 @@ include(":kbloc_koin")
 include(":kbloc_hilt")
 include(":kbloc_androidx")
 include(":kbloc_livedata")
+include(":kbloc_router")
 
 include(":samples:android")
 include(":samples:web")

@@ -59,6 +59,8 @@ public class RouteBuilder internal constructor(
      * To match `foo/bar`, create a [route] inside the first [route].
      * *DARIO* note that although the argument for the method is vararg, in the
      * code only a single string argument is used for specifying a single level if routing
+     * the use of vararg is for assigning the same route to multiple "subpaths" at the same time
+     * that should resolve to the same route
      */
     @Routing
     @Composable

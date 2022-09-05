@@ -152,7 +152,7 @@ public class RouteBuilder internal constructor(
      * Fallback if no matching route is found.
      */
     @Routing
-    public fun noMatch(content: NoMatch.() -> Screen):Screen? {
+    public fun noMatch(content: NoMatch.() -> Screen?):Screen? {
         if (match == Match.NoMatch) {
             match_res=NoMatch(this,remainingPath.path, remainingPath.parameters).content()
         }
@@ -166,7 +166,7 @@ public class RouteBuilder internal constructor(
         public val parameters: Parameters?
     ) {
         @Routing
-        public fun redirect(target: String, hide: Boolean = false):Screen? {
+        public fun redirect(target: String, hide: Boolean = false):Screen {
             rb.match= Match.Constant
             rb.match_res=__Redirect //we will rerun routing again
             rb.router.navigate(target, hide)

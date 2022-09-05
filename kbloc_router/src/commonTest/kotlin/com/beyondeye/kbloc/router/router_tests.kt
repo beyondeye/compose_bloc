@@ -12,6 +12,12 @@ internal data class Screen_foo(val arg:Int?):Screen {
         TODO("Not yet implemented")
     }
 }
+internal data class Screen_bar(val arg:Int?):Screen {
+    @Composable
+    override fun Content() {
+        TODO("Not yet implemented")
+    }
+}
 
 internal class Screen_nomatch:Screen {
     @Composable
@@ -22,7 +28,53 @@ internal class Screen_nomatch:Screen {
 
 internal class RouterTests {
     @Test
-    fun basic_tests() {
+    fun simplest() {
+        val router = MockRouter()
+        val routing = router("/") {
+            route("foo") {
+                Screen_foo(null)
+            }
+            route("bar") {
+                Screen_bar(null)
+            }
+            noMatch {
+                Screen_nomatch()
+            }
+        }
+        val routed_foo= routing("/foo")
+        assertEquals(Screen_foo(null),routed_foo)
+        val routed_bar= routing("/bar")
+        assertEquals(Screen_bar(null),routed_bar)
+        val routed_nomatch= routing("/unrec")
+        assertTrue { routed_nomatch is Screen_nomatch  }
+    }
+    @Test
+    fun simple_noMatch() {
+        val router = MockRouter()
+        val routing = router("/") {
+            route("foo") {
+                noMatch {
+                    Screen_foo(null)
+                }
+            }
+            route("bar") {
+                noMatch {
+                    Screen_bar(null)
+                }
+            }
+            noMatch {
+                Screen_nomatch()
+            }
+        }
+        val routed_foo= routing("/foo")
+        assertEquals(Screen_foo(null),routed_foo)
+        val routed_bar= routing("/bar")
+        assertEquals(Screen_bar(null),routed_bar)
+        val routed_nomatch= routing("/unrec")
+        assertTrue { routed_nomatch is Screen_nomatch  }
+    }
+    @Test
+    fun simple_with_param() {
         val router = MockRouter()
         val routing = router("/") {
             route("foo") {

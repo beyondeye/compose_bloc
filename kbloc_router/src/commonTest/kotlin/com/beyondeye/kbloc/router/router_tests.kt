@@ -32,11 +32,11 @@ internal data class Screen_with_string(val str:String):Screen {
     }
 }
 
-internal class RouterTests {
+public class RouterTests {
     @Test
-    fun simplest() {
+    public fun simplest() {
         val router = MockRouter()
-        val routing = RoutingResolver {
+        val routing = RoutingResolver("/") {
             route("foo") {
                 Screen_foo(null)
             }
@@ -47,17 +47,22 @@ internal class RouterTests {
                 Screen_nomatch()
             }
         }
-        val routed_foo= routing(router,"/foo")
+        router.navigate("/foo")
+        val routed_foo= routing.resolveFor(router)
         assertEquals(Screen_foo(null),routed_foo)
-        val routed_bar= routing(router,"/bar")
+
+        router.navigate("/bar")
+        val routed_bar= routing.resolveFor(router)
         assertEquals(Screen_bar(null),routed_bar)
-        val routed_nomatch= routing(router,"/unrec")
+
+        router.navigate("/unrec")
+        val routed_nomatch= routing.resolveFor(router)
         assertTrue { routed_nomatch is Screen_nomatch  }
     }
     @Test
-    fun simple_noMatch() {
+    public fun simple_noMatch() {
         val router = MockRouter()
-        val routing = RoutingResolver {
+        val routing = RoutingResolver("/") {
             route("foo") {
                 noMatch {
                     Screen_foo(null)
@@ -72,17 +77,22 @@ internal class RouterTests {
                 Screen_nomatch()
             }
         }
-        val routed_foo= routing(router,"/foo")
+        router.navigate("/foo")
+        val routed_foo= routing.resolveFor(router)
         assertEquals(Screen_foo(null),routed_foo)
-        val routed_bar= routing(router,"/bar")
+
+        router.navigate("/bar")
+        val routed_bar= routing.resolveFor(router)
         assertEquals(Screen_bar(null),routed_bar)
-        val routed_nomatch= routing(router,"/unrec")
+
+        router.navigate("/unrec")
+        val routed_nomatch= routing.resolveFor(router)
         assertTrue { routed_nomatch is Screen_nomatch  }
     }
     @Test
-    fun simple_with_param() {
+    public  fun simple_with_param() {
         val router = MockRouter()
-        val routing = RoutingResolver {
+        val routing = RoutingResolver("/") {
             route("foo") {
                 int {
                     Screen_foo(it)
@@ -96,19 +106,22 @@ internal class RouterTests {
             }
         }
 
-        val routed_foo= routing(router,"/foo")
+        router.navigate("/foo")
+        val routed_foo= routing.resolveFor(router)
         assertEquals(Screen_foo(null),routed_foo)
 
-        val routed_foo_with_arg= routing(router,"/foo/1")
+        router.navigate("/foo/1")
+        val routed_foo_with_arg= routing.resolveFor(router)
         assertEquals(Screen_foo(1),routed_foo_with_arg)
 
-        val routed_nomatch = routing(router,"/unrecognized_root")
+        router.navigate("/unrecognized_root")
+        val routed_nomatch = routing.resolveFor(router)
         assertTrue { routed_nomatch is Screen_nomatch  }
     }
     @Test
-    fun explicitely_access_params_and_remaniningpath() {
+    public fun explicitely_access_params_and_remaniningpath() {
         val router = MockRouter()
-        val routing = RoutingResolver {
+        val routing = RoutingResolver("/") {
             noMatch {
                 var str="other$remainingPath"
                 val parameters = parameters
@@ -118,13 +131,16 @@ internal class RouterTests {
                 Screen_with_string(str)
             }
         }
-        var routed= routing(router,"/")
+        router.navigate("/")
+        var routed= routing.resolveFor(router)
         assertEquals(Screen_with_string("other/"), routed)
 
-        routed = routing(router,"/foo")
+        router.navigate("/foo")
+        routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("other/foo"),routed)
 
-        routed = routing(router,"/foo?${Parameters.from("V" to "b")}")
+        router.navigate("/foo",Parameters.from("V" to "b"))
+        routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("other/fooV=b"),routed)
     }
 }

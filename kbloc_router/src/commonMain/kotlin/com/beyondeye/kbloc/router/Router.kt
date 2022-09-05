@@ -30,9 +30,10 @@ private object __Redirect:Screen {
 
 }
 
-public class RoutingResolver(private val routingDefinition:  RouteBuilder.() -> Screen?) {
-    public operator fun invoke(router:Router,routeToResolve:String):Screen? {
-        val rawPath =router.getPath(routeToResolve)
+public class RoutingResolver(public val defaultRoute: String, private val routingDefinition:  RouteBuilder.() -> Screen?) {
+    public fun resolveFor(router:Router):Screen? {
+        //get current route from router, or defaultRoute, if current route undefined
+        val rawPath =router.getPath(defaultRoute)
         val path = Path.from(rawPath)
         val node = RouteBuilder(router,path.path, path)
         var res:Screen?

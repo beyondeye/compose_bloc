@@ -101,12 +101,9 @@ public class RouteBuilder internal constructor(
         val routes = route.check()
         val currentPath = remainingPath.currentPath
         if (match == Match.NoMatch && currentPath in routes) {
-            TODO()
-            /*
-            LaunchedEffect(Unit) {
-                router.navigate(target, hide)
-            }
-             */
+            match= Match.Constant
+            match_res=__Redirect //we will rerun routing again
+            router.navigate(target, hide)
         }
     }
 
@@ -157,21 +154,23 @@ public class RouteBuilder internal constructor(
     @Routing
     public fun noMatch(content: NoMatch.() -> Screen):Screen? {
         if (match == Match.NoMatch) {
-            match_res=NoMatch(remainingPath.path, remainingPath.parameters).content()
+            match_res=NoMatch(this,remainingPath.path, remainingPath.parameters).content()
         }
         return match_res
     }
 
     @Routing
-    public class NoMatch(public val remainingPath: String, public val parameters: Parameters?) {
+    public class NoMatch(
+        private val rb: RouteBuilder,
+        public val remainingPath: String,
+        public val parameters: Parameters?
+    ) {
         @Routing
-        public fun redirect(target: String, hide: Boolean = false) {
-            TODO()
-            /*
-            LaunchedEffect(Unit) {
-                router.navigate(target, hide)
-            }
-             */
+        public fun redirect(target: String, hide: Boolean = false):Screen? {
+            rb.match= Match.Constant
+            rb.match_res=__Redirect //we will rerun routing again
+            rb.router.navigate(target, hide)
+            return __Redirect
         }
     }
 }

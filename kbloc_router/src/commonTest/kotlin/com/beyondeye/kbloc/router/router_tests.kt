@@ -36,7 +36,7 @@ internal class RouterTests {
     @Test
     fun simplest() {
         val router = MockRouter()
-        val routing = router("/") {
+        val routing = RoutingResolver {
             route("foo") {
                 Screen_foo(null)
             }
@@ -47,17 +47,17 @@ internal class RouterTests {
                 Screen_nomatch()
             }
         }
-        val routed_foo= routing("/foo")
+        val routed_foo= routing(router,"/foo")
         assertEquals(Screen_foo(null),routed_foo)
-        val routed_bar= routing("/bar")
+        val routed_bar= routing(router,"/bar")
         assertEquals(Screen_bar(null),routed_bar)
-        val routed_nomatch= routing("/unrec")
+        val routed_nomatch= routing(router,"/unrec")
         assertTrue { routed_nomatch is Screen_nomatch  }
     }
     @Test
     fun simple_noMatch() {
         val router = MockRouter()
-        val routing = router("/") {
+        val routing = RoutingResolver {
             route("foo") {
                 noMatch {
                     Screen_foo(null)
@@ -72,17 +72,17 @@ internal class RouterTests {
                 Screen_nomatch()
             }
         }
-        val routed_foo= routing("/foo")
+        val routed_foo= routing(router,"/foo")
         assertEquals(Screen_foo(null),routed_foo)
-        val routed_bar= routing("/bar")
+        val routed_bar= routing(router,"/bar")
         assertEquals(Screen_bar(null),routed_bar)
-        val routed_nomatch= routing("/unrec")
+        val routed_nomatch= routing(router,"/unrec")
         assertTrue { routed_nomatch is Screen_nomatch  }
     }
     @Test
     fun simple_with_param() {
         val router = MockRouter()
-        val routing = router("/") {
+        val routing = RoutingResolver {
             route("foo") {
                 int {
                     Screen_foo(it)
@@ -96,19 +96,19 @@ internal class RouterTests {
             }
         }
 
-        val routed_foo= routing("/foo")
+        val routed_foo= routing(router,"/foo")
         assertEquals(Screen_foo(null),routed_foo)
 
-        val routed_foo_with_arg= routing("/foo/1")
+        val routed_foo_with_arg= routing(router,"/foo/1")
         assertEquals(Screen_foo(1),routed_foo_with_arg)
 
-        val routed_nomatch = routing("/unrecognized_root")
+        val routed_nomatch = routing(router,"/unrecognized_root")
         assertTrue { routed_nomatch is Screen_nomatch  }
     }
     @Test
     fun explicitely_access_params_and_remaniningpath() {
         val router = MockRouter()
-        val routing = router("/") {
+        val routing = RoutingResolver {
             noMatch {
                 var str="other$remainingPath"
                 val parameters = parameters
@@ -118,13 +118,13 @@ internal class RouterTests {
                 Screen_with_string(str)
             }
         }
-        var routed= routing("/")
+        var routed= routing(router,"/")
         assertEquals(Screen_with_string("other/"), routed)
 
-        routed = routing("/foo")
+        routed = routing(router,"/foo")
         assertEquals(Screen_with_string("other/foo"),routed)
 
-        routed = routing("/foo?${Parameters.from("V" to "b")}")
+        routed = routing(router,"/foo?${Parameters.from("V" to "b")}")
         assertEquals(Screen_with_string("other/fooV=b"),routed)
     }
 }

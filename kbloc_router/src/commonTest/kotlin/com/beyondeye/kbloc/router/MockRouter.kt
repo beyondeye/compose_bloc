@@ -16,6 +16,3 @@ public class MockRouter : Router {
         currenPathRaw = to
     }
 }
-
-operator public fun MockRouter.invoke(initPath: String, routeBuilder: RouteBuilder.() -> Screen?):(String)->Screen? =
-    route(initPath, routeBuilder)

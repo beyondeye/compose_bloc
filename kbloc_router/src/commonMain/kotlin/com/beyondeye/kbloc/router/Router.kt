@@ -17,43 +17,32 @@ public interface Router {
     public fun navigate(to: String, hide: Boolean = false)
 
     public fun getPath(initPath: String): String
-
-    public companion object {
-        /**
-         * Provide the router implementation through a CompositionLocal so deeper level
-         * Composables in the composition can have access to the current router.
-         *
-         * This is particularly useful for [NavLink], so we can have a single Composable
-         * agnostic of the top level router implementation.
-         *
-         * To use this composition, you need to invoke any [Router] implementation first.
-         */
-        public val current: Router
-            @Composable
-            get() = RouterCompositionLocal.current
-    }
 }
 
 internal val RouterCompositionLocal: ProvidableCompositionLocal<Router> =
     compositionLocalOf { error("Router not defined, cannot provide through RouterCompositionLocal.") }
 
-/*
-extension method (that could be also defined directly as interface method)
-for initializing a router with a set of routes using a [RouteBuilder]
-it also set the current value of RouterCompositionLocal to provide a reference
-to this router so that child can use it to navigate
- */
-public fun Router.route(
-    initRoute: String,
-    routing:  RouteBuilder.() -> Screen?
-): (String)->Screen? {
-    return { initRoute:String->
-        val rawPath =getPath(initRoute)
+private object __Redirect:Screen {
+    @Composable
+    override fun Content() {
+        TODO("Not yet implemented")
+    }
+
+}
+
+public class RoutingResolver(private val routingDefinition:  RouteBuilder.() -> Screen?) {
+    public operator fun invoke(router:Router,routeToResolve:String):Screen? {
+        val rawPath =router.getPath(routeToResolve)
         val path = Path.from(rawPath)
-        val node = RouteBuilder(this,path.path, path)
-        node.routing() //return value
+        val node = RouteBuilder(router,path.path, path)
+        var res:Screen?
+        do {
+            res=node.routingDefinition() //return value
+        } while(res===__Redirect)
+        return res
     }
 }
+
 
 public fun Router.navigate(to: String, parameters: Parameters, hide: Boolean = false) {
     navigate("$to?$parameters", hide = hide)

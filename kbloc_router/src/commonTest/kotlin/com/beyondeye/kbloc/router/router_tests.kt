@@ -25,6 +25,12 @@ internal class Screen_nomatch:Screen {
         TODO("Not yet implemented")
     }
 }
+internal data class Screen_with_string(val str:String):Screen {
+    @Composable
+    override fun Content() {
+        TODO("Not yet implemented")
+    }
+}
 
 internal class RouterTests {
     @Test
@@ -98,6 +104,28 @@ internal class RouterTests {
 
         val routed_nomatch = routing("/unrecognized_root")
         assertTrue { routed_nomatch is Screen_nomatch  }
+    }
+    @Test
+    fun explicitely_access_params_and_remaniningpath() {
+        val router = MockRouter()
+        val routing = router("/") {
+            noMatch {
+                var str="other$remainingPath"
+                val parameters = parameters
+                if (parameters != null) {
+                    str += parameters.raw
+                }
+                Screen_with_string(str)
+            }
+        }
+        var routed= routing("/")
+        assertEquals(Screen_with_string("other/"), routed)
+
+        routed = routing("/foo")
+        assertEquals(Screen_with_string("other/foo"),routed)
+
+        routed = routing("/foo?${Parameters.from("V" to "b")}")
+        assertEquals(Screen_with_string("other/fooV=b"),routed)
     }
 }
 

@@ -58,7 +58,7 @@ public data class Path(val path: String, val parameters: Parameters?) {
         }
 
         /**
-         * add some specif prefix the specified String only if the prefix is not already present
+         * add some specific prefix the specified String only if the prefix is not already present
          * this method is actually used only for adding the "/" prefix when creating a
          * [Path] instance with [from]
          */

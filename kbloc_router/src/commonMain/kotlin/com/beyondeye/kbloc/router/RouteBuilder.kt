@@ -4,6 +4,12 @@ package com.beyondeye.kbloc.router
 import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.screen.Screen
 
+internal object __Redirect:Screen {
+    @Composable
+    override fun Content() {
+    }
+}
+
 /**
  * Use the DSL functions to build the expected route handled by a [Router].
  * If two routes match the same path, the first declared route is chosen.

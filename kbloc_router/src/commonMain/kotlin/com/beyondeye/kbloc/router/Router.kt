@@ -19,30 +19,6 @@ public interface Router {
     public fun getPath(initPath: String): String
 }
 
-internal val RouterCompositionLocal: ProvidableCompositionLocal<Router> =
-    compositionLocalOf { error("Router not defined, cannot provide through RouterCompositionLocal.") }
-
-internal object __Redirect:Screen {
-    @Composable
-    override fun Content() {
-        TODO("Not yet implemented")
-    }
-
-}
-
-public class RoutingResolver(public val defaultRoute: String, private val routingDefinition:  RouteBuilder.() -> Screen?) {
-    public fun resolveFor(router:Router):Screen? {
-        var res:Screen?
-        do {
-            //get current route from router, or defaultRoute, if current route undefined
-            val rawPath =router.getPath(defaultRoute)
-            val path = Path.from(rawPath)
-            val node = RouteBuilder(router,path.path, path)
-            res=node.routingDefinition() //return value
-        } while(res===__Redirect)
-        return res
-    }
-}
 
 
 public fun Router.navigate(to: String, parameters: Parameters, hide: Boolean = false) {

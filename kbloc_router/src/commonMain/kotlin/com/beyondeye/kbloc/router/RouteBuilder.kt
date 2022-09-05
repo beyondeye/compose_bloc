@@ -2,6 +2,7 @@ package com.beyondeye.kbloc.router
 
 //original code from https://github.com/hfhbd/routing-compose
 import androidx.compose.runtime.*
+import cafe.adriel.voyager.core.screen.Screen
 
 /**
  * Use the DSL functions to build the expected route handled by a [Router].
@@ -35,6 +36,7 @@ import androidx.compose.runtime.*
  */
 @Routing
 public class RouteBuilder internal constructor(
+    private val router:Router,
     /**
      * initially this the path without the query parameters
      */
@@ -47,7 +49,8 @@ public class RouteBuilder internal constructor(
 ) {
     public val parameters: Parameters? = remainingPath.parameters
 
-    private var match by mutableStateOf(Match.NoMatch)
+    private var match =Match.NoMatch
+    private var match_res:Screen? = null
 
     private enum class Match {
         Constant, Integer, String, Uuid, NoMatch
@@ -63,7 +66,6 @@ public class RouteBuilder internal constructor(
      * that should resolve to the same route
      */
     @Routing
-    @Composable
     public fun route(
         vararg route: String,
         /**
@@ -71,7 +73,7 @@ public class RouteBuilder internal constructor(
          * of the content of this route depending of the value of the matched route parameters
          *
          */
-        nestedRoute: @Composable RouteBuilder.() -> Unit
+        nestedRoute: RouteBuilder.() -> Screen?
     ) {
         val relaxedRoute = route.check()
         val currentPath = remainingPath.currentPath
@@ -95,37 +97,33 @@ public class RouteBuilder internal constructor(
     }
 
     @Routing
-    @Composable
     public fun redirect(vararg route: String, target: String, hide: Boolean = false) {
         val routes = route.check()
         val currentPath = remainingPath.currentPath
         if (match == Match.NoMatch && currentPath in routes) {
-            val router = Router.current
+            TODO()
+            /*
             LaunchedEffect(Unit) {
                 router.navigate(target, hide)
             }
+             */
         }
     }
 
-    @Composable
-    private fun execute(currentPath: String, nestedRoute: @Composable RouteBuilder.() -> Unit) {
+    private fun execute(currentPath: String, nestedRoute: RouteBuilder.() -> Screen?) {
         val newPath = remainingPath.newPath(currentPath)
-        val currentRouter = Router.current
         //we matched one level of the route so now we create a new router that refer to
         // the parent router
-        val delegatingRouter = remember(newPath) { DelegateRouter(basePath, currentRouter) }
-        CompositionLocalProvider(RouterCompositionLocal provides delegatingRouter) {
-            val newState = RouteBuilder(basePath, newPath)
-            newState.nestedRoute()
-        }
+        val delegatingRouter = DelegateRouter(basePath, router)
+        val newState = RouteBuilder(delegatingRouter, basePath, newPath)
+        match_res=newState.nestedRoute()
     }
 
     /**
      * Executes its children when the requested subroute is a non-empty [String].
      */
     @Routing
-    @Composable
-    public fun string(nestedRoute: @Composable RouteBuilder.(String) -> Unit) {
+    public fun string(nestedRoute: RouteBuilder.(String) -> Screen):Screen? {
         val currentPath = remainingPath.currentPath
         if ((match == Match.NoMatch || match == Match.String) && currentPath.isNotEmpty()) {
             execute(currentPath) {
@@ -133,14 +131,14 @@ public class RouteBuilder internal constructor(
             }
             match = Match.String
         }
+        return match_res
     }
 
     /**
      * Executes its children when the requested subroute is a [Int].
      */
     @Routing
-    @Composable
-    public fun int(nestedRoute: @Composable RouteBuilder.(Int) -> Unit) {
+    public fun int(nestedRoute: RouteBuilder.(Int) -> Screen):Screen? {
         val currentPath = remainingPath.currentPath
         val int = currentPath.toIntOrNull()
         if ((match == Match.NoMatch || match == Match.Integer) && int != null) {
@@ -149,6 +147,7 @@ public class RouteBuilder internal constructor(
             }
             match = Match.Integer
         }
+        return match_res
     }
 
 
@@ -156,22 +155,23 @@ public class RouteBuilder internal constructor(
      * Fallback if no matching route is found.
      */
     @Routing
-    @Composable
-    public fun noMatch(content: @Composable NoMatch.() -> Unit) {
+    public fun noMatch(content: NoMatch.() -> Screen):Screen? {
         if (match == Match.NoMatch) {
-            NoMatch(remainingPath.path, remainingPath.parameters).content()
+            match_res=NoMatch(remainingPath.path, remainingPath.parameters).content()
         }
+        return match_res
     }
 
     @Routing
     public class NoMatch(public val remainingPath: String, public val parameters: Parameters?) {
         @Routing
-        @Composable
         public fun redirect(target: String, hide: Boolean = false) {
-            val router = Router.current
+            TODO()
+            /*
             LaunchedEffect(Unit) {
                 router.navigate(target, hide)
             }
+             */
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.beyondeye.kbloc.router
 //original code from https://github.com/hfhbd/routing-compose
 import androidx.compose.runtime.*
+import cafe.adriel.voyager.core.screen.Screen
 import kotlin.jvm.*
 
 /**
@@ -15,8 +16,7 @@ public interface Router {
 
     public fun navigate(to: String, hide: Boolean = false)
 
-    @Composable
-    public fun getPath(initPath: String): State<String>
+    public fun getPath(initPath: String): String
 
     public companion object {
         /**
@@ -43,16 +43,15 @@ for initializing a router with a set of routes using a [RouteBuilder]
 it also set the current value of RouterCompositionLocal to provide a reference
 to this router so that child can use it to navigate
  */
-@Composable
 public fun Router.route(
     initRoute: String,
-    routing: @Composable RouteBuilder.() -> Unit
-) {
-    CompositionLocalProvider(RouterCompositionLocal provides this) {
-        val rawPath by getPath(initRoute)
+    routing:  RouteBuilder.() -> Screen?
+): (String)->Screen? {
+    return { initRoute:String->
+        val rawPath =getPath(initRoute)
         val path = Path.from(rawPath)
-        val node = remember(path) { RouteBuilder(path.path, path) }
-        node.routing()
+        val node = RouteBuilder(this,path.path, path)
+        node.routing() //return value
     }
 }
 

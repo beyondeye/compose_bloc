@@ -19,14 +19,18 @@ public fun HashRouter(
     HashRouter().route(initPath, routingDefBuilder)
 }
 
-internal class HashRouter : Router {
+internal class HashRouter : RouterWithStatePath {
     override val currentPath: Path
         get() = Path.from(currentHash.value)
 
     private val currentHash: MutableState<String> = mutableStateOf(window.location.hash.currentURL() ?: "")
 
+    override fun getCurrentRawPath(initPath: String): String {
+        return  window.location.hash.currentURL() ?: initPath
+    }
+
     @Composable
-    override fun getCurrentRawPath(initPath: String): State<String> {
+    override fun getCurrentRawPathAsState(initPath: String): State<String> {
         LaunchedEffect(Unit) {
             currentHash.value = window.location.hash.currentURL() ?: initPath
             window.onhashchange = {

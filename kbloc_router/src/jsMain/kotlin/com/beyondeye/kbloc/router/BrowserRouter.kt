@@ -31,14 +31,18 @@ public fun BrowserRouter(
     BrowserRouter().route(initPath, routingDefBuilder)
 }
 
-internal class BrowserRouter : Router {
+internal class BrowserRouter : RouterWithStatePath {
     override val currentPath: Path
         get() = Path.from(currentLocation.value)
 
     private val currentLocation: MutableState<String> = mutableStateOf(window.location.newPath())
 
+    override fun getCurrentRawPath(initPath: String): String {
+        return window.location.newPath().takeUnless { it == "/" } ?: initPath
+    }
+
     @Composable
-    override fun getCurrentRawPath(initPath: String): State<String> {
+    override fun getCurrentRawPathAsState(initPath: String): State<String> {
         LaunchedEffect(Unit) {
             currentLocation.value = window.location.newPath().takeUnless { it == "/" } ?: initPath
             window.onpopstate = {

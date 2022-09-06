@@ -129,7 +129,7 @@ public class RouteBuilder internal constructor(
      * Executes its children when the requested subroute is a non-empty [String].
      */
     @Routing
-    public fun string(nestedRoute: RouteBuilder.(String) -> Screen):Screen? {
+    public fun string(nestedRoute: RouteBuilder.(String) -> Screen?):Screen? {
         val needCheck= match == Match.NoMatch || match == Match.String
         if(!needCheck) return match_res
         val currentPath = remainingPath.firstSegment

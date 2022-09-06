@@ -1,10 +1,10 @@
 package com.beyondeye.kbloc.router
 
+import com.beyondeye.kbloc.router.utils.MockRouter
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-public class StringRoutingTests {
+public class IntegerRoutingTests {
     @Test
     public fun contentTest() {
         val router = MockRouter()
@@ -14,7 +14,7 @@ public class StringRoutingTests {
                     Screen_with_string("foo")
                 }
             }
-            string {
+            int {
                 Screen_with_string("bar$it")
             }
             noMatch {
@@ -28,18 +28,18 @@ public class StringRoutingTests {
         routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("foo"), routed)
 
-        router.navigate("/bar")
+        router.navigate("/5")
         routed = routing.resolveFor(router)
-        assertEquals(Screen_with_string("barbar"), routed)
+        assertEquals(Screen_with_string("bar5"), routed)
     }
     @Test
     public fun routeTest() {
         val router = MockRouter()
         val routing = RoutingResolver("/") {
             route("users") {
-                string { userID ->
+                int { userID ->
                     route("todos") {
-                        string {
+                        int {
                             Screen_with_string("Todo $it for user: $userID")
                         }
                         noMatch {
@@ -65,24 +65,24 @@ public class StringRoutingTests {
         routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("No userID"), routed)
 
-        router.navigate("/users/john")
+        router.navigate("/users/5")
         routed = routing.resolveFor(router)
-        assertEquals(Screen_with_string("UserInfo: john"), routed)
+        assertEquals(Screen_with_string("UserInfo: 5"), routed)
 
-        router.navigate("/users/john/todos")
+        router.navigate("/users/5/todos")
         routed = routing.resolveFor(router)
-        assertEquals(Screen_with_string("All todos for user: john"), routed)
+        assertEquals(Screen_with_string("All todos for user: 5"), routed)
 
-        router.navigate("/users/john/todos/first")
+        router.navigate("/users/5/todos/42")
         routed = routing.resolveFor(router)
-        assertEquals(Screen_with_string("Todo first for user: john"), routed)
+        assertEquals(Screen_with_string("Todo 42 for user: 5"), routed)
     }
     @Test
     public fun nested() {
         val router = MockRouter()
         val routing = RoutingResolver("/") {
-            string { userID ->
-                string { todoID ->
+            int { userID ->
+                int { todoID ->
                     Screen_with_string("Todo with $todoID from user $userID")
                 }
                 noMatch {
@@ -97,12 +97,32 @@ public class StringRoutingTests {
         var routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("No userID given"), routed)
 
-        router.navigate("/f")
+        router.navigate("/42")
         routed = routing.resolveFor(router)
-        assertEquals(Screen_with_string("User f"), routed)
+        assertEquals(Screen_with_string("User 42"), routed)
 
-        router.navigate("/f/t")
+        router.navigate("/42/42")
         routed = routing.resolveFor(router)
-        assertEquals(Screen_with_string("Todo with t from user f"), routed)
+        assertEquals(Screen_with_string("Todo with 42 from user 42"), routed)
     }
+
+    @Test
+    public fun invalid() {
+        val router = MockRouter()
+        val routing = RoutingResolver("/") {
+            int {
+                Screen_with_string("int $it")
+            }
+            noMatch {
+                Screen_with_string("noMatch")
+            }
+        }
+        var routed = routing.resolveFor(router)
+        assertEquals(Screen_with_string("noMatch"), routed)
+
+        router.navigate("/foo")
+        routed = routing.resolveFor(router)
+        assertEquals(Screen_with_string("noMatch"), routed)
+    }
+
 }

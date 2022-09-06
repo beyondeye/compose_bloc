@@ -1,11 +1,12 @@
-package com.beyondeye.kbloc.router
+package com.beyondeye.kbloc.router.utils
 
-import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.router.Path
+import com.beyondeye.kbloc.router.Router
 
 public class MockRouter : Router {
 
     override val currentPath: Path
-        get() = Path.from(currenPathRaw?:"")
+        get() = Path.from(currenPathRaw ?: "")
 
     private var currenPathRaw:String? =null
 

@@ -2,6 +2,7 @@ package com.beyondeye.kbloc.router
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.router.utils.MockRouter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

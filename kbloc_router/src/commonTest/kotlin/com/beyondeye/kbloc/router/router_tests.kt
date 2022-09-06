@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 internal data class Screen_foo(val arg:Int?):Screen {
@@ -208,6 +209,59 @@ public class RouterTests {
         routed= routing.resolveFor(router)
         assertEquals(Screen_with_string("other"),routed)
      }
+    @Test
+    public fun nestedRoute() {
+        //this must fails because we don't allow more than level of at
+        // of route at once (route("foo/foo") is not allowed
+        assertFailsWith<IllegalArgumentException> {
+            val routing = RoutingResolver("/") {
+                route("foo/foo") {
+                    noMatch {
+                        Screen_with_string("FooBar")
+                    }
+                }
+                noMatch {
+                    Screen_with_string("No match")
+                }
+            }
+            val routed= routing.resolveFor(MockRouter())
+        }
+    }
+    @Test
+    public fun wrongDynamicTest() {
+        val router = MockRouter()
+        var addNewRoute =false
+        val routing = RoutingResolver("/") {
+            if (addNewRoute) {
+                int {
+                    Screen_with_string(it.toString())
+                }
+            }
+            int {
+                Screen_with_string("wrong")
+            }
+            noMatch {
+                Screen_with_string("NoMatch")
+            }
+        }
+        var routed = routing.resolveFor(router)
+        assertEquals(Screen_with_string("NoMatch"),routed)
+
+        router.navigate("/1")
+        routed = routing.resolveFor(router)
+        assertEquals(Screen_with_string("wrong"),routed)
+
+        addNewRoute = true
+        router.navigate("/1")
+        routed = routing.resolveFor(router)
+        //here behavior is different from original code: only one path is matched, not multiple paths
+        //here in the test the LAST matched path is returned. The more logical thing would be
+        //to return the FIRST matched path
+        // TODO think if it would be possible to change code to make it happen
+        assertEquals(Screen_with_string("wrong"),routed)
+    }
+
+
 
 
 }

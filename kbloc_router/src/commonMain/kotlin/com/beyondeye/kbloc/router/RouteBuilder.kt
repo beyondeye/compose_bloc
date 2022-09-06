@@ -86,10 +86,10 @@ public class RouteBuilder internal constructor(
         if(!needCheck) return
         //TODO: this is very inefficient to always run this check every time we want to resolve a path
         val relaxedRoute = route.check()
-        val currentPath = remainingPath.firstSegment
+        val curPath = remainingPath.firstSegment
         //*DARIO* currentPath is the path that we need to match with this route
-        if (currentPath in relaxedRoute) {
-            execute(currentPath, nestedRoute)
+        if (curPath in relaxedRoute) {
+            execute(curPath, nestedRoute)
             match = Match.Constant
         }
     }
@@ -107,9 +107,10 @@ public class RouteBuilder internal constructor(
 
     @Routing
     public fun redirect(vararg route: String, target: String, hide: Boolean = false) {
+        if(match!=Match.NoMatch) return
         val routes = route.check()
-        val currentPath = remainingPath.firstSegment
-        if (match == Match.NoMatch && currentPath in routes) {
+        val curPath = remainingPath.firstSegment
+        if (curPath in routes) {
             match= Match.Constant
             match_res=__Redirect //we will rerun routing again
             router.navigate(target, hide)
@@ -132,10 +133,10 @@ public class RouteBuilder internal constructor(
     public fun string(nestedRoute: RouteBuilder.(String) -> Screen?):Screen? {
         val needCheck= match == Match.NoMatch || match == Match.String
         if(!needCheck) return match_res
-        val currentPath = remainingPath.firstSegment
-        if (currentPath.isNotEmpty()) {
-            execute(currentPath) {
-                nestedRoute(currentPath)
+        val curPath = remainingPath.firstSegment
+        if (curPath.isNotEmpty()) {
+            execute(curPath) {
+                nestedRoute(curPath)
             }
             match = Match.String
         }
@@ -147,10 +148,12 @@ public class RouteBuilder internal constructor(
      */
     @Routing
     public fun int(nestedRoute: RouteBuilder.(Int) -> Screen?):Screen? {
-        val currentPath = remainingPath.firstSegment
-        val int = currentPath.toIntOrNull()
-        if ((match == Match.NoMatch || match == Match.Integer) && int != null) {
-            execute(currentPath) {
+        val needCheck = match == Match.NoMatch || match == Match.Integer
+        if(!needCheck) return match_res
+        val curPath = remainingPath.firstSegment
+        val int = curPath.toIntOrNull()
+        if (int != null) {
+            execute(curPath) {
                 nestedRoute(int)
             }
             match = Match.Integer

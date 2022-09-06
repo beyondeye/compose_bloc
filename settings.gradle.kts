@@ -24,3 +24,4 @@ include(":kbloc_router")
 
 include(":samples:android")
 include(":samples:web")
+include(":samples:web_w_router")

@@ -146,7 +146,7 @@ public class RouteBuilder internal constructor(
      * Executes its children when the requested subroute is a [Int].
      */
     @Routing
-    public fun int(nestedRoute: RouteBuilder.(Int) -> Screen):Screen? {
+    public fun int(nestedRoute: RouteBuilder.(Int) -> Screen?):Screen? {
         val currentPath = remainingPath.firstSegment
         val int = currentPath.toIntOrNull()
         if ((match == Match.NoMatch || match == Match.Integer) && int != null) {

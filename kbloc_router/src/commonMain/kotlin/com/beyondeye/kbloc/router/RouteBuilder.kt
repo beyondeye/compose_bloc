@@ -42,7 +42,7 @@ internal object __Redirect:Screen {
  */
 @Routing
 public class RouteBuilder internal constructor(
-    private val router:Router,
+    private val router: Router,
     /**
      * initially this the path without the query parameters
      */
@@ -51,7 +51,8 @@ public class RouteBuilder internal constructor(
      * initially the path object that also contain information of the query parameters
      * but when [RootBuilder.execute] is run this is going to change: todo: document what is going to happen
      */
-    private val remainingPath: Path
+    private val remainingPath: Path,
+    private val enableCheckForPathSegmentsExtraSlashes: Boolean
 ) {
     public val parameters: Parameters? = remainingPath.parameters
 
@@ -84,11 +85,10 @@ public class RouteBuilder internal constructor(
         //*DARIO* Match.Constant means a match with no parameters
         val needCheck=match == Match.NoMatch || match == Match.Constant
         if(!needCheck) return
-        //TODO: this is very inefficient to always run this check every time we want to resolve a path
-        val relaxedRoute = route.check()
+        val relaxedRoutes = if(enableCheckForPathSegmentsExtraSlashes) route.check() else route
         val curPath = remainingPath.firstSegment
         //*DARIO* currentPath is the path that we need to match with this route
-        if (curPath in relaxedRoute) {
+        if (relaxedRoutes.contains_string(curPath)) {
             execute(curPath, nestedRoute)
             match = Match.Constant
         }
@@ -108,9 +108,9 @@ public class RouteBuilder internal constructor(
     @Routing
     public fun redirect(vararg route: String, target: String, hide: Boolean = false) {
         if(match!=Match.NoMatch) return
-        val routes = route.check()
+        val relaxedRoutes = if(enableCheckForPathSegmentsExtraSlashes) route.check() else route
         val curPath = remainingPath.firstSegment
-        if (curPath in routes) {
+        if (relaxedRoutes.contains_string(curPath)) {
             match= Match.Constant
             match_res=__Redirect //we will rerun routing again
             router.navigate(target, hide)
@@ -122,8 +122,13 @@ public class RouteBuilder internal constructor(
         //we matched one level of the route so now we create a new router that refer to
         // the parent router
         val delegatingRouter = DelegateRouter(basePath, router)
-        val newState = RouteBuilder(delegatingRouter, basePath, newPath)
-        match_res=newState.nestedRoute()
+        val nestedBuilder = RouteBuilder(
+            delegatingRouter,
+            basePath,
+            newPath,
+            enableCheckForPathSegmentsExtraSlashes
+        )
+        match_res=nestedBuilder.nestedRoute()
     }
 
     /**
@@ -186,5 +191,13 @@ public class RouteBuilder internal constructor(
             rb.router.navigate(target, hide)
             return __Redirect
         }
+    }
+}
+
+private fun Any.contains_string(str: String): Boolean {
+    return when(this) {
+        is String -> str.equals(this)
+        is List<*> -> this.contains(str)
+        else -> false
     }
 }

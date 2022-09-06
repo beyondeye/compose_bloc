@@ -1,4 +1,4 @@
-package app.softwork.routingcompose
+package com.beyondeye.kbloc.router
 
 //original code from https://github.com/hfhbd/routing-compose
 
@@ -14,9 +14,9 @@ import kotlinx.browser.*
 @Composable
 public fun HashRouter(
     initPath: String,
-    routeBuilder: @Composable RouteBuilder.() -> Unit
+    routingDefBuilder: @Composable RoutingDefBuilder.() -> Unit
 ) {
-    HashRouter().route(initPath, routeBuilder)
+    HashRouter().route(initPath, routingDefBuilder)
 }
 
 internal class HashRouter : Router {
@@ -26,7 +26,7 @@ internal class HashRouter : Router {
     private val currentHash: MutableState<String> = mutableStateOf(window.location.hash.currentURL() ?: "")
 
     @Composable
-    override fun getPath(initPath: String): State<String> {
+    override fun getCurrentRawPath(initPath: String): State<String> {
         LaunchedEffect(Unit) {
             currentHash.value = window.location.hash.currentURL() ?: initPath
             window.onhashchange = {

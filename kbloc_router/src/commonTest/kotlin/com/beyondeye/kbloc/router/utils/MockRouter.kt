@@ -10,7 +10,7 @@ public class MockRouter : Router {
 
     private var currenPathRaw:String? =null
 
-    override fun getPath(initPath: String):String =
+    override fun getCurrentRawPath(initPath: String):String =
         if(currenPathRaw.isNullOrEmpty()) initPath else currenPathRaw!!
 
     override fun navigate(to: String, hide: Boolean) {

@@ -1,4 +1,6 @@
-package com.beyondeye.kbloc.router
+package com.beyondeye.kbloc.router.internals
+
+import com.beyondeye.kbloc.router.Router
 
 //original code from https://github.com/hfhbd/routing-compose
 

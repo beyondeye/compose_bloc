@@ -16,7 +16,10 @@ public interface Router {
 
     public fun navigate(to: String, hide: Boolean = false)
 
-    public fun getPath(initPath: String): String
+    /**
+     * if current path is null or empty, return [initPath]
+     */
+    public fun getCurrentRawPath(initPath: String): String
 }
 
 

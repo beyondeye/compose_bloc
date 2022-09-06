@@ -26,9 +26,9 @@ import org.w3c.dom.*
 @Composable
 public fun BrowserRouter(
     initPath: String,
-    routeBuilder: @Composable RouteBuilder.() -> Unit
+    routingDefBuilder: @Composable RoutingDefBuilder.() -> Unit
 ) {
-    BrowserRouter().route(initPath, routeBuilder)
+    BrowserRouter().route(initPath, routingDefBuilder)
 }
 
 internal class BrowserRouter : Router {
@@ -38,7 +38,7 @@ internal class BrowserRouter : Router {
     private val currentLocation: MutableState<String> = mutableStateOf(window.location.newPath())
 
     @Composable
-    override fun getPath(initPath: String): State<String> {
+    override fun getCurrentRawPath(initPath: String): State<String> {
         LaunchedEffect(Unit) {
             currentLocation.value = window.location.newPath().takeUnless { it == "/" } ?: initPath
             window.onpopstate = {

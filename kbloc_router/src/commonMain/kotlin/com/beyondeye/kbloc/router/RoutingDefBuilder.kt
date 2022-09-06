@@ -3,6 +3,8 @@ package com.beyondeye.kbloc.router
 //original code from https://github.com/hfhbd/routing-compose
 import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.screen.Screen
+import com.beyondeye.kbloc.router.internals.DelegateRouter
+import com.beyondeye.kbloc.router.internals.Routing
 
 internal object __Redirect:Screen {
     @Composable
@@ -41,7 +43,7 @@ internal object __Redirect:Screen {
  * ```
  */
 @Routing
-public class RouteBuilder internal constructor(
+public class RoutingDefBuilder internal constructor(
     private val router: Router,
     /**
      * initially this the path without the query parameters
@@ -80,7 +82,7 @@ public class RouteBuilder internal constructor(
          * of the content of this route depending of the value of the matched route parameters
          *
          */
-        nestedRoute: RouteBuilder.() -> Screen?
+        nestedRoute: RoutingDefBuilder.() -> Screen?
     ) {
         //*DARIO* Match.Constant means a match with no parameters
         val needCheck=match == Match.NoMatch || match == Match.Constant
@@ -117,12 +119,12 @@ public class RouteBuilder internal constructor(
         }
     }
 
-    private fun execute(currentPath: String, nestedRoute: RouteBuilder.() -> Screen?) {
+    private fun execute(currentPath: String, nestedRoute: RoutingDefBuilder.() -> Screen?) {
         val newPath = remainingPath.newPath(currentPath)
         //we matched one level of the route so now we create a new router that refer to
         // the parent router
         val delegatingRouter = DelegateRouter(basePath, router)
-        val nestedBuilder = RouteBuilder(
+        val nestedBuilder = RoutingDefBuilder(
             delegatingRouter,
             basePath,
             newPath,
@@ -135,7 +137,7 @@ public class RouteBuilder internal constructor(
      * Executes its children when the requested subroute is a non-empty [String].
      */
     @Routing
-    public fun string(nestedRoute: RouteBuilder.(String) -> Screen?):Screen? {
+    public fun string(nestedRoute: RoutingDefBuilder.(String) -> Screen?):Screen? {
         val needCheck= match == Match.NoMatch || match == Match.String
         if(!needCheck) return match_res
         val curPath = remainingPath.firstSegment
@@ -152,7 +154,7 @@ public class RouteBuilder internal constructor(
      * Executes its children when the requested subroute is a [Int].
      */
     @Routing
-    public fun int(nestedRoute: RouteBuilder.(Int) -> Screen?):Screen? {
+    public fun int(nestedRoute: RoutingDefBuilder.(Int) -> Screen?):Screen? {
         val needCheck = match == Match.NoMatch || match == Match.Integer
         if(!needCheck) return match_res
         val curPath = remainingPath.firstSegment
@@ -180,7 +182,7 @@ public class RouteBuilder internal constructor(
 
     @Routing
     public class NoMatch(
-        private val rb: RouteBuilder,
+        private val rb: RoutingDefBuilder,
         public val remainingPath: String,
         public val parameters: Parameters?
     ) {

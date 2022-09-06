@@ -47,7 +47,7 @@ public class Parameters private constructor(public val raw: String, public val m
 
         /**
          * *DARIO*
-         * parse the query parameters from the web address (it could be have been done probably with a reqex expression)
+         * parse the query parameters from the web address (it could be have been done probably with a regex expression)
          * the [rawParameters] string that is parsed looks like this: "key=value&key2=value2"
          * or like this: "key=value;key2=value2" ("&" and ";" can be both used to separate parameter)
          * see also ParametersTest.kt

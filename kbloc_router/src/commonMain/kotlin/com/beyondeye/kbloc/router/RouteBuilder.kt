@@ -81,11 +81,14 @@ public class RouteBuilder internal constructor(
          */
         nestedRoute: RouteBuilder.() -> Screen?
     ) {
-        val relaxedRoute = route.check()
-        val currentPath = remainingPath.currentPath
-        //*DARIO* currentPath is the path that we need to match with this route
         //*DARIO* Match.Constant means a match with no parameters
-        if ((match == Match.NoMatch || match == Match.Constant) && currentPath in relaxedRoute) {
+        val needCheck=match == Match.NoMatch || match == Match.Constant
+        if(!needCheck) return
+        //TODO: this is very inefficient to always run this check every time we want to resolve a path
+        val relaxedRoute = route.check()
+        val currentPath = remainingPath.firstSegment
+        //*DARIO* currentPath is the path that we need to match with this route
+        if (currentPath in relaxedRoute) {
             execute(currentPath, nestedRoute)
             match = Match.Constant
         }
@@ -105,7 +108,7 @@ public class RouteBuilder internal constructor(
     @Routing
     public fun redirect(vararg route: String, target: String, hide: Boolean = false) {
         val routes = route.check()
-        val currentPath = remainingPath.currentPath
+        val currentPath = remainingPath.firstSegment
         if (match == Match.NoMatch && currentPath in routes) {
             match= Match.Constant
             match_res=__Redirect //we will rerun routing again
@@ -127,8 +130,10 @@ public class RouteBuilder internal constructor(
      */
     @Routing
     public fun string(nestedRoute: RouteBuilder.(String) -> Screen):Screen? {
-        val currentPath = remainingPath.currentPath
-        if ((match == Match.NoMatch || match == Match.String) && currentPath.isNotEmpty()) {
+        val needCheck= match == Match.NoMatch || match == Match.String
+        if(!needCheck) return match_res
+        val currentPath = remainingPath.firstSegment
+        if (currentPath.isNotEmpty()) {
             execute(currentPath) {
                 nestedRoute(currentPath)
             }
@@ -142,7 +147,7 @@ public class RouteBuilder internal constructor(
      */
     @Routing
     public fun int(nestedRoute: RouteBuilder.(Int) -> Screen):Screen? {
-        val currentPath = remainingPath.currentPath
+        val currentPath = remainingPath.firstSegment
         val int = currentPath.toIntOrNull()
         if ((match == Match.NoMatch || match == Match.Integer) && int != null) {
             execute(currentPath) {

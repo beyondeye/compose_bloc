@@ -1,9 +1,24 @@
 package com.beyondeye.kbloc.router
 //original code from https://github.com/hfhbd/routing-compose
+
+//custom implementation of critical path method
+//it could be have been implemented with string.removePrefix("/").takeWhile { it != '/' }
+private fun String.getFirstPathSegment():String {
+    if(length==0) return this
+    val hasSlashAtStart=this[0].equals('/')
+    val start=if(hasSlashAtStart) 1 else 0
+    for (index in start until length)
+        if (get(index)=='/') {
+            return substring(start, index)
+        }
+    return if(!hasSlashAtStart) this else substring(1)
+}
 /**
  * *DARIO* a html destination path, with potentially multiple levels and optional parameters
  */
 public data class Path(val path: String, val parameters: Parameters?) {
+    internal val firstSegment = path.getFirstPathSegment() //path.removePrefix("/").takeWhile { it != '/' }
+
     internal fun newPath(currentPath: String) = Path(path = path.removePrefix("/$currentPath"), parameters)
 
     /**
@@ -71,5 +86,4 @@ public data class Path(val path: String, val parameters: Parameters?) {
         "$path?$parameters"
     }
 
-    internal val currentPath get() = path.removePrefix("/").takeWhile { it != '/' }
 }

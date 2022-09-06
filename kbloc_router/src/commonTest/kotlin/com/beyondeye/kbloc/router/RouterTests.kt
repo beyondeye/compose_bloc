@@ -8,33 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-internal data class Screen_foo(val arg: Int?) : Screen {
-    @Composable
-    override fun Content() {
-        TODO("Not yet implemented")
-    }
-}
 
-internal data class Screen_bar(val arg: Int?) : Screen {
-    @Composable
-    override fun Content() {
-        TODO("Not yet implemented")
-    }
-}
-
-internal class Screen_nomatch : Screen {
-    @Composable
-    override fun Content() {
-        TODO("Not yet implemented")
-    }
-}
-
-internal data class Screen_with_string(val str: String) : Screen {
-    @Composable
-    override fun Content() {
-        TODO("Not yet implemented")
-    }
-}
 
 public class RouterTests {
     @Test

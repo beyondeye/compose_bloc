@@ -1,6 +1,7 @@
 package com.beyondeye.kbloc.router
 
 import com.beyondeye.kbloc.router.utils.MockRouter
+import com.beyondeye.kbloc.router.utils.Screen_with_string
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -3,6 +3,7 @@ package com.beyondeye.kbloc.router
 //original code from https://github.com/hfhbd/routing-compose
 
 import androidx.compose.runtime.*
+import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.web.attributes.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.*
@@ -18,11 +19,11 @@ public fun NavLink(
     attrs: (AttrsScope<HTMLAnchorElement>.(Boolean) -> Unit)? = null,
     content: ContentBuilder<HTMLAnchorElement>? = null
 ) {
-    val router = Router.current
+    val router = LocalRouter.current?:return
     A(
         href = to,
         attrs = {
-            val currentPath = router.currentPath.path
+            val currentPath = router.curPath.path
             val selected = if (to == "/") {
                 currentPath == to
             } else currentPath.startsWith(to)

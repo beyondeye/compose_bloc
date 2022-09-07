@@ -14,6 +14,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.persistentListOf
+import kotlin.js.JsName
 
 
 public typealias NavigatorContent = @Composable (navigator: Navigator) -> Unit
@@ -146,6 +147,7 @@ public class Navigator internal constructor(
         stateHolder.SaveableStateProvider(stateKey, content)
     }
 
+    @JsName("popUntilRoot_this")
     public fun popUntilRoot() {
         popUntilRoot(this)
     }

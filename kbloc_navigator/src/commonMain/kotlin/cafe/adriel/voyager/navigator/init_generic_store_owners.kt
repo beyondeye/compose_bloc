@@ -20,7 +20,7 @@ public class GenericScreenModelStoreOwner: ScreenModelStoreOwner {
      * will be destroyed.
      * see also implementation of [ScreenModelStore.remove]
      */
-    fun onCleared() {
+    public fun onCleared() {
         //Napier.d("ElementScreenModelStoreOwner:onCleared()")
         // first dispose all dependencies
         for (entry in store.dependencies.value) {
@@ -50,7 +50,7 @@ public class GenericBlocStoreOwner : BlocStoreOwner {
      *
      * see also implementation of [BlocStore.remove]
      */
-    fun onCleared() {
+    public fun onCleared() {
         //Napier.d("ActivityBlocStoreViewModel:onCleared()")
         //first clear depedendencies
         for (entry in store.blocs_dependencies_value) {
@@ -74,7 +74,7 @@ public class GenericBlocStoreOwner : BlocStoreOwner {
  * [provided_values] argument is providing additional CompositionLocalProvider definitions to the subtree
  */
 @Composable
-public fun init_generic_kbloc_store_owners_for_subtree(
+public fun init_kbloc_for_subtree(
     vararg provided_values: ProvidedValue<*>, content:@Composable () ->Unit) {
     val screenModelStore= GenericScreenModelStoreOwner()
     val blocStore= GenericBlocStoreOwner()

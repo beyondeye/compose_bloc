@@ -12,7 +12,7 @@ public interface Router {
     /**
      * The current path
      */
-    public val currentPath: Path
+    public val curPath: Path
 
     public fun navigate(to: String, hide: Boolean = false)
 

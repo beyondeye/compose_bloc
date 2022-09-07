@@ -7,15 +7,15 @@ import com.beyondeye.kbloc.router.RoutingResolver
 /**
  * used to buffer path obtained from real router, inside [RoutingResolver]
  */
-internal class PathOnlyRouter( private var currenPathRaw:String?) : Router {
+internal class PathOnlyRouter( private var curPathRaw:String?) : Router {
     constructor(other:Router) :this(other.getCurrentRawPath(""))
-    override val currentPath: Path
-        get() = Path.from(currenPathRaw ?: "")
+    override val curPath: Path
+        get() = Path.from(curPathRaw ?: "")
 
     override fun getCurrentRawPath(initPath: String): String =
-        if(currenPathRaw.isNullOrEmpty()) initPath else currenPathRaw!!
+        if(curPathRaw.isNullOrEmpty()) initPath else curPathRaw!!
 
     override fun navigate(to: String, hide: Boolean) {
-        currenPathRaw = to
+        curPathRaw = to
     }
 }

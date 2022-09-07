@@ -16,7 +16,7 @@ internal class DelegateRouter(val basePath: String, val router: Router) : Router
             }
 
             to.startsWith(".") -> {
-                val newPath = router.currentPath.relative(to)
+                val newPath = router.curPath.relative(to)
                 router.navigate(newPath.path)
             }
 

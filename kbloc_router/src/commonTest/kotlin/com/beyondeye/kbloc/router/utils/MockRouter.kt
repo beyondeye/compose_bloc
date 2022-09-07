@@ -5,7 +5,7 @@ import com.beyondeye.kbloc.router.Router
 
 public class MockRouter : Router {
 
-    override val currentPath: Path
+    override val curPath: Path
         get() = Path.from(currenPathRaw ?: "")
 
     private var currenPathRaw:String? =null

@@ -13,7 +13,6 @@ private object EmptyScreen:Screen {
 
 public class RouteResolver(public val defaultRoute: String, private val routingDefinition:  RouteDefBuilder.() -> Screen?) {
 
-    public var enableCheckForPathSegmentsExtraSlashes:Boolean=true
     /**
      * if[enableCheckForPathSegmentsExtraSlashes] is true then check if path segments specified
      * in route("/path_seg") {} and in redirect, wrongly contains more than one path segments
@@ -22,6 +21,7 @@ public class RouteResolver(public val defaultRoute: String, private val routingD
      * performance of route resolution you should set this flag false and define the routes segments
      * without extra slashes
      */
+    public var enableCheckForPathSegmentsExtraSlashes:Boolean=true
     public fun resolveFor(router: Router): Screen {
         var res: Screen?
         //get path from input router in an internal router class used for route resolving

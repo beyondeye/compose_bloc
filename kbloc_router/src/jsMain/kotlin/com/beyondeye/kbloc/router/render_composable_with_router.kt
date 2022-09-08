@@ -20,7 +20,6 @@ import org.w3c.dom.get
  * with method renderComposable, so instead of defining a root navigator
  * we define custom renderComposable methods that also initialize a rootnavigator
  */
-@Composable
 private fun <TElement : Element> renderComposableWithRouterImpl(
     root: TElement,
     monotonicFrameClock: MonotonicFrameClock = DefaultMonotonicFrameClock,
@@ -75,7 +74,6 @@ private fun <TElement : Element> renderComposableWithRouterImpl(
  */
 //define JSName because we have method with same name but different signature that use regular navigator, not router
 @JsName("renderComposableInBodyWithNavigator_r")
-@Composable
 public fun renderComposableInBodyWithNavigator(
     routeResolver: RouteResolver,
     useHashRouter:Boolean=true,

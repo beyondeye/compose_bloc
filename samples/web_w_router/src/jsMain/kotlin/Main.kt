@@ -1,10 +1,10 @@
-import cafe.adriel.voyager.navigator.renderComposableWithNavigator
+import com.beyondeye.kbloc.router.renderComposableInBodyWithNavigator
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
-import screens.MainScreen
+
 
 fun main() {
     Napier.base(DebugAntilog())
-    renderComposableWithNavigator(screens = listOf(MainScreen()), rootElementId = "root")
+    renderComposableInBodyWithNavigator(app_routing)
 }
 

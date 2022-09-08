@@ -18,10 +18,11 @@ kotlin {
             dependencies {
                 api(project(":kbloc_core"))//                 api(projects.kbloc_core)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.kotlinx_collections_immutable_version}")
                 compileOnly(compose.runtime)
                 compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
                 implementation(Deps.AtomicFu.common)
-                implementation(Deps.Napier.core)
+                //implementation(Deps.Napier.core)
             }
         }
 

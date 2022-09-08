@@ -5,6 +5,15 @@ import cafe.adriel.voyager.core.screen.Screen
 import kotlin.jvm.*
 
 /**
+ * obtain the router (associated with the root navigator) defined for the current
+ * composable subtree. It can be used to issue navigate() command to specific named
+ * destination. The resolved screen will be pushed in the navigation stack of the root
+ * navigator
+ */
+public val LocalNavigatorRouter: ProvidableCompositionLocal<Router?> =
+    staticCompositionLocalOf { null }
+
+/**
  * *DARIO* abstraction of the Router that has multiple impl
  * as [BrowserRouter], [DesktopRouter], [HashRouter] and so on
  */

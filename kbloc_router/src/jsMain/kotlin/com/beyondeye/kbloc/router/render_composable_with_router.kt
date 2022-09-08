@@ -12,14 +12,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLBodyElement
 import org.w3c.dom.get
 
-/**
- * obtain the router (associated with the root navigator) defined for the current
- * composable subtree. It can be used to issue navigate() command to specific named
- * destination. The resolved screen will be pushed in the navigation stack of the root
- * navigator
- */
-public val LocalRouter: ProvidableCompositionLocal<Router?> =
-    staticCompositionLocalOf { null }
+
 
 
 /**
@@ -50,11 +43,11 @@ private fun <TElement : Element> renderComposableWithRouterImpl(
             onDispose { router.removeRawPathListener() }
         }
         //initialize root navigator
-        init_kbloc_for_subtree(LocalDomScope.provides(this), LocalRouter.provides(router))
+        _init_kbloc_for_subtree(LocalDomScope.provides(this), LocalNavigatorRouter.provides(router))
         {
             Navigator(initialScreen, disposeBehavior, onBackPressed) { nav: Navigator ->
                 CurrentScreen() //show current screen
-                //listen tho changes of
+                //listen to changes of path
                 val curPathRaw = curPathRawFlow.mp_collectAsStateWithLifecycle(rememberCoroutineScope())
                 LaunchedEffect(curPathRaw) {
                     val routedScreen = routeResolver.resolveFor(router)
@@ -80,10 +73,11 @@ private fun <TElement : Element> renderComposableWithRouterImpl(
  * see also [BrowserRouter] and [BrowserHashRouter] documentation for more details
  * @return the instance of the [Composition]
  */
-//TODO add a flag to specify with type of router: HashRouter or BrowserRouter. Also need to document  the server configuration for the BrowserRouter to work (See documemtation in router compose)
+//define JSName because we have method with same name but different signature that use regular navigator, not router
+@JsName("renderComposableInBodyWithNavigator_r")
 @Composable
-public fun renderComposableInBodyWithRouter(
-    routingResolver: RoutingResolver,
+public fun renderComposableInBodyWithNavigator(
+    routeResolver: RouteResolver,
     useHashRouter:Boolean=true,
     disposeBehavior: NavigatorDisposeBehavior = NavigatorDisposeBehavior(),
     onBackPressed: OnBackPressed = { true }, //navigator onBackPressed override

@@ -13,8 +13,7 @@ import com.beyondeye.kbloc.compose.internal.LocalBlocStoreOwner
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
-//make this public to make it accessible to kbloc_router: not a very good idea: perhaps unify kbloc_router with kbloc_navigator
-public class GenericScreenModelStoreOwner: ScreenModelStoreOwner {
+internal class GenericScreenModelStoreOwner: ScreenModelStoreOwner {
     /**
      * This method will be called when this ElementScreenModelStoreOwner is no longer used and
      * will be destroyed.
@@ -39,8 +38,7 @@ public class GenericScreenModelStoreOwner: ScreenModelStoreOwner {
         get() = store
     private val store: ScreenModelStore = ScreenModelStore()
 }
-//make this public to make it accessible to kbloc_router: not a very good idea: perhaps unify kbloc_router with kbloc_navigator
-public class GenericBlocStoreOwner : BlocStoreOwner {
+internal class GenericBlocStoreOwner : BlocStoreOwner {
     override val blocStore: BlocStore
         get() = store
     private val store: BlocStore = BlocStore()
@@ -69,12 +67,13 @@ public class GenericBlocStoreOwner : BlocStoreOwner {
 }
 
 /**
+ * DON'T CALL THIS METHOD DIRECTLY, IT IS USED UNDER THE HOOD when initializing the root navigator*
  * this method is used in desktop and JS platform.
  * For android there is a custom implementation based on ViewModel
  * [provided_values] argument is providing additional CompositionLocalProvider definitions to the subtree
  */
 @Composable
-public fun init_kbloc_for_subtree(
+public fun _init_kbloc_for_subtree(
     vararg provided_values: ProvidedValue<*>, content:@Composable () ->Unit) {
     val screenModelStore= GenericScreenModelStoreOwner()
     val blocStore= GenericBlocStoreOwner()

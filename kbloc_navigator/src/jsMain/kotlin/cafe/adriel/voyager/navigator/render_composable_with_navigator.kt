@@ -48,7 +48,7 @@ private fun <TElement : Element> renderComposableWithNavigatorImpl(
 ): Composition {
     if (screens.size == 0) throw IllegalArgumentException()
     val content_w_navigator: @Composable DOMScope<TElement>.() -> Unit = {
-        init_kbloc_for_subtree(LocalDomScope.provides(this)) {
+        _init_kbloc_for_subtree(LocalDomScope.provides(this)) {
             Navigator(screens, disposeBehavior, onBackPressed)
         }
     }

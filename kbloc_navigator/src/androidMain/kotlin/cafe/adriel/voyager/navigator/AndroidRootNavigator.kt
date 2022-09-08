@@ -3,13 +3,13 @@ package cafe.adriel.voyager.navigator
 import androidx.compose.runtime.Composable
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidedValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import cafe.adriel.voyager.core.model.ScreenModelStore
 import cafe.adriel.voyager.core.model.internal.LocalScreenModelStoreOwner
 import cafe.adriel.voyager.core.model.internal.ScreenModelStoreOwner
 import cafe.adriel.voyager.core.screen.Screen
-import kotlinx.coroutines.runBlocking
 import com.beyondeye.kbloc.compose.internal.BlocStoreOwner
 import com.beyondeye.kbloc.compose.internal.LocalBlocStoreOwner
 import com.beyondeye.kbloc.compose.internal.BlocStore
@@ -106,20 +106,36 @@ public fun ComponentActivity.RootNavigator(
     onBackPressed: OnBackPressed = { true },
     content: NavigatorContent = { CurrentScreen() }
 ) {
-    val activityScreenModelStoreOwner = ViewModelProvider(this).get(
-        ActivityScreenModelStoreViewModel::class.java)
-    val activityBlocStoreOwner = ViewModelProvider(this).get(ActivityBlocStoreViewModel::class.java)
-    //TODO store directly ScreenModelStore and not ScreenModelStoreOwner
-    //TODO store directly BlocStore and not BlocStoreOwner
-    CompositionLocalProvider(
-        LocalScreenModelStoreOwner.provides(activityScreenModelStoreOwner),
-        LocalBlocStoreOwner.provides(activityBlocStoreOwner))
-    {
+    _init_kbloc_for_subtree_android(this) {
         Navigator(
             screens = screens,
             disposeBehavior = disposeBehavior,
             onBackPressed = onBackPressed,
             content = content
         )
+    }
+}
+
+/**
+ * DON'T CALL THIS METHOD DIRECTLY, IT IS USED UNDER THE HOOD when initializing the root navigator
+ * [provided_values] argument is providing additional CompositionLocalProvider definitions to the subtree
+ */
+@Composable
+public fun _init_kbloc_for_subtree_android(
+    activity:ComponentActivity,
+    vararg provided_values: ProvidedValue<*>,
+    content:@Composable () ->Unit)
+{
+    //TODO store directly ScreenModelStore and not ScreenModelStoreOwner
+    val activityScreenModelStoreOwner = ViewModelProvider(activity).get(
+        ActivityScreenModelStoreViewModel::class.java)
+    //TODO store directly BlocStore and not BlocStoreOwner
+    val activityBlocStoreOwner = ViewModelProvider(activity).get(ActivityBlocStoreViewModel::class.java)
+    CompositionLocalProvider(
+        *provided_values,
+        LocalScreenModelStoreOwner.provides(activityScreenModelStoreOwner),
+        LocalBlocStoreOwner.provides(activityBlocStoreOwner))
+    {
+        content()
     }
 }

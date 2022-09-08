@@ -67,7 +67,6 @@ internal class BrowserRouter(private val currentLocation: MutableStateFlow<Strin
         return extractCurrentLocationUrl().takeUnless { it == "/" } ?: initPath
     }
 
-    @Composable
     override fun setupRawPathListener(initPath: String) {
         currentLocation.value = extractCurrentLocationUrl().takeUnless { it == "/" } ?: initPath
         window.onpopstate = {

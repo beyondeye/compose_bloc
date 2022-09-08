@@ -19,7 +19,7 @@ public fun NavLink(
     attrs: (AttrsScope<HTMLAnchorElement>.(Boolean) -> Unit)? = null,
     content: ContentBuilder<HTMLAnchorElement>? = null
 ) {
-    val router = LocalRouter.current?:return
+    val router = LocalNavigatorRouter.current?:return
     A(
         href = to,
         attrs = {

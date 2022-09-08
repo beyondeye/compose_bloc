@@ -14,15 +14,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-//                api(project(":kbloc_core"))
-//                api(project(":kbloc_compose"))
                 implementation(project(":kbloc_core"))
                 implementation(project(":kbloc_navigator"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
-//                implementation(Deps.AtomicFu.common)
                 compileOnly(compose.runtime)
                 compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
-//                compileOnly(compose.material)
+//                implementation(Deps.Napier.core)
             }
         }
         val commonTest by getting {

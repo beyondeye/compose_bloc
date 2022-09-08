@@ -21,8 +21,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines_version}")
 //                implementation(Deps.AtomicFu.common)
                 compileOnly(compose.runtime)
-//                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
-
+                compileOnly("org.jetbrains.compose.runtime:runtime-saveable:${Versions.jbcompose_version}")
 //                compileOnly(compose.material)
             }
         }

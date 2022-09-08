@@ -2,11 +2,11 @@ package screens
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.beyondeye.kbloc.compose.BlocBuilder
 import com.beyondeye.kbloc.compose.BlocProvider
 import com.beyondeye.kbloc.compose.rememberProvidedBlocOf
+import com.beyondeye.kbloc.router.LocalNavigatorRouter
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -24,7 +24,7 @@ class TestBasicCounterBlocScreenWeb : Screen {
 
     @Composable
     private fun TestScreenContent() {
-        val navigator = LocalNavigator.currentOrThrow
+        val router = LocalNavigatorRouter.currentOrThrow
         BlocProvider(create = { cscope -> CounterBloc(cscope, 1) }) {
             //rememberProvidedBlocOf is similar to dependency injection: it retrieves the specified
             //bloc type as defined by the closest enclosing BlocProvider
@@ -53,7 +53,7 @@ class TestBasicCounterBlocScreenWeb : Screen {
             }
         }
         Div {
-            Button(attrs = { onClick { navigator.pop() } }) { Text("Click to go back") }
+            Button(attrs = { onClick { router.navigate(AppRoutes.home) } }) { Text("Click to go back") }
         }
     }
 

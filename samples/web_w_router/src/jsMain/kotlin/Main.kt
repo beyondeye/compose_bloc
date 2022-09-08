@@ -5,6 +5,6 @@ import io.github.aakira.napier.Napier
 
 fun main() {
     Napier.base(DebugAntilog())
-    renderComposableInBodyWithNavigator(app_routing)
+    renderComposableInBodyWithNavigator(AppRoutes.resolver)
 }
 

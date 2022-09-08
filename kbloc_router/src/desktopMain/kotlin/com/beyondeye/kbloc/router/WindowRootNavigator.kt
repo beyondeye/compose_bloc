@@ -29,7 +29,7 @@ public fun FrameWindowScope.RootNavigator(
         Navigator(initialScreen, disposeBehavior, onBackPressed) { nav: Navigator ->
             CurrentScreen() //show current screen
             //listen to changes of path
-            val curPathRaw = curPathRawFlow.mp_collectAsStateWithLifecycle(rememberCoroutineScope())
+            val curPathRaw by curPathRawFlow.mp_collectAsStateWithLifecycle(rememberCoroutineScope())
             LaunchedEffect(curPathRaw) {
                 val routedScreen = routeResolver.resolveFor(router)
                 //TODO define if and which of previous screen should be popped when new screen is opened

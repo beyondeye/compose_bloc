@@ -3,6 +3,7 @@ package com.beyondeye.kbloc.router
 import androidx.compose.runtime.*
 import cafe.adriel.voyager.navigator.*
 import com.beyondeye.kbloc.compose.lifecycle.mp_collectAsStateWithLifecycle
+import io.github.aakira.napier.Napier
 import kotlinx.browser.document
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.web.dom.DOMScope
@@ -47,7 +48,7 @@ private fun <TElement : Element> renderComposableWithRouterImpl(
             Navigator(initialScreen, disposeBehavior, onBackPressed) { nav: Navigator ->
                 CurrentScreen() //show current screen
                 //listen to changes of path
-                val curPathRaw = curPathRawFlow.mp_collectAsStateWithLifecycle(rememberCoroutineScope())
+                val curPathRaw by curPathRawFlow.mp_collectAsStateWithLifecycle(rememberCoroutineScope())
                 LaunchedEffect(curPathRaw) {
                     val routedScreen = routeResolver.resolveFor(router)
                     //TODO define if and which of previous screen should be popped when new screen is opened

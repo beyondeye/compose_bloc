@@ -95,7 +95,7 @@ public class IntegerRoutingTests {
             }
 
         }
-        var routed = routing.resolveFor(router,true)
+        var routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("No userID given"), routed)
 
         router.navigate("/42")

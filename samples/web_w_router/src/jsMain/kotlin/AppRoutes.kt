@@ -2,8 +2,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import com.beyondeye.kbloc.router.RouteResolver
 import screens.*
 
-open class AppRoute(val route:String,val screen:() -> Screen)
-
 object AppRoutes {
     val home = "home"
     val testbasic = "testbasic"

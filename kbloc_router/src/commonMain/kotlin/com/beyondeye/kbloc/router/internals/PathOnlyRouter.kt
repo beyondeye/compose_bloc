@@ -2,10 +2,10 @@ package com.beyondeye.kbloc.router.internals
 
 import com.beyondeye.kbloc.router.Path
 import com.beyondeye.kbloc.router.Router
-import com.beyondeye.kbloc.router.RoutingResolver
+import com.beyondeye.kbloc.router.RouteResolver
 
 /**
- * used to buffer path obtained from real router, inside [RoutingResolver]
+ * used to buffer path obtained from real router, inside [RouteResolver]
  */
 internal class PathOnlyRouter( private var curPathRaw:String?) : Router {
     constructor(other:Router) :this(other.getCurrentRawPath(""))

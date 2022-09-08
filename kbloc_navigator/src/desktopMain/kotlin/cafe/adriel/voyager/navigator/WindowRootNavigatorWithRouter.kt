@@ -16,7 +16,7 @@ public fun FrameWindowScope.RootNavigator(
 ) {
     //TODO *DARIO* implement lifecycle management similar to what is done for android RootNavigator
     // see https://github.com/JetBrains/compose-jb/tree/master/tutorials/Window_API_new
-    init_kbloc_for_subtree{
+    _init_kbloc_for_subtree{
         Navigator(screens,disposeBehavior,onBackPressed,content)
     }
 }

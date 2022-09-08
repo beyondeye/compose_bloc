@@ -11,7 +11,7 @@ public class RedirectTests {
     @Test
     public fun redirectingTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("foo") {
                 noMatch {
                     Screen_foo(null)
@@ -38,7 +38,7 @@ public class RedirectTests {
     @Test
     public fun redirectingNoMatchTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/bar") {
+        val routing = RouteResolver("/bar") {
             route("foo") {
                 Screen_foo(null)
             }

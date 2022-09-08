@@ -16,7 +16,7 @@ public class RouterTests {
     @Test
     public fun simplest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("foo") {
                 Screen_foo(null)
             }
@@ -43,7 +43,7 @@ public class RouterTests {
     @Test
     public fun simple_noMatch() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("foo") {
                 noMatch {
                     Screen_foo(null)
@@ -74,7 +74,7 @@ public class RouterTests {
     @Test
     public fun simple_with_param() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("foo") {
                 int {
                     Screen_foo(it)
@@ -104,7 +104,7 @@ public class RouterTests {
     @Test
     public fun blankRouteTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             noMatch {
                 var str = "other$remainingPath"
                 val parameters = parameters
@@ -130,7 +130,7 @@ public class RouterTests {
     @Test
     public fun mixed() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             int {
                 Screen_with_string("int $it")
             }
@@ -157,7 +157,7 @@ public class RouterTests {
     @Test
     public fun deepTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/foo") {
+        val routing = RouteResolver("/foo") {
             route("foo") {
                 route("bar") {
                     route("baz") {
@@ -199,7 +199,7 @@ public class RouterTests {
         //this must fails because we don't allow more than level of at
         // of route at once (route("foo/foo") is not allowed
         assertFailsWith<IllegalArgumentException> {
-            val routing = RoutingResolver("/") {
+            val routing = RouteResolver("/") {
                 route("foo/foo") {
                     noMatch {
                         Screen_with_string("FooBar")
@@ -217,7 +217,7 @@ public class RouterTests {
     public fun wrongDynamicTest() {
         val router = MockRouter()
         var addNewRoute = false
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             if (addNewRoute) {
                 int {
                     Screen_with_string(it.toString())
@@ -251,7 +251,7 @@ public class RouterTests {
     public fun correctDynamicTest() {
         val router = MockRouter()
         var addNewRoute = false
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             if (addNewRoute) {
                 int {
                     Screen_with_string(it.toString())
@@ -396,7 +396,7 @@ public class RouterTests {
     public fun relaxedTest() {
         val router = MockRouter()
         var addNewRoute = false
-        val routing = RoutingResolver("foo") {
+        val routing = RouteResolver("foo") {
             route("/foo") {
                 noMatch {
                     Screen_with_string("foo")

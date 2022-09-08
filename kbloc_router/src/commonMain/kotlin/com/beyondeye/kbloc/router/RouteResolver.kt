@@ -11,7 +11,7 @@ private object EmptyScreen:Screen {
 }
 
 
-public class RoutingResolver(public val defaultRoute: String, private val routingDefinition:  RoutingDefBuilder.() -> Screen?) {
+public class RouteResolver(public val defaultRoute: String, private val routingDefinition:  RouteDefBuilder.() -> Screen?) {
 
     public var enableCheckForPathSegmentsExtraSlashes:Boolean=true
     /**
@@ -31,7 +31,7 @@ public class RoutingResolver(public val defaultRoute: String, private val routin
             //get current route from router, or defaultRoute, if current route undefined
             val rawPath =_po_router.getCurrentRawPath(defaultRoute)
             val path = Path.from(rawPath)
-            val node = RoutingDefBuilder(_po_router, path.path, path,enableCheckForPathSegmentsExtraSlashes)
+            val node = RouteDefBuilder(_po_router, path.path, path,enableCheckForPathSegmentsExtraSlashes)
             res=node.routingDefinition() //return value
             if(res!==__Redirect) break
             foundRedirect=true

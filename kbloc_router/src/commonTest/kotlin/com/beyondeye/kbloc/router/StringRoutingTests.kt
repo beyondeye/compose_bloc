@@ -9,7 +9,7 @@ public class StringRoutingTests {
     @Test
     public fun contentTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("foo") {
                 noMatch {
                     Screen_with_string("foo")
@@ -36,7 +36,7 @@ public class StringRoutingTests {
     @Test
     public fun routeTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("users") {
                 string { userID ->
                     route("todos") {
@@ -81,7 +81,7 @@ public class StringRoutingTests {
     @Test
     public fun nested() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             string { userID ->
                 string { todoID ->
                     Screen_with_string("Todo with $todoID from user $userID")

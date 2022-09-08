@@ -31,15 +31,15 @@ public val LocalRouter: ProvidableCompositionLocal<Router?> =
 private fun <TElement : Element> renderComposableWithRouterImpl(
     root: TElement,
     monotonicFrameClock: MonotonicFrameClock = DefaultMonotonicFrameClock,
-    routingResolver: RoutingResolver,
+    routeResolver: RouteResolver,
     useHashRouter: Boolean,
     disposeBehavior: NavigatorDisposeBehavior = NavigatorDisposeBehavior(),
     onBackPressed: OnBackPressed = { true } //navigator onBackPressed override
 ): Composition {
     val content_w_router: @Composable DOMScope<TElement>.() -> Unit = {
         //find the initial screen (the screen for the default path
-        val initialScreen = remember { routingResolver.resolveFor("") }
-        val initialPath = remember { routingResolver.defaultRoute }
+        val initialScreen = remember { routeResolver.resolveFor("") }
+        val initialPath = remember { routeResolver.defaultRoute }
         val curPathRawFlow = remember { MutableStateFlow(initialPath) }
         val router = remember {
             if (useHashRouter) BrowserHashRouter(curPathRawFlow) else BrowserRouter(curPathRawFlow)
@@ -57,7 +57,7 @@ private fun <TElement : Element> renderComposableWithRouterImpl(
                 //listen tho changes of
                 val curPathRaw = curPathRawFlow.mp_collectAsStateWithLifecycle(rememberCoroutineScope())
                 LaunchedEffect(curPathRaw) {
-                    val routedScreen = routingResolver.resolveFor(router)
+                    val routedScreen = routeResolver.resolveFor(router)
                     //TODO define if and which of previous screen should be popped when new screen is opened
                     // think for example of what is possible in androidx.navigation:navigation-compose
                     // see https://developer.android.com/jetpack/compose/navigation
@@ -89,7 +89,7 @@ public fun renderComposableInBodyWithRouter(
     onBackPressed: OnBackPressed = { true }, //navigator onBackPressed override
 ): Composition = renderComposableWithRouterImpl(
     document.getElementsByTagName("body")[0] as HTMLBodyElement,
-    DefaultMonotonicFrameClock,routingResolver,
+    DefaultMonotonicFrameClock,routeResolver,
     useHashRouter,
     disposeBehavior,onBackPressed,
 )

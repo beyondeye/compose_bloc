@@ -9,7 +9,7 @@ public class IntegerRoutingTests {
     @Test
     public fun contentTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("foo") {
                 noMatch {
                     Screen_with_string("foo")
@@ -36,7 +36,7 @@ public class IntegerRoutingTests {
     @Test
     public fun routeTest() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             route("users") {
                 int { userID ->
                     route("todos") {
@@ -81,7 +81,7 @@ public class IntegerRoutingTests {
     @Test
     public fun nested() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             int { userID ->
                 int { todoID ->
                     Screen_with_string("Todo with $todoID from user $userID")
@@ -110,7 +110,7 @@ public class IntegerRoutingTests {
     @Test
     public fun invalid() {
         val router = MockRouter()
-        val routing = RoutingResolver("/") {
+        val routing = RouteResolver("/") {
             int {
                 Screen_with_string("int $it")
             }

@@ -43,7 +43,7 @@ internal object __Redirect:Screen {
  * ```
  */
 @Routing
-public class RoutingDefBuilder internal constructor(
+public class RouteDefBuilder internal constructor(
     private val router: Router,
     /**
      * initially this the path without the query parameters
@@ -82,7 +82,7 @@ public class RoutingDefBuilder internal constructor(
          * of the content of this route depending of the value of the matched route parameters
          *
          */
-        nestedRoute: RoutingDefBuilder.() -> Screen?
+        nestedRoute: RouteDefBuilder.() -> Screen?
     ) {
         //*DARIO* Match.Constant means a match with no parameters
         val needCheck=match == Match.NoMatch || match == Match.Constant
@@ -119,12 +119,12 @@ public class RoutingDefBuilder internal constructor(
         }
     }
 
-    private fun execute(currentPath: String, nestedRoute: RoutingDefBuilder.() -> Screen?) {
+    private fun execute(currentPath: String, nestedRoute: RouteDefBuilder.() -> Screen?) {
         val newPath = remainingPath.newPath(currentPath)
         //we matched one level of the route so now we create a new router that refer to
         // the parent router
         val delegatingRouter = DelegateRouter(basePath, router)
-        val nestedBuilder = RoutingDefBuilder(
+        val nestedBuilder = RouteDefBuilder(
             delegatingRouter,
             basePath,
             newPath,
@@ -137,7 +137,7 @@ public class RoutingDefBuilder internal constructor(
      * Executes its children when the requested subroute is a non-empty [String].
      */
     @Routing
-    public fun string(nestedRoute: RoutingDefBuilder.(String) -> Screen?):Screen? {
+    public fun string(nestedRoute: RouteDefBuilder.(String) -> Screen?):Screen? {
         val needCheck= match == Match.NoMatch || match == Match.String
         if(!needCheck) return match_res
         val curPath = remainingPath.firstSegment
@@ -154,7 +154,7 @@ public class RoutingDefBuilder internal constructor(
      * Executes its children when the requested subroute is a [Int].
      */
     @Routing
-    public fun int(nestedRoute: RoutingDefBuilder.(Int) -> Screen?):Screen? {
+    public fun int(nestedRoute: RouteDefBuilder.(Int) -> Screen?):Screen? {
         val needCheck = match == Match.NoMatch || match == Match.Integer
         if(!needCheck) return match_res
         val curPath = remainingPath.firstSegment
@@ -182,7 +182,7 @@ public class RoutingDefBuilder internal constructor(
 
     @Routing
     public class NoMatch(
-        private val rb: RoutingDefBuilder,
+        private val rb: RouteDefBuilder,
         public val remainingPath: String,
         public val parameters: Parameters?
     ) {

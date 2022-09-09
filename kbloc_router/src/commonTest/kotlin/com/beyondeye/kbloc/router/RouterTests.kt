@@ -426,5 +426,26 @@ public class RouterTests {
         routed = routing.resolveFor(router)
         assertEquals(Screen_with_string("other"), routed)
     }
+
+    @Test
+    public fun queryParamsTest() {
+        val router = MockRouter()
+        var parsed_params:Map<String,List<String>>? =null
+        val routing = RouteResolver("/") {
+            route("/routewithqueryparams") {
+                parsed_params=parameters?.map?.toMap() //make a copy
+                Screen_with_string(parsed_params.toString())
+            }
+
+            noMatch {
+                Screen_with_string("other")
+            }
+        }
+        router.navigate("/routewithqueryparams?arg1=arg1value;arg2=arg2value")
+        val routed=routing.resolveFor(router)
+        assertEquals(Screen_with_string("{arg1=[arg1value], arg2=[arg2value]}"), routed)
+        val expectedMap=mapOf("arg1" to listOf("arg1value"),"arg2" to listOf("arg2value"))
+        assertEquals<Map<String,List<String>>>(expectedMap,parsed_params?: mapOf() )
+    }
 }
 

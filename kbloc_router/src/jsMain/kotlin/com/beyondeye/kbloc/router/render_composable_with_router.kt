@@ -3,7 +3,6 @@ package com.beyondeye.kbloc.router
 import androidx.compose.runtime.*
 import cafe.adriel.voyager.navigator.*
 import com.beyondeye.kbloc.compose.lifecycle.mp_collectAsStateWithLifecycle
-import io.github.aakira.napier.Napier
 import kotlinx.browser.document
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.web.dom.DOMScope

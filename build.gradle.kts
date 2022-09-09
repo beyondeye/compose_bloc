@@ -9,6 +9,8 @@ buildscript {
         // see https://mvnrepository.com/artifact/org.jetbrains.compose.material
         maven(url="https://maven.pkg.jetbrains.space/public/p/compose/dev/")
         maven(url ="https://androidx.dev/storage/compose-compiler/repository/")
+        //needed for com.vanniktech.maven.publish: we currently use a snapshot
+        maven ( url="https://oss.sonatype.org/content/repositories/snapshots")
     }
     dependencies {
         //kotlin version compatible with compose compiler version 1.3.0-rc02

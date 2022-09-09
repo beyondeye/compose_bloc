@@ -25,9 +25,9 @@ the library is a multiplatform library that support  Android and Desktop and Web
 
 # Documentation
 - [Navigator Overview](https://beyondeye.gitbook.io/compose-bloc/navigator-documentation/navigator-overview)
+- [Router and path-based navigation](https://beyondeye.gitbook.io/compose-bloc/router-and-path-based-navigation)
 - [Bloc and Cubit Overview](https://beyondeye.gitbook.io/compose-bloc/bloc-documentation/bloc-and-cubit-overview)
 - [Blocs and Compose Overview](https://beyondeye.gitbook.io/compose-bloc/bloc-documentation/blocs-and-compose-overview)
-
 # Show me some code
 ```kotlin
 class MainActivity : ComponentActivity() {
@@ -267,8 +267,9 @@ dependencies {
     //implementation "cafe.adriel.voyager:voyager-livedata:$currentVersion"
     implementation "io.gihub.beyondeye:kbloc-livedata:$currentVersion"
 }
-
 ```
+- original voyager does not support Compose Web
+- original voyager does not support path-based navigation.
 - ``voyager-androidx`` now work differently: all lifecycle handling hooks from the original code have been removed
   (``AndroidScreenLifecycleOwner`` is not used anymore). This is because it caused many issues:
   see for example [issue 62](https://github.com/adrielcafe/voyager/issues/62).

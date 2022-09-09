@@ -45,6 +45,9 @@ internal class BrowserHashRouter(private val currentHash:MutableStateFlow<String
         .removePrefix("/")
         .ifBlank { null }
 
+    /**
+     * if [hide] is true, then don't show the redirected address in the browser
+     */
     override fun navigate(to: String, hide: Boolean) {
         //TODO need to understand what hide do
         if (hide) {

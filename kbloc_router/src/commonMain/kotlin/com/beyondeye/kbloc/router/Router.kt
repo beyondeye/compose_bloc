@@ -23,6 +23,10 @@ public interface Router {
      */
     public val curPath: Path
 
+    /**
+     * if [hide] is true then navigate to the specified path but don't show redirect url in the browser
+     * and browser URL history. This flag is relevant only for Compose Web
+     */
     public fun navigate(to: String, hide: Boolean = false)
 
     /**

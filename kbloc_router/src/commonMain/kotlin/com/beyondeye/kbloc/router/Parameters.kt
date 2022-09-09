@@ -5,6 +5,9 @@ import kotlin.jvm.*
 /**
  * a class that encapsulates one or more query parameters and also store the
  * the raw string that encode the parameters in the web address
+ * the parsed parameters value as stored in a map, where the key is the parameter name and the value
+ * is the list of parsed parameter values (it is possible that parameter name is specified more than once
+ * in the parameter list and we keep all the values
  */
 public class Parameters private constructor(public val raw: String, public val map: Map<String, List<String>>) {
     public companion object {

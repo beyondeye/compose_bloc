@@ -21,13 +21,9 @@ internal class StateFlowRouter(private val currentUrl:MutableStateFlow<String>) 
         return if(cur.isEmpty()) initPath else cur
     }
 
+    //note: the hide flag is relevant only for Compose Web
     override fun navigate(to: String, hide: Boolean) {
-        //TODO need to understand what hide do
-        if (hide) {
-            currentUrl.value = to
-        } else {
-            currentUrl.value = to
-        }
+        currentUrl.value = to
     }
 
 }

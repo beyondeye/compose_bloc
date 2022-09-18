@@ -30,7 +30,7 @@ object Versions {
         compose_core_libs = "1.2.1",
         compose_material = "1.2.1",
         compose_activity = "1.4.0",
-        jbcompose = "1.2.0-alpha01-dev774",
+        jbcompose = "1.2.0-beta01",
         compose_compiler = "1.3.0",
         kodein="7.13.1", //for Compose Multiplatform 1.2.0-alpha01-dev745 with Kotlin 1.7 compatibility
         koin = "3.2.0" //actually this dependency is wrong it is for compose 1.1.1

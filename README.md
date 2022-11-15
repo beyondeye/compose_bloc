@@ -229,43 +229,43 @@ to `kbloc` in the dependencies should work seamlessy:
 dependencies {
     // Navigator: (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-navigator:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-navigator:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-navigator:$currentVersion"
     
     // BottomSheetNavigator  (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-bottom-sheet-navigator:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-bottom-sheet-navigator:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-bottom-sheet-navigator:$currentVersion"
     
     // TabNavigator  (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-tab-navigator:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-tab-navigator:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-tab-navigator:$currentVersion"
     
     // Transitions  (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-transitions:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-transitions:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-transitions:$currentVersion"
     
     // Android ViewModel integration (android library)
     //implementation "cafe.adriel.voyager:voyager-androidx:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-androidx:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-androidx:$currentVersion"
     
     // Koin integration (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-koin:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-koin:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-koin:$currentVersion"
     
     // Kodein integration ( (multiplatform library)
     //implementation "cafe.adriel.voyager:voyager-kodein:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-kodein:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-kodein:$currentVersion"
     
     // Hilt integration (android library)
     //implementation "cafe.adriel.voyager:voyager-hilt:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-hilt:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-hilt:$currentVersion"
     
     // RxJava integration (JVM library)
     //implementation "cafe.adriel.voyager:voyager-rxjava:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-rxjava:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-rxjava:$currentVersion"
     
     // LiveData integration (android library)
     //implementation "cafe.adriel.voyager:voyager-livedata:$currentVersion"
-    implementation "io.gihub.beyondeye:kbloc-livedata:$currentVersion"
+    implementation "io.github.beyondeye:kbloc-livedata:$currentVersion"
 }
 ```
 - original voyager does not support Compose Web
